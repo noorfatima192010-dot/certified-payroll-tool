@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Certified Payroll WH-347 Generator</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+  tbody.emp:nth-child(even) { background: #f8fafc; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<header class="bg-slate-900 text-white">
+  <div class="max-w-[1400px] mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Certified Payroll Generator</h1>
+      <p class="text-slate-300 text-sm">Form WH-347 summary sheet for construction subcontractors</p>
+    </div>
+    <button id="generateTop" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-lg shadow transition">
+      Generate Form WH-347
+    </button>
+  </div>
+</header>
+
+<main class="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
+
+  <div id="errorBox" class="hidden bg-red-50 border border-red-300 text-red-800 rounded-lg px-4 py-3 text-sm"></div>
+
+  <!-- Summary cards -->
+  <section class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Employees</div>
+      <div id="sumEmp" class="text-2xl font-bold mt-1">0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Total Hours</div>
+      <div id="sumHrs" class="text-2xl font-bold mt-1">0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Gross Wages</div>
+      <div id="sumGross" class="text-2xl font-bold mt-1">$0.00</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Deductions</div>
+      <div id="sumDed" class="text-2xl font-bold mt-1">$0.00</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-emerald-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-emerald-700">Net Wages</div>
+      <div id="sumNet" class="text-2xl font-bold mt-1 text-emerald-700">$0.00</div>
+    </div>
+  </section>
+
+  <!-- Contractor & Project -->
+  <section class="grid lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+      <h2 class="font-semibold text-lg mb-4">Contractor Information</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Contractor / Subcontractor Name</span>
+          <input id="cName" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Address</span>
+          <input id="cAddress" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Payroll No.</span>
+          <input id="cPayrollNo" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Week Ending (Saturday)</span>
+          <input id="cWeekEnd" type="date" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Signer Name</span>
+          <input id="cSigner" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Signer Title</span>
+          <input id="cSignerTitle" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+      <h2 class="font-semibold text-lg mb-4">Project Information</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Project Name &amp; Location</span>
+          <input id="pName" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Project / Contract No.</span>
+          <input id="pNumber" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Prime Contractor</span>
+          <input id="pPrime" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Overtime Multiplier</span>
+          <input id="otMult" type="number" step="0.05" min="1" value="1.5" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="flex items-center gap-2 mt-6"><input id="pFinal" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+          <span class="text-sm font-medium">This is the final payroll for this project</span></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- Employees -->
+  <section class="bg-white rounded-xl shadow-sm border border-slate-200">
+    <div class="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-slate-200">
+      <div>
+        <h2 class="font-semibold text-lg">Employee Payroll</h2>
+        <p class="text-sm text-slate-500">ST = straight-time hours, OT = overtime hours. Gross = ST × rate + OT × rate × multiplier.</p>
+      </div>
+      <button id="addEmp" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">+ Add Employee</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm border-collapse">
+        <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+          <tr>
+            <th class="px-2 py-3 text-left min-w-[210px]">Name / SSN (last 4) / Classification</th>
+            <th class="px-1 py-3">Type</th>
+            <th class="px-1 py-3 day-h" data-d="0">Sun<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-1 py-3 day-h" data-d="1">Mon<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-1 py-3 day-h" data-d="2">Tue<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-1 py-3 day-h" data-d="3">Wed<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-1 py-3 day-h" data-d="4">Thu<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-1 py-3 day-h" data-d="5">Fri<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-1 py-3 day-h" data-d="6">Sat<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-2 py-3">Total Hrs</th>
+            <th class="px-2 py-3">Rate ($/hr)</th>
+            <th class="px-2 py-3">Gross Earned</th>
+            <th class="px-2 py-3">FICA</th>
+            <th class="px-2 py-3">Withholding</th>
+            <th class="px-2 py-3">Other Ded.</th>
+            <th class="px-2 py-3">Net Paid</th>
+            <th class="px-2 py-3"></th>
+          </tr>
+        </thead>
+        <tbody id="empBody"></tbody>
+        <tfoot class="bg-slate-900 text-white font-semibold">
+          <tr>
+            <td class="px-2 py-3" colspan="2">TOTALS (ST + OT)</td>
+            <td class="px-1 py-3 text-center ft-day">0</td><td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-1 py-3 text-center ft-day">0</td><td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-1 py-3 text-center ft-day">0</td><td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-2 py-3 text-center" id="ftHrs">0</td>
+            <td></td>
+            <td class="px-2 py-3 text-right" id="ftGross">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftFica">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftWh">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftOther">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftNet">$0.00</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <div class="flex flex-col items-center gap-2 pb-10">
+    <button id="generateBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-10 py-4 rounded-xl shadow-lg transition">
+      Generate Form WH-347
+    </button>
+    <p class="text-xs text-slate-500 max-w-2xl text-center">Creates a print-ready PDF summary of this payroll. If your contract requires the official U.S. DOL WH-347 form, transfer these figures onto it or attach this sheet as supporting detail.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const $ = (id) => document.getElementById(id);
+  const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+  const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const hrs = (n) => (Math.round(n * 100) / 100).toString();
+  const inputCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const hourCls = 'w-14 rounded-md border border-slate-300 px-1 py-1 text-center focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const moneyCls = 'w-24 rounded-md border border-slate-300 px-2 py-1.5 text-right focus:ring-2 focus:ring-amber-400 focus:outline-none';
+
+  // ---------- Employee rows ----------
+  function addEmployee() {
+    const tb = document.createElement('tbody');
+    tb.className = 'emp border-b border-slate-200';
+    const cells = (cls) => DAYS.map(() =>
+      `<td class="px-0.5 py-1"><input type="number" min="0" max="24" step="0.25" class="${hourCls} ${cls}" placeholder="0"></td>`).join('');
+    tb.innerHTML = `
+      <tr>
+        <td rowspan="2" class="px-2 py-2 align-middle">
+          <div class="space-y-1.5">
+            <input type="text" class="${inputCls} f-name" placeholder="Employee name">
+            <input type="text" inputmode="numeric" maxlength="4" class="${inputCls} f-ssn" placeholder="SSN last 4 (e.g. 1234)">
+            <input type="text" class="${inputCls} f-class" placeholder="Work classification (e.g. Laborer)">
+          </div>
+        </td>
+        <td class="px-1 text-xs font-semibold text-slate-500 text-center">ST</td>
+        ${cells('st-h')}
+        <td rowspan="2" class="px-2 text-center font-semibold f-hrs">0</td>
+        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-rate" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2 text-right font-semibold f-gross">$0.00</td>
+        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-fica" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-wh" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-other" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2 text-right font-bold text-emerald-700 f-net">$0.00</td>
+        <td rowspan="2" class="px-2 text-center"><button type="button" class="rm text-red-600 hover:text-red-800 text-xs font-semibold" title="Remove employee">Remove</button></td>
+      </tr>
+      <tr>
+        <td class="px-1 text-xs font-semibold text-amber-600 text-center">OT</td>
+        ${cells('ot-h')}
+      </tr>`;
+    $('empBody').appendChild(tb);
+    recalc();
+    return tb;
+  }
+
+  // ---------- Calculations ----------
+  function recalc() {
+    const mult = num($('otMult').value) || 1.5;
+    const rows = document.querySelectorAll('tbody.emp');
+    const dayTotals = [0,0,0,0,0,0,0];
+    let T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, net: 0 };
+
+    rows.forEach((tb) => {
+      const st = [...tb.querySelectorAll('.st-h')].map((i) => num(i.value));
+      const ot = [...tb.querySelectorAll('.ot-h')].map((i) => num(i.value));
+      st.forEach((h, i) => dayTotals[i] += h + ot[i]);
+      const stSum = st.reduce((a, b) => a + b, 0);
+      const otSum = ot.reduce((a, b) => a + b, 0);
+      const rate = num(tb.querySelector('.f-rate').value);
+      const gross = stSum * rate + otSum * rate * mult;
+      const fica = num(tb.querySelector('.f-fica').value);
+      const wh = num(tb.querySelector('.f-wh').value);
+      const other = num(tb.querySelector('.f-other').value);
+      const net = gross - fica - wh - other;
+
+      tb.querySelector('.f-hrs').textContent = hrs(stSum + otSum);
+      tb.querySelector('.f-gross').textContent = money(gross);
+      const netEl = tb.querySelector('.f-net');
+      netEl.textContent = money(net);
+      netEl.classList.toggle('text-red-600', net < 0);
+      netEl.classList.toggle('text-emerald-700', net >= 0);
+
+      T.hrs += stSum + otSum; T.gross += gross; T.fica += fica; T.wh += wh; T.other += other; T.net += net;
+    });
+
+    document.querySelectorAll('.ft-day').forEach((el, i) => el.textContent = hrs(dayTotals[i]));
+    $('ftHrs').textContent = hrs(T.hrs);
+    $('ftGross').textContent = money(T.gross);
+    $('ftFica').textContent = money(T.fica);
+    $('ftWh').textContent = money(T.wh);
+    $('ftOther').textContent = money(T.other);
+    $('ftNet').textContent = money(T.net);
+
+    $('sumEmp').textContent = rows.length;
+    $('sumHrs').textContent = hrs(T.hrs);
+    $('sumGross').textContent = money(T.gross);
+    $('sumDed').textContent = money(T.fica + T.wh + T.other);
+    $('sumNet').textContent = money(T.net);
+    return { T, dayTotals };
+  }
+
+  // ---------- Dates ----------
+  function weekDates() {
+    const v = $('cWeekEnd').value;
+    if (!v) return DAYS.map(() => '');
+    const [y, m, d] = v.split('-').map(Number);
+    return DAYS.map((_, i) => {
+      const dt = new Date(y, m - 1, d - (6 - i));
+      return String(dt.getMonth() + 1).padStart(2, '0') + '/' + String(dt.getDate()).padStart(2, '0');
+    });
+  }
+  function updateDayHeaders() {
+    const dates = weekDates();
+    document.querySelectorAll('.day-h span').forEach((s, i) => s.textContent = dates[i]);
+  }
+  function fmtLongDate(v) {
+    if (!v) return '';
+    const [y, m, d] = v.split('-').map(Number);
+    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + '/' + y;
+  }
+
+  // ---------- Data collection ----------
+  function collect() {
+    return [...document.querySelectorAll('tbody.emp')].map((tb) => {
+      const st = [...tb.querySelectorAll('.st-h')].map((i) => num(i.value));
+      const ot = [...tb.querySelectorAll('.ot-h')].map((i) => num(i.value));
+      const rate = num(tb.querySelector('.f-rate').value);
+      const mult = num($('otMult').value) || 1.5;
+      const gross = st.reduce((a, b) => a + b, 0) * rate + ot.reduce((a, b) => a + b, 0) * rate * mult;
+      const fica = num(tb.querySelector('.f-fica').value);
+      const wh = num(tb.querySelector('.f-wh').value);
+      const other = num(tb.querySelector('.f-other').value);
+      return {
+        name: tb.querySelector('.f-name').value.trim(),
+        ssn: tb.querySelector('.f-ssn').value.replace(/\D/g, ''),
+        cls: tb.querySelector('.f-class').value.trim(),
+        st, ot, rate, gross, fica, wh, other, net: gross - fica - wh - other,
+        total: st.reduce((a, b) => a + b, 0) + ot.reduce((a, b) => a + b, 0)
+      };
+    });
+  }
+
+  // ---------- PDF ----------
+  function generatePDF() {
+    const err = $('errorBox');
+    const problems = [];
+    if (!$('cName').value.trim()) problems.push('Enter the contractor name.');
+    if (!$('cWeekEnd').value) problems.push('Select the week-ending date.');
+    if (!$('pName').value.trim()) problems.push('Enter the project name and location.');
+    const emps = collect();
+    if (!emps.length) problems.push('Add at least one employee.');
+    else if (emps.some((e) => !e.name)) problems.push('Every employee needs a name.');
+    if (problems.length) {
+      err.innerHTML = '<strong>Please fix the following before generating:</strong><ul class="list-disc ml-5 mt-1">' +
+        problems.map((p) => '<li>' + p + '</li>').join('') + '</ul>';
+      err.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    err.classList.add('hidden');
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+    const M = 30, PW = 792, PH = 612;
+    const widths = [190, 24, 24, 24, 24, 24, 24, 24, 24, 36, 40, 56, 46, 50, 46, 56];
+    const TW = widths.reduce((a, b) => a + b, 0);
+    const X = []; widths.reduce((acc, w, i) => (X[i] = acc, acc + w), M);
+    const dates = weekDates();
+    const mult = num($('otMult').value) || 1.5;
+    const val = (id) => $(id).value.trim();
+
+    function pageHeader() {
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
+      doc.text('PAYROLL  -  Form WH-347 Summary', M, 40);
+      doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      doc.text('For Contractors\' Use in Reporting Weekly Payroll on Federally Funded / Prevailing Wage Projects', M, 51);
+      doc.setFontSize(9);
+      const rx = PW - M;
+      doc.setFont('helvetica', 'bold'); doc.text('Payroll No.: ', rx - 150, 36); doc.text('Week Ending: ', rx - 150, 49);
+      doc.setFont('helvetica', 'normal');
+      doc.text(val('cPayrollNo') || '-', rx - 95, 36);
+      doc.text(fmtLongDate($('cWeekEnd').value), rx - 95, 49);
+      if ($('pFinal').checked) { doc.setFont('helvetica', 'bold'); doc.text('FINAL PAYROLL', rx - 150, 62); }
+
+      doc.setDrawColor(120); doc.line(M, 58, M + 450, 58);
+      doc.setFontSize(8.5);
+      const L = [
+        ['Contractor:', val('cName') + (val('cAddress') ? '  |  ' + val('cAddress') : '')],
+        ['Project:', val('pName')],
+        ['Project / Contract No.:', val('pNumber') || '-'],
+        ['Prime Contractor:', val('pPrime') || '-']
+      ];
+      L.forEach((r, i) => {
+        const y = 71 + i * 12;
+        doc.setFont('helvetica', 'bold'); doc.text(r[0], M, y);
+        doc.setFont('helvetica', 'normal'); doc.text(doc.splitTextToSize(r[1], 560)[0] || '', M + 105, y);
+      });
+      return 71 + L.length * 12 + 4;
+    }
+
+    function tableHeader(y) {
+      const h = 30;
+      doc.setFillColor(226, 232, 240); doc.setDrawColor(90); doc.setLineWidth(0.5);
+      doc.rect(M, y, TW, h, 'F');
+      const labels = ['Name / SSN (last 4) / Classification', 'Type'].concat(DAYS, ['Total Hrs', 'Rate', 'Gross Earned', 'FICA', 'Withhold.', 'Other Ded.', 'Net Paid']);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5);
+      labels.forEach((t, i) => {
+        doc.rect(X[i], y, widths[i], h);
+        const cx = X[i] + widths[i] / 2;
+        if (i >= 2 && i <= 8) {
+          doc.text(t, cx, y + 12, { align: 'center' });
+          doc.setFont('helvetica', 'normal'); doc.text(dates[i - 2], cx, y + 23, { align: 'center' }); doc.setFont('helvetica', 'bold');
+        } else if (i === 0) {
+          doc.text(t, X[i] + 4, y + 18);
+        } else {
+          doc.text(doc.splitTextToSize(t, widths[i] - 4), cx, y + 13, { align: 'center' });
+        }
+      });
+      return y + h;
+    }
+
+    let y = tableHeader(pageHeader());
+    const RH = 13;
+    doc.setLineWidth(0.4);
+
+    emps.forEach((e, idx) => {
+      if (y + RH * 2 > PH - 50) { doc.addPage(); y = tableHeader(pageHeader()); }
+      const H = RH * 2;
+      doc.setDrawColor(90);
+      // name cell
+      doc.rect(X[0], y, widths[0], H);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+      doc.text(doc.splitTextToSize((idx + 1) + '. ' + e.name, widths[0] - 8)[0], X[0] + 4, y + 10);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+      const sub = 'XXX-XX-' + (e.ssn || '____') + (e.cls ? '  |  ' + e.cls : '');
+      doc.text(doc.splitTextToSize(sub, widths[0] - 8)[0], X[0] + 4, y + 21);
+      // type + hours
+      [['ST', e.st], ['OT', e.ot]].forEach((r, ri) => {
+        const ry = y + ri * RH;
+        doc.rect(X[1], ry, widths[1], RH);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.text(r[0], X[1] + widths[1] / 2, ry + 9, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+        r[1].forEach((h, d) => {
+          doc.rect(X[2 + d], ry, widths[2 + d], RH);
+          if (h) doc.text(hrs(h), X[2 + d] + widths[2 + d] / 2, ry + 9, { align: 'center' });
+        });
+      });
+      // spanning cells
+      const spans = [
+        [9, hrs(e.total), 'center'], [10, fmt(e.rate), 'right'], [11, fmt(e.gross), 'right'],
+        [12, fmt(e.fica), 'right'], [13, fmt(e.wh), 'right'], [14, fmt(e.other), 'right'], [15, fmt(e.net), 'right']
+      ];
+      doc.setFontSize(8);
+      spans.forEach(([i, t, al]) => {
+        doc.rect(X[i], y, widths[i], H);
+        if (i === 15) doc.setFont('helvetica', 'bold'); else doc.setFont('helvetica', 'normal');
+        const tx = al === 'center' ? X[i] + widths[i] / 2 : X[i] + widths[i] - 3;
+        doc.text(t, tx, y + H / 2 + 3, { align: al });
+      });
+      y += H;
+    });
+
+    // totals
+    if (y + 20 > PH - 50) { doc.addPage(); y = tableHeader(pageHeader()); }
+    const dayTot = [0,0,0,0,0,0,0];
+    const T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, net: 0 };
+    emps.forEach((e) => {
+      e.st.forEach((h, i) => dayTot[i] += h + e.ot[i]);
+      T.hrs += e.total; T.gross += e.gross; T.fica += e.fica; T.wh += e.wh; T.other += e.other; T.net += e.net;
+    });
+    doc.setFillColor(241, 245, 249); doc.rect(M, y, TW, 16, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+    doc.rect(X[0], y, widths[0] + widths[1], 16);
+    doc.text('TOTALS (ST + OT)', X[0] + 4, y + 11);
+    dayTot.forEach((t, i) => { doc.rect(X[2 + i], y, widths[2 + i], 16); doc.text(hrs(t), X[2 + i] + widths[2 + i] / 2, y + 11, { align: 'center' }); });
+    doc.rect(X[9], y, widths[9], 16); doc.text(hrs(T.hrs), X[9] + widths[9] / 2, y + 11, { align: 'center' });
+    doc.rect(X[10], y, widths[10], 16);
+    [[11, T.gross], [12, T.fica], [13, T.wh], [14, T.other], [15, T.net]].forEach(([i, t]) => {
+      doc.rect(X[i], y, widths[i], 16); doc.text(fmt(t), X[i] + widths[i] - 3, y + 11, { align: 'right' });
+    });
+    y += 16;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+    doc.text('Overtime computed at ' + mult + 'x the hourly rate. Gross = ST hours x rate + OT hours x rate x ' + mult + '. Net = Gross - FICA - Withholding - Other deductions.', M, y + 11);
+    y += 24;
+
+    // statement of compliance
+    const stmt = 'I, ' + (val('cSigner') || '______________________') + ', ' + (val('cSignerTitle') || '______________________') +
+      ', do hereby state: (1) that I pay or supervise the payment of the persons employed by ' + val('cName') + ' on the project ' + val('pName') +
+      '; that during the payroll period ending ' + fmtLongDate($('cWeekEnd').value) +
+      ', all persons employed on said project have been paid the full weekly wages earned, that no rebates have been or will be made either directly or indirectly to or on behalf of said contractor from the full weekly wages earned by any person, and that no deductions have been made either directly or indirectly from the full wages earned by any person, other than permissible deductions as defined in Regulations, 29 CFR Part 3; (2) that any payrolls otherwise under this contract required to be submitted for the above period are correct and complete; that the wage rates for laborers or mechanics contained therein are not less than the applicable wage rates contained in any wage determination incorporated into the contract; and that the classifications set forth therein for each laborer or mechanic conform with the work performed.';
+    const lines = doc.splitTextToSize(stmt, TW);
+    const need = 16 + lines.length * 9 + 60;
+    if (y + need > PH - 30) { doc.addPage(); y = 45; }
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('STATEMENT OF COMPLIANCE', M, y); y += 12;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.text(lines, M, y); y += lines.length * 9 + 28;
+    doc.setDrawColor(0);
+    doc.line(M, y, M + 260, y); doc.line(M + 300, y, M + 460, y); doc.line(M + 500, y, M + 650, y);
+    doc.setFontSize(7.5);
+    doc.text('Signature', M, y + 10); doc.text('Title', M + 300, y + 10); doc.text('Date', M + 500, y + 10);
+    if (val('cSigner')) doc.text(val('cSigner'), M, y - 4);
+    if (val('cSignerTitle')) doc.text(val('cSignerTitle'), M + 300, y - 4);
+
+    // footer on every page
+    const pages = doc.getNumberOfPages();
+    for (let p = 1; p <= pages; p++) {
+      doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(110);
+      doc.text('Generated ' + new Date().toLocaleDateString('en-US') + '  |  ' + val('cName'), M, PH - 18);
+      doc.text('Page ' + p + ' of ' + pages, PW - M, PH - 18, { align: 'right' });
+      doc.setTextColor(0);
+    }
+
+    const safe = (s) => s.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+    doc.save('WH-347_' + safe(val('cName')) + '_' + $('cWeekEnd').value + '.pdf');
+  }
+
+  // ---------- Events ----------
+  $('addEmp').addEventListener('click', addEmployee);
+  $('generateBtn').addEventListener('click', generatePDF);
+  $('generateTop').addEventListener('click', generatePDF);
+  $('cWeekEnd').addEventListener('input', updateDayHeaders);
+  $('otMult').addEventListener('input', recalc);
+  const body = $('empBody');
+  body.addEventListener('input', (e) => {
+    if (e.target.classList.contains('f-ssn')) e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    recalc();
+  });
+  body.addEventListener('click', (e) => {
+    if (e.target.classList.contains('rm')) {
+      e.target.closest('tbody.emp').remove();
+      recalc();
+    }
+  });
+
+  addEmployee();
+  updateDayHeaders();
+})();
+</script>
+</body>
+</html>
