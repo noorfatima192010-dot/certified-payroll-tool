@@ -10,7 +10,9 @@
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   input[type=number] { -moz-appearance: textfield; }
-  tbody.emp:nth-child(even) { background: #f8fafc; }
+  #payTable { table-layout: fixed; width: 1400px; }
+  #payTable tbody.emp:nth-of-type(even) { background: #f8fafc; }
+  #payTable input { min-width: 0; }
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -102,18 +104,30 @@
       <button id="addEmp" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">+ Add Employee</button>
     </div>
     <div class="overflow-x-auto">
-      <table class="w-full text-sm border-collapse">
+      <table id="payTable" class="text-sm border-collapse">
+        <colgroup>
+          <col style="width:240px">
+          <col style="width:44px">
+          <col style="width:56px"><col style="width:56px"><col style="width:56px"><col style="width:56px">
+          <col style="width:56px"><col style="width:56px"><col style="width:56px">
+          <col style="width:64px">
+          <col style="width:96px">
+          <col style="width:100px">
+          <col style="width:96px"><col style="width:96px"><col style="width:96px">
+          <col style="width:100px">
+          <col style="width:76px">
+        </colgroup>
         <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
           <tr>
-            <th class="px-2 py-3 text-left min-w-[210px]">Name / SSN (last 4) / Classification</th>
+            <th class="px-2 py-3 text-left">Name / SSN (last 4) / Classification</th>
             <th class="px-1 py-3">Type</th>
-            <th class="px-1 py-3 day-h" data-d="0">Sun<br><span class="font-normal normal-case text-slate-400"></span></th>
-            <th class="px-1 py-3 day-h" data-d="1">Mon<br><span class="font-normal normal-case text-slate-400"></span></th>
-            <th class="px-1 py-3 day-h" data-d="2">Tue<br><span class="font-normal normal-case text-slate-400"></span></th>
-            <th class="px-1 py-3 day-h" data-d="3">Wed<br><span class="font-normal normal-case text-slate-400"></span></th>
-            <th class="px-1 py-3 day-h" data-d="4">Thu<br><span class="font-normal normal-case text-slate-400"></span></th>
-            <th class="px-1 py-3 day-h" data-d="5">Fri<br><span class="font-normal normal-case text-slate-400"></span></th>
-            <th class="px-1 py-3 day-h" data-d="6">Sat<br><span class="font-normal normal-case text-slate-400"></span></th>
+            <th class="px-1 py-3 day-h">Sun<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Mon<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Tue<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Wed<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Thu<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Fri<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Sat<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
             <th class="px-2 py-3">Total Hrs</th>
             <th class="px-2 py-3">Rate ($/hr)</th>
             <th class="px-2 py-3">Gross Earned</th>
@@ -124,7 +138,7 @@
             <th class="px-2 py-3"></th>
           </tr>
         </thead>
-        <tbody id="empBody"></tbody>
+        <!-- Employee <tbody> groups are inserted here by JavaScript, directly inside the table -->
         <tfoot class="bg-slate-900 text-white font-semibold">
           <tr>
             <td class="px-2 py-3" colspan="2">TOTALS (ST + OT)</td>
@@ -163,8 +177,9 @@
   const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const hrs = (n) => (Math.round(n * 100) / 100).toString();
   const inputCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 focus:ring-2 focus:ring-amber-400 focus:outline-none';
-  const hourCls = 'w-14 rounded-md border border-slate-300 px-1 py-1 text-center focus:ring-2 focus:ring-amber-400 focus:outline-none';
-  const moneyCls = 'w-24 rounded-md border border-slate-300 px-2 py-1.5 text-right focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const hourCls = 'w-full rounded-md border border-slate-300 px-1 py-1 text-center focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const moneyCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 text-right focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const table = $('payTable');
 
   // ---------- Employee rows ----------
   function addEmployee() {
@@ -175,7 +190,7 @@
     tb.innerHTML = `
       <tr>
         <td rowspan="2" class="px-2 py-2 align-middle">
-          <div class="space-y-1.5">
+          <div class="flex flex-col gap-1.5 w-full">
             <input type="text" class="${inputCls} f-name" placeholder="Employee name">
             <input type="text" inputmode="numeric" maxlength="4" class="${inputCls} f-ssn" placeholder="SSN last 4 (e.g. 1234)">
             <input type="text" class="${inputCls} f-class" placeholder="Work classification (e.g. Laborer)">
@@ -196,7 +211,8 @@
         <td class="px-1 text-xs font-semibold text-amber-600 text-center">OT</td>
         ${cells('ot-h')}
       </tr>`;
-    $('empBody').appendChild(tb);
+    // Insert directly into the table (before the totals footer), NOT inside another tbody
+    table.insertBefore(tb, table.querySelector('tfoot'));
     recalc();
     return tb;
   }
@@ -259,7 +275,7 @@
   }
   function updateDayHeaders() {
     const dates = weekDates();
-    document.querySelectorAll('.day-h span').forEach((s, i) => s.textContent = dates[i]);
+    document.querySelectorAll('.day-h span').forEach((s, i) => s.innerHTML = dates[i] || '&nbsp;');
   }
   function fmtLongDate(v) {
     if (!v) return '';
@@ -467,12 +483,11 @@
   $('generateTop').addEventListener('click', generatePDF);
   $('cWeekEnd').addEventListener('input', updateDayHeaders);
   $('otMult').addEventListener('input', recalc);
-  const body = $('empBody');
-  body.addEventListener('input', (e) => {
+  table.addEventListener('input', (e) => {
     if (e.target.classList.contains('f-ssn')) e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
     recalc();
   });
-  body.addEventListener('click', (e) => {
+  table.addEventListener('click', (e) => {
     if (e.target.classList.contains('rm')) {
       e.target.closest('tbody.emp').remove();
       recalc();
