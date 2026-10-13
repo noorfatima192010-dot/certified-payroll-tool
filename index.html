@@ -13,6 +13,9 @@
   #payTable { table-layout: fixed; width: 1400px; }
   #payTable tbody.emp:nth-of-type(even) { background: #f8fafc; }
   #payTable input { min-width: 0; }
+  #saveStatus { transition: opacity .4s ease; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
+  .modal-card { animation: modalIn .22s ease-out; }
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -23,9 +26,16 @@
       <h1 class="text-2xl font-bold tracking-tight">Certified Payroll Generator</h1>
       <p class="text-slate-300 text-sm">Form WH-347 summary sheet for construction subcontractors</p>
     </div>
-    <button id="generateTop" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-lg shadow transition">
-      Generate Form WH-347
-    </button>
+    <div class="flex flex-wrap items-center gap-3">
+      <span id="saveStatus" class="text-xs text-emerald-300 opacity-0" aria-live="polite">✓ Saved on this device</span>
+      <button id="manageProfilesBtn" type="button" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-semibold px-4 py-3 rounded-lg transition">
+        <span>📂 Manage Multiple Profiles</span>
+        <span class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">PRO</span>
+      </button>
+      <button id="generateTop" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-lg shadow transition">
+        Generate Form WH-347
+      </button>
+    </div>
   </div>
 </header>
 
@@ -101,7 +111,7 @@
         <h2 class="font-semibold text-lg">Employee Payroll</h2>
         <p class="text-sm text-slate-500">ST = straight-time hours, OT = overtime hours. Gross = ST × rate + OT × rate × multiplier.</p>
       </div>
-      <button id="addEmp" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">+ Add Employee</button>
+      <button id="addEmp" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">+ Add Employee</button>
     </div>
     <div class="overflow-x-auto">
       <table id="payTable" class="text-sm border-collapse">
@@ -160,17 +170,51 @@
     </div>
   </section>
 
-  <div class="flex flex-col items-center gap-2 pb-10">
-    <button id="generateBtn" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-10 py-4 rounded-xl shadow-lg transition">
+  <div class="flex flex-col items-center gap-3 pb-10">
+    <button id="generateBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-10 py-4 rounded-xl shadow-lg transition">
       Generate Form WH-347
     </button>
     <p class="text-xs text-slate-500 max-w-2xl text-center">Creates a print-ready PDF summary of this payroll. If your contract requires the official U.S. DOL WH-347 form, transfer these figures onto it or attach this sheet as supporting detail.</p>
+    <p class="text-xs text-slate-500 max-w-2xl text-center">Your entries are saved automatically in this browser only. They are never uploaded.
+      <button id="clearData" type="button" class="underline text-slate-600 hover:text-red-600 ml-1">Clear saved data</button></p>
   </div>
 </main>
+
+<!-- Paywall modal -->
+<div id="paywallModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+    <div class="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500"></div>
+    <button id="paywallClose" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <div class="px-8 pt-8 pb-7">
+      <div class="inline-block text-[11px] font-bold tracking-widest uppercase bg-amber-100 text-amber-800 rounded-full px-3 py-1 mb-4">Pro Feature</div>
+      <h2 id="paywallTitle" class="text-2xl font-extrabold text-slate-900 tracking-tight">✨ Upgrade to Certified Payroll Pro</h2>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        Save unlimited contractor profiles, manage multiple federal project sites simultaneously, and unlock cloud syncing. Start saving hours every week for just <strong class="text-slate-900">$29/month</strong>.
+      </p>
+      <ul class="mt-5 space-y-2 text-sm text-slate-700">
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Unlimited contractor profiles</li>
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Multiple federal project sites at once</li>
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Cloud syncing across all your devices</li>
+      </ul>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a id="upgradeNow" href="https://your-payment-link-here.com" target="_blank" rel="noopener noreferrer"
+           class="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-6 py-3.5 rounded-xl shadow-lg transition">
+          Upgrade Now
+        </a>
+        <button id="paywallLater" type="button" class="sm:w-auto px-6 py-3.5 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition">
+          Maybe Later
+        </button>
+      </div>
+      <p class="mt-4 text-xs text-slate-400 text-center">Secure checkout. Cancel anytime.</p>
+    </div>
+  </div>
+</div>
 
 <script>
 (function () {
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const STORAGE_KEY = 'wh347_payroll_v1';
+  const TEXT_FIELDS = ['cName','cAddress','cPayrollNo','cWeekEnd','cSigner','cSignerTitle','pName','pNumber','pPrime','otMult'];
   const $ = (id) => document.getElementById(id);
   const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
   const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -182,7 +226,7 @@
   const table = $('payTable');
 
   // ---------- Employee rows ----------
-  function addEmployee() {
+  function addEmployee(data) {
     const tb = document.createElement('tbody');
     tb.className = 'emp border-b border-slate-200';
     const cells = (cls) => DAYS.map(() =>
@@ -211,10 +255,22 @@
         <td class="px-1 text-xs font-semibold text-amber-600 text-center">OT</td>
         ${cells('ot-h')}
       </tr>`;
-    // Insert directly into the table (before the totals footer), NOT inside another tbody
+    if (data) fillEmployee(tb, data);
     table.insertBefore(tb, table.querySelector('tfoot'));
     recalc();
     return tb;
+  }
+
+  function fillEmployee(tb, d) {
+    tb.querySelector('.f-name').value = d.name || '';
+    tb.querySelector('.f-ssn').value = String(d.ssn || '').replace(/\D/g, '').slice(0, 4);
+    tb.querySelector('.f-class').value = d.cls || '';
+    tb.querySelectorAll('.st-h').forEach((el, i) => el.value = (d.st && d.st[i]) || '');
+    tb.querySelectorAll('.ot-h').forEach((el, i) => el.value = (d.ot && d.ot[i]) || '');
+    tb.querySelector('.f-rate').value = d.rate || '';
+    tb.querySelector('.f-fica').value = d.fica || '';
+    tb.querySelector('.f-wh').value = d.wh || '';
+    tb.querySelector('.f-other').value = d.other || '';
   }
 
   // ---------- Calculations ----------
@@ -283,7 +339,7 @@
     return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + '/' + y;
   }
 
-  // ---------- Data collection ----------
+  // ---------- Data collection (for PDF) ----------
   function collect() {
     return [...document.querySelectorAll('tbody.emp')].map((tb) => {
       const st = [...tb.querySelectorAll('.st-h')].map((i) => num(i.value));
@@ -302,6 +358,60 @@
         total: st.reduce((a, b) => a + b, 0) + ot.reduce((a, b) => a + b, 0)
       };
     });
+  }
+
+  // ---------- LocalStorage persistence ----------
+  let statusTimer = null;
+  function flashSaved() {
+    const el = $('saveStatus');
+    el.classList.remove('opacity-0');
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => el.classList.add('opacity-0'), 1500);
+  }
+
+  function saveState() {
+    try {
+      const state = { v: 1, fields: {}, final: $('pFinal').checked, employees: [] };
+      TEXT_FIELDS.forEach((id) => state.fields[id] = $(id).value);
+      document.querySelectorAll('tbody.emp').forEach((tb) => {
+        state.employees.push({
+          name: tb.querySelector('.f-name').value,
+          ssn: tb.querySelector('.f-ssn').value,
+          cls: tb.querySelector('.f-class').value,
+          st: [...tb.querySelectorAll('.st-h')].map((i) => i.value),
+          ot: [...tb.querySelectorAll('.ot-h')].map((i) => i.value),
+          rate: tb.querySelector('.f-rate').value,
+          fica: tb.querySelector('.f-fica').value,
+          wh: tb.querySelector('.f-wh').value,
+          other: tb.querySelector('.f-other').value
+        });
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      flashSaved();
+    } catch (e) {
+      console.warn('Could not save to localStorage:', e);
+    }
+  }
+
+  function loadState() {
+    let loaded = false;
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const state = JSON.parse(raw);
+        if (state && typeof state === 'object') {
+          if (state.fields) TEXT_FIELDS.forEach((id) => { if (typeof state.fields[id] === 'string') $(id).value = state.fields[id]; });
+          $('pFinal').checked = !!state.final;
+          if (Array.isArray(state.employees)) {
+            state.employees.forEach((d) => addEmployee(d));
+            loaded = state.employees.length > 0;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load saved data:', e);
+    }
+    if (!loaded) addEmployee();
   }
 
   // ---------- PDF ----------
@@ -391,14 +501,12 @@
       if (y + RH * 2 > PH - 50) { doc.addPage(); y = tableHeader(pageHeader()); }
       const H = RH * 2;
       doc.setDrawColor(90);
-      // name cell
       doc.rect(X[0], y, widths[0], H);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
       doc.text(doc.splitTextToSize((idx + 1) + '. ' + e.name, widths[0] - 8)[0], X[0] + 4, y + 10);
       doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
       const sub = 'XXX-XX-' + (e.ssn || '____') + (e.cls ? '  |  ' + e.cls : '');
       doc.text(doc.splitTextToSize(sub, widths[0] - 8)[0], X[0] + 4, y + 21);
-      // type + hours
       [['ST', e.st], ['OT', e.ot]].forEach((r, ri) => {
         const ry = y + ri * RH;
         doc.rect(X[1], ry, widths[1], RH);
@@ -409,7 +517,6 @@
           if (h) doc.text(hrs(h), X[2 + d] + widths[2 + d] / 2, ry + 9, { align: 'center' });
         });
       });
-      // spanning cells
       const spans = [
         [9, hrs(e.total), 'center'], [10, fmt(e.rate), 'right'], [11, fmt(e.gross), 'right'],
         [12, fmt(e.fica), 'right'], [13, fmt(e.wh), 'right'], [14, fmt(e.other), 'right'], [15, fmt(e.net), 'right']
@@ -424,7 +531,6 @@
       y += H;
     });
 
-    // totals
     if (y + 20 > PH - 50) { doc.addPage(); y = tableHeader(pageHeader()); }
     const dayTot = [0,0,0,0,0,0,0];
     const T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, net: 0 };
@@ -447,7 +553,6 @@
     doc.text('Overtime computed at ' + mult + 'x the hourly rate. Gross = ST hours x rate + OT hours x rate x ' + mult + '. Net = Gross - FICA - Withholding - Other deductions.', M, y + 11);
     y += 24;
 
-    // statement of compliance
     const stmt = 'I, ' + (val('cSigner') || '______________________') + ', ' + (val('cSignerTitle') || '______________________') +
       ', do hereby state: (1) that I pay or supervise the payment of the persons employed by ' + val('cName') + ' on the project ' + val('pName') +
       '; that during the payroll period ending ' + fmtLongDate($('cWeekEnd').value) +
@@ -464,7 +569,6 @@
     if (val('cSigner')) doc.text(val('cSigner'), M, y - 4);
     if (val('cSignerTitle')) doc.text(val('cSignerTitle'), M + 300, y - 4);
 
-    // footer on every page
     const pages = doc.getNumberOfPages();
     for (let p = 1; p <= pages; p++) {
       doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(110);
@@ -477,8 +581,32 @@
     doc.save('WH-347_' + safe(val('cName')) + '_' + $('cWeekEnd').value + '.pdf');
   }
 
+  // ---------- Paywall modal ----------
+  const modal = $('paywallModal');
+  let lastFocus = null;
+  function openPaywall() {
+    lastFocus = document.activeElement;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    $('upgradeNow').focus();
+  }
+  function closePaywall() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  $('manageProfilesBtn').addEventListener('click', openPaywall);
+  $('paywallClose').addEventListener('click', closePaywall);
+  $('paywallLater').addEventListener('click', closePaywall);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closePaywall(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closePaywall();
+  });
+
   // ---------- Events ----------
-  $('addEmp').addEventListener('click', addEmployee);
+  $('addEmp').addEventListener('click', () => { addEmployee(); saveState(); });
   $('generateBtn').addEventListener('click', generatePDF);
   $('generateTop').addEventListener('click', generatePDF);
   $('cWeekEnd').addEventListener('input', updateDayHeaders);
@@ -491,11 +619,31 @@
     if (e.target.classList.contains('rm')) {
       e.target.closest('tbody.emp').remove();
       recalc();
+      saveState();
     }
   });
 
-  addEmployee();
+  // Auto-save on any edit anywhere on the page (runs after the handlers above)
+  document.addEventListener('input', (e) => {
+    if (e.target.closest('#paywallModal')) return;
+    saveState();
+  });
+  document.addEventListener('change', (e) => {
+    if (e.target.closest('#paywallModal')) return;
+    saveState();
+  });
+
+  $('clearData').addEventListener('click', () => {
+    if (confirm('Clear all saved contractor, project, and employee data from this browser? This cannot be undone.')) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      location.reload();
+    }
+  });
+
+  // ---------- Init ----------
+  loadState();
   updateDayHeaders();
+  recalc();
 })();
 </script>
 </body>
