@@ -10,7 +10,7 @@
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   input[type=number] { -moz-appearance: textfield; }
-  #payTable { table-layout: fixed; width: 1400px; }
+  #payTable { table-layout: fixed; width: 1424px; }
   #payTable tbody.emp:nth-of-type(even) { background: #f8fafc; }
   #payTable input { min-width: 0; }
   #saveStatus { transition: opacity .4s ease; }
@@ -24,7 +24,7 @@
   <div class="max-w-[1400px] mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-4">
     <div>
       <h1 class="text-2xl font-bold tracking-tight">Certified Payroll Generator</h1>
-      <p class="text-slate-300 text-sm">Form WH-347 summary sheet for construction subcontractors</p>
+      <p class="text-slate-300 text-sm">Form WH-347 style payroll and statement of compliance for construction subcontractors</p>
     </div>
     <div class="flex flex-wrap items-center gap-3">
       <span id="saveStatus" class="text-xs text-emerald-300 opacity-0" aria-live="polite">✓ Saved on this device</span>
@@ -88,6 +88,8 @@
           <input id="cSigner" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
         <label class="block"><span class="text-sm font-medium">Signer Title</span>
           <input id="cSignerTitle" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Remarks <span class="text-slate-400 font-normal">(printed in item 5 of the statement of compliance)</span></span>
+          <textarea id="cRemarks" rows="2" maxlength="400" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></textarea></label>
       </div>
     </div>
 
@@ -102,9 +104,40 @@
           <input id="pPrime" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
         <label class="block"><span class="text-sm font-medium">Overtime Multiplier</span>
           <input id="otMult" type="number" step="0.05" min="1" value="1.5" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
-        <label class="flex items-center gap-2 mt-6"><input id="pFinal" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+        <label class="block"><span class="text-sm font-medium">Overtime Rule</span>
+          <select id="otRule" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
+            <option value="weekly">Automatic: hours over 40 in the workweek</option>
+            <option value="daily">Automatic: hours over 8 in a day</option>
+            <option value="both">Automatic: over 8 a day, then over 40 a week</option>
+            <option value="manual">Manual: I enter overtime myself</option>
+          </select></label>
+        <label class="flex items-center gap-2 sm:col-span-2"><input id="pFinal" type="checkbox" class="h-4 w-4 rounded border-slate-300">
           <span class="text-sm font-medium">This is the final payroll for this project</span></label>
       </div>
+    </div>
+  </section>
+
+  <!-- Prevailing wage rates -->
+  <section id="wageCard" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+      <div>
+        <h2 class="font-semibold text-lg">Prevailing Wage Rates</h2>
+        <p class="text-sm text-slate-500 max-w-3xl">Copy the basic hourly rate and required fringe benefit for each classification from your project's wage determination. The checklist flags any worker paid below them. Names in the Work Classification column autocomplete from this list.</p>
+      </div>
+      <button id="addWage" type="button" class="border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">+ Add Rate</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm" style="min-width:560px">
+        <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+          <tr>
+            <th class="px-2 py-2 text-left">Classification</th>
+            <th class="px-2 py-2 text-right w-40">Basic rate ($/hr)</th>
+            <th class="px-2 py-2 text-right w-40">Required fringe ($/hr)</th>
+            <th class="px-2 py-2 w-24"></th>
+          </tr>
+        </thead>
+        <tbody id="wageBody"></tbody>
+      </table>
     </div>
   </section>
 
@@ -113,7 +146,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-slate-200">
       <div>
         <h2 class="font-semibold text-lg">Employee Payroll</h2>
-        <p class="text-sm text-slate-500">ST = straight-time hours, OT = overtime hours. Gross = ST × rate + OT × rate × multiplier.</p>
+        <p class="text-sm text-slate-500 max-w-3xl">Enter total hours worked each day. With an automatic overtime rule, the OT row fills itself in. Gross = ST hours × (rate + cash fringe) + OT hours × (rate × multiplier + cash fringe). Fringes paid to plans are reported but are not part of the worker's gross pay.</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <button id="nextWeekBtn" type="button" class="flex items-center gap-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">
@@ -131,7 +164,7 @@
           <col style="width:56px"><col style="width:56px"><col style="width:56px"><col style="width:56px">
           <col style="width:56px"><col style="width:56px"><col style="width:56px">
           <col style="width:64px">
-          <col style="width:96px">
+          <col style="width:120px">
           <col style="width:100px">
           <col style="width:96px"><col style="width:96px"><col style="width:96px">
           <col style="width:100px">
@@ -139,7 +172,7 @@
         </colgroup>
         <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
           <tr>
-            <th class="px-2 py-3 text-left">Name / SSN (last 4) / Classification</th>
+            <th class="px-2 py-3 text-left">Name / SSN last 4 / Exempt. / Classification</th>
             <th class="px-1 py-3">Type</th>
             <th class="px-1 py-3 day-h">Sun<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
             <th class="px-1 py-3 day-h">Mon<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
@@ -149,7 +182,7 @@
             <th class="px-1 py-3 day-h">Fri<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
             <th class="px-1 py-3 day-h">Sat<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
             <th class="px-2 py-3">Total Hrs</th>
-            <th class="px-2 py-3">Rate ($/hr)</th>
+            <th class="px-2 py-3">Rate / Fringe ($/hr)</th>
             <th class="px-2 py-3">Gross Earned</th>
             <th class="px-2 py-3">FICA</th>
             <th class="px-2 py-3">Withholding</th>
@@ -180,15 +213,27 @@
     </div>
   </section>
 
+  <!-- Pre-submission checklist -->
+  <section id="checkPanel" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+      <h2 class="font-semibold text-lg">Pre-Submission Checklist</h2>
+      <span id="checkBadge" class="text-xs font-bold rounded-full px-3 py-1 bg-slate-100 text-slate-600"></span>
+    </div>
+    <ul id="checkList" class="space-y-1.5 text-sm"></ul>
+    <p class="mt-3 text-xs text-slate-400">The checklist updates as you type. Errors mean the sheet is likely to be rejected. Warnings are worth a second look.</p>
+  </section>
+
   <div class="flex flex-col items-center gap-3 pb-10">
     <button id="generateBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-10 py-4 rounded-xl shadow-lg transition">
       Generate Form WH-347
     </button>
-    <p class="text-xs text-slate-500 max-w-2xl text-center">Creates a print-ready PDF summary of this payroll. If your contract requires the official U.S. DOL WH-347 form, transfer these figures onto it or attach this sheet as supporting detail.</p>
+    <p class="text-xs text-slate-500 max-w-2xl text-center">Creates a print-ready PDF: a WH-347 style payroll page, a statement of compliance, and a fringe benefit detail page when fringes are entered. Your contract may require a specific or newer version of the DOL form or its own portal, so confirm before you submit.</p>
     <p class="text-xs text-slate-500 max-w-2xl text-center">Your entries are saved automatically in this browser only. They are never uploaded.
       <button id="clearData" type="button" class="underline text-slate-600 hover:text-red-600 ml-1">Clear saved data</button></p>
   </div>
 </main>
+
+<datalist id="clsList"></datalist>
 
 <!-- Toast -->
 <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300"></div>
@@ -210,7 +255,7 @@
         <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Cloud syncing across all your devices</li>
       </ul>
       <div class="mt-8 flex flex-col sm:flex-row gap-3">
-                <a id="upgradeNow" href="https://formifytools.lemonsqueezy.com/checkout/buy/1f2c4147-27e9-4f02-9002-f817f3392026" target="_blank" rel="noopener noreferrer"
+        <a id="upgradeNow" href="https://formifytools.lemonsqueezy.com/checkout/buy/1f2c4147-27e9-4f02-9002-f817f3392026" target="_blank" rel="noopener noreferrer"
            class="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-6 py-3.5 rounded-xl shadow-lg transition">
           Upgrade Now
         </a>
@@ -256,7 +301,7 @@
     <div class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
       <div>
         <div id="profileList" class="space-y-3"></div>
-        <p class="mt-3 text-xs text-slate-400">Each profile keeps its own contractor info, project info, and employees. Switch profiles any time from the header menu. Export a backup to move your profiles to another device.</p>
+        <p class="mt-3 text-xs text-slate-400">Each profile keeps its own contractor info, project info, prevailing wage rates, and employees. Switch profiles any time from the header menu. Export a backup to move your profiles to another device.</p>
       </div>
       <div>
         <h3 class="font-semibold text-slate-800 mb-2">Payroll history <span class="text-slate-400 font-normal text-sm">(active profile)</span></h3>
@@ -287,9 +332,9 @@
 <script>
 (function () {
   // ======================= CONFIG =======================
-  // Lemon Squeezy: enable "license keys" on your product, then paste its numeric Product ID here
-  // so license keys from your other products can't unlock this app. Leave null to skip that check.
- const LS_PRODUCT_ID = 1482993;
+  // Lemon Squeezy numeric Product ID. Only license keys from this product can unlock Pro.
+  // Test-mode and live-mode products have different IDs. Set to null to skip the check.
+  const LS_PRODUCT_ID = 1482993;
   const LS_API = 'https://api.lemonsqueezy.com/v1/licenses';
   // ======================================================
 
@@ -298,13 +343,23 @@
   const PROFILES_KEY = 'wh347_profiles_v1';
   const PRO_KEY = 'wh347_pro_v1';
   const REVALIDATE_MS = 7 * 24 * 60 * 60 * 1000;
-  const TEXT_FIELDS = ['cName','cAddress','cPayrollNo','cWeekEnd','cSigner','cSignerTitle','pName','pNumber','pPrime','otMult'];
+  const TEXT_FIELDS = ['cName','cAddress','cPayrollNo','cWeekEnd','cSigner','cSignerTitle','cRemarks','pName','pNumber','pPrime','otMult','otRule'];
+  const OT_RULES = ['weekly','daily','both','manual'];
+  const OT_RULE_TEXT = {
+    weekly: 'hours over 40 in the workweek',
+    daily: 'hours over 8 in a day',
+    both: 'hours over 8 in a day, then over 40 in the workweek',
+    manual: 'as entered by the preparer'
+  };
   const $ = (id) => document.getElementById(id);
   const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+  const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
   const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const hrs = (n) => (Math.round(n * 100) / 100).toString();
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const normCls = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
   const inputCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 focus:ring-2 focus:ring-amber-400 focus:outline-none';
   const hourCls = 'w-full rounded-md border border-slate-300 px-1 py-1 text-center focus:ring-2 focus:ring-amber-400 focus:outline-none';
   const moneyCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 text-right focus:ring-2 focus:ring-amber-400 focus:outline-none';
@@ -318,6 +373,7 @@
   let store = readJSON(PROFILES_KEY);
   if (!store || typeof store !== 'object' || !store.profiles || typeof store.profiles !== 'object') store = { activeId: null, profiles: {} };
   const isPro = () => !!(pro && pro.key && pro.instanceId);
+  let prevRule = 'weekly';
 
   // ---------- Toast ----------
   let toastTimer = null;
@@ -351,6 +407,60 @@
     if (e.key === 'Escape') document.querySelectorAll('[role="dialog"].flex').forEach(closeModal);
   });
 
+  // ---------- Dates ----------
+  function addDaysISO(iso, n) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(y, m - 1, d + n);
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+  function weekDates() {
+    const v = $('cWeekEnd').value;
+    if (!v) return DAYS.map(() => '');
+    const [y, m, d] = v.split('-').map(Number);
+    return DAYS.map((_, i) => {
+      const dt = new Date(y, m - 1, d - (6 - i));
+      return String(dt.getMonth() + 1).padStart(2, '0') + '/' + String(dt.getDate()).padStart(2, '0');
+    });
+  }
+  function updateDayHeaders() {
+    const dates = weekDates();
+    document.querySelectorAll('.day-h span').forEach((s, i) => s.innerHTML = dates[i] || '&nbsp;');
+  }
+  function fmtLongDate(v) {
+    if (!v) return '';
+    const [y, m, d] = v.split('-').map(Number);
+    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + '/' + y;
+  }
+
+  // ---------- Overtime ----------
+  function computeSplit(total, rule) {
+    const st = [], ot = [];
+    let runST = 0;
+    for (let i = 0; i < 7; i++) {
+      const h = total[i];
+      let s = h, o = 0;
+      if (rule === 'daily' || rule === 'both') { s = Math.min(h, 8); o = h - s; }
+      if (rule === 'weekly' || rule === 'both') {
+        if (runST + s > 40) { const conv = Math.min(s, runST + s - 40); s -= conv; o += conv; }
+      }
+      s = round2(s); o = round2(o);
+      runST += s;
+      st.push(s); ot.push(o);
+    }
+    return { st, ot };
+  }
+
+  function applyRuleUI() {
+    const manual = $('otRule').value === 'manual';
+    document.querySelectorAll('.ot-h').forEach((el) => {
+      el.readOnly = !manual;
+      el.tabIndex = manual ? 0 : -1;
+      el.classList.toggle('bg-slate-100', !manual);
+      el.classList.toggle('text-slate-500', !manual);
+    });
+    document.querySelectorAll('.lbl-st').forEach((el) => el.textContent = manual ? 'ST' : 'Hrs');
+  }
+
   // ---------- Employee rows ----------
   function addEmployee(data) {
     const tb = document.createElement('tbody');
@@ -362,14 +472,23 @@
         <td rowspan="2" class="px-2 py-2 align-middle">
           <div class="flex flex-col gap-1.5 w-full">
             <input type="text" class="${inputCls} f-name" placeholder="Employee name">
-            <input type="text" inputmode="numeric" maxlength="4" class="${inputCls} f-ssn" placeholder="SSN last 4 (e.g. 1234)">
-            <input type="text" class="${inputCls} f-class" placeholder="Work classification (e.g. Laborer)">
+            <div class="flex gap-1.5">
+              <input type="text" inputmode="numeric" maxlength="4" class="${inputCls} f-ssn" placeholder="SSN last 4">
+              <input type="text" maxlength="3" class="${inputCls} f-ex" placeholder="Exempt." title="Number of withholding exemptions">
+            </div>
+            <input type="text" list="clsList" class="${inputCls} f-class" placeholder="Work classification">
           </div>
         </td>
-        <td class="px-1 text-xs font-semibold text-slate-500 text-center">ST</td>
+        <td class="px-1 text-xs font-semibold text-slate-500 text-center lbl-st">Hrs</td>
         ${cells('st-h')}
         <td rowspan="2" class="px-2 text-center font-semibold f-hrs">0</td>
-        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-rate" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2 align-middle">
+          <div class="flex flex-col gap-1.5">
+            <input type="number" min="0" step="0.01" class="${moneyCls} f-rate" placeholder="Rate $/hr" title="Basic hourly rate paid">
+            <input type="number" min="0" step="0.01" class="${moneyCls} f-fp" placeholder="Fringe: plans" title="Fringe benefits per hour paid to approved plans, funds, or programs">
+            <input type="number" min="0" step="0.01" class="${moneyCls} f-fc" placeholder="Fringe: cash" title="Fringe benefits per hour paid in cash to the worker (added to gross pay)">
+          </div>
+        </td>
         <td rowspan="2" class="px-2 text-right font-semibold f-gross">$0.00</td>
         <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-fica" placeholder="0.00"></td>
         <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-wh" placeholder="0.00"></td>
@@ -390,43 +509,111 @@
   function fillEmployee(tb, d) {
     tb.querySelector('.f-name').value = d.name || '';
     tb.querySelector('.f-ssn').value = String(d.ssn || '').replace(/\D/g, '').slice(0, 4);
+    tb.querySelector('.f-ex').value = d.ex || '';
     tb.querySelector('.f-class').value = d.cls || '';
     tb.querySelectorAll('.st-h').forEach((el, i) => el.value = (d.st && d.st[i]) || '');
     tb.querySelectorAll('.ot-h').forEach((el, i) => el.value = (d.ot && d.ot[i]) || '');
     tb.querySelector('.f-rate').value = d.rate || '';
+    tb.querySelector('.f-fp').value = d.fp || '';
+    tb.querySelector('.f-fc').value = d.fc || '';
     tb.querySelector('.f-fica').value = d.fica || '';
     tb.querySelector('.f-wh').value = d.wh || '';
     tb.querySelector('.f-other').value = d.other || '';
   }
 
-  // ---------- Calculations ----------
-  function recalc() {
+  // ---------- Prevailing wage rows ----------
+  function addWageRow(d) {
+    d = d || {};
+    const tr = document.createElement('tr');
+    tr.className = 'border-t border-slate-100';
+    tr.innerHTML = `
+      <td class="px-2 py-1.5"><input type="text" class="${inputCls} w-cls" placeholder="e.g. Electrician (Journeyman)"></td>
+      <td class="px-2 py-1.5"><input type="number" min="0" step="0.01" class="${moneyCls} w-basic" placeholder="0.00"></td>
+      <td class="px-2 py-1.5"><input type="number" min="0" step="0.01" class="${moneyCls} w-fr" placeholder="0.00"></td>
+      <td class="px-2 py-1.5 text-center"><button type="button" class="w-rm text-red-600 hover:text-red-800 text-xs font-semibold">Remove</button></td>`;
+    tr.querySelector('.w-cls').value = d.cls || '';
+    tr.querySelector('.w-basic').value = d.basic || '';
+    tr.querySelector('.w-fr').value = d.fringe || '';
+    $('wageBody').appendChild(tr);
+  }
+
+  function refreshClsList() {
+    const seen = {}, opts = [];
+    document.querySelectorAll('#wageBody .w-cls').forEach((i) => {
+      const v = i.value.trim();
+      if (v && !seen[normCls(v)]) { seen[normCls(v)] = 1; opts.push('<option value="' + esc(v) + '">'); }
+    });
+    $('clsList').innerHTML = opts.join('');
+  }
+
+  function wageMap() {
+    const m = {};
+    document.querySelectorAll('#wageBody tr').forEach((tr) => {
+      const cls = tr.querySelector('.w-cls').value;
+      if (!cls.trim()) return;
+      m[normCls(cls)] = { cls: cls.trim(), basic: num(tr.querySelector('.w-basic').value), fringe: num(tr.querySelector('.w-fr').value) };
+    });
+    return m;
+  }
+
+  // ---------- Per-employee calculations ----------
+  function empCalc(tb) {
     const mult = num($('otMult').value) || 1.5;
+    const rule = $('otRule').value;
+    const raw = [...tb.querySelectorAll('.st-h')].map((i) => num(i.value));
+    let st, ot;
+    if (rule === 'manual') {
+      st = raw.map((h) => Math.max(0, h));
+      ot = [...tb.querySelectorAll('.ot-h')].map((i) => Math.max(0, num(i.value)));
+    } else {
+      const r = computeSplit(raw.map((h) => Math.max(0, h)), rule);
+      st = r.st; ot = r.ot;
+    }
+    const stSum = round2(sum(st)), otSum = round2(sum(ot));
+    const rate = num(tb.querySelector('.f-rate').value);
+    const fp = num(tb.querySelector('.f-fp').value);
+    const fc = num(tb.querySelector('.f-fc').value);
+    const stRate = round2(rate + fc), otRate = round2(rate * mult + fc);
+    const gross = round2(stSum * stRate + otSum * otRate);
+    const fica = num(tb.querySelector('.f-fica').value);
+    const wh = num(tb.querySelector('.f-wh').value);
+    const other = num(tb.querySelector('.f-other').value);
+    const ded = round2(fica + wh + other);
+    return {
+      name: tb.querySelector('.f-name').value.trim(),
+      ssn: tb.querySelector('.f-ssn').value.replace(/\D/g, ''),
+      ex: tb.querySelector('.f-ex').value.trim(),
+      cls: tb.querySelector('.f-class').value.trim(),
+      raw, st, ot, stSum, otSum, total: round2(stSum + otSum),
+      rate, fp, fc, stRate, otRate, gross, fica, wh, other, ded, net: round2(gross - ded)
+    };
+  }
+  const collect = () => [...document.querySelectorAll('tbody.emp')].map(empCalc);
+
+  // ---------- Live totals ----------
+  function recalc() {
+    applyRuleUI();
+    const rule = $('otRule').value;
     const rows = document.querySelectorAll('tbody.emp');
     const dayTotals = [0,0,0,0,0,0,0];
-    let T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, net: 0 };
+    const T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, net: 0 };
 
     rows.forEach((tb) => {
-      const st = [...tb.querySelectorAll('.st-h')].map((i) => num(i.value));
-      const ot = [...tb.querySelectorAll('.ot-h')].map((i) => num(i.value));
-      st.forEach((h, i) => dayTotals[i] += h + ot[i]);
-      const stSum = st.reduce((a, b) => a + b, 0);
-      const otSum = ot.reduce((a, b) => a + b, 0);
-      const rate = num(tb.querySelector('.f-rate').value);
-      const gross = stSum * rate + otSum * rate * mult;
-      const fica = num(tb.querySelector('.f-fica').value);
-      const wh = num(tb.querySelector('.f-wh').value);
-      const other = num(tb.querySelector('.f-other').value);
-      const net = gross - fica - wh - other;
-
-      tb.querySelector('.f-hrs').textContent = hrs(stSum + otSum);
-      tb.querySelector('.f-gross').textContent = money(gross);
+      const e = empCalc(tb);
+      if (rule !== 'manual') {
+        tb.querySelectorAll('.ot-h').forEach((el, i) => {
+          const s = e.ot[i] ? String(round2(e.ot[i])) : '';
+          if (el.value !== s) el.value = s;
+        });
+      }
+      e.st.forEach((h, i) => dayTotals[i] += h + e.ot[i]);
+      tb.querySelector('.f-hrs').innerHTML = hrs(e.total) + (e.otSum ? '<div class="text-xs font-normal text-amber-600">' + hrs(e.otSum) + ' OT</div>' : '');
+      tb.querySelector('.f-gross').textContent = money(e.gross);
       const netEl = tb.querySelector('.f-net');
-      netEl.textContent = money(net);
-      netEl.classList.toggle('text-red-600', net < 0);
-      netEl.classList.toggle('text-emerald-700', net >= 0);
-
-      T.hrs += stSum + otSum; T.gross += gross; T.fica += fica; T.wh += wh; T.other += other; T.net += net;
+      netEl.textContent = money(e.net);
+      netEl.classList.toggle('text-red-600', e.net < 0);
+      netEl.classList.toggle('text-emerald-700', e.net >= 0);
+      T.hrs += e.total; T.gross += e.gross; T.fica += e.fica; T.wh += e.wh; T.other += e.other; T.net += e.net;
     });
 
     document.querySelectorAll('.ft-day').forEach((el, i) => el.textContent = hrs(dayTotals[i]));
@@ -442,62 +629,99 @@
     $('sumGross').textContent = money(T.gross);
     $('sumDed').textContent = money(T.fica + T.wh + T.other);
     $('sumNet').textContent = money(T.net);
-    return { T, dayTotals };
+    renderChecklist();
   }
 
-  // ---------- Dates ----------
-  function weekDates() {
-    const v = $('cWeekEnd').value;
-    if (!v) return DAYS.map(() => '');
-    const [y, m, d] = v.split('-').map(Number);
-    return DAYS.map((_, i) => {
-      const dt = new Date(y, m - 1, d - (6 - i));
-      return String(dt.getMonth() + 1).padStart(2, '0') + '/' + String(dt.getDate()).padStart(2, '0');
-    });
-  }
-  function updateDayHeaders() {
-    const dates = weekDates();
-    document.querySelectorAll('.day-h span').forEach((s, i) => s.innerHTML = dates[i] || '&nbsp;');
-  }
-  function fmtLongDate(v) {
-    if (!v) return '';
-    const [y, m, d] = v.split('-').map(Number);
-    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + '/' + y;
+  // ---------- Pre-submission checklist ----------
+  function fringeFlags(emps) {
+    const w = emps.filter((e) => e.total > 0);
+    return { plans: w.some((e) => e.fp > 0), cash: w.some((e) => e.fc > 0) };
   }
 
-  // ---------- Data collection (for PDF) ----------
-  function collect() {
-    return [...document.querySelectorAll('tbody.emp')].map((tb) => {
-      const st = [...tb.querySelectorAll('.st-h')].map((i) => num(i.value));
-      const ot = [...tb.querySelectorAll('.ot-h')].map((i) => num(i.value));
-      const rate = num(tb.querySelector('.f-rate').value);
-      const mult = num($('otMult').value) || 1.5;
-      const gross = st.reduce((a, b) => a + b, 0) * rate + ot.reduce((a, b) => a + b, 0) * rate * mult;
-      const fica = num(tb.querySelector('.f-fica').value);
-      const wh = num(tb.querySelector('.f-wh').value);
-      const other = num(tb.querySelector('.f-other').value);
-      return {
-        name: tb.querySelector('.f-name').value.trim(),
-        ssn: tb.querySelector('.f-ssn').value.replace(/\D/g, ''),
-        cls: tb.querySelector('.f-class').value.trim(),
-        st, ot, rate, gross, fica, wh, other, net: gross - fica - wh - other,
-        total: st.reduce((a, b) => a + b, 0) + ot.reduce((a, b) => a + b, 0)
-      };
+  function runChecks() {
+    const errors = [], warns = [], info = [];
+    const val = (id) => $(id).value.trim();
+    if (!val('cName')) errors.push('Contractor name is missing.');
+    if (!val('pName')) errors.push('Project name and location is missing.');
+    const we = $('cWeekEnd').value;
+    if (!we) errors.push('Week-ending date is missing.');
+    else {
+      const [y, m, d] = we.split('-').map(Number);
+      if (new Date(y, m - 1, d).getDay() !== 6) warns.push('The week-ending date is not a Saturday. Make sure it matches your project\'s payroll week.');
+    }
+    if (!val('cPayrollNo')) warns.push('Payroll number is blank. Payrolls are normally numbered consecutively.');
+    if (!val('pNumber')) warns.push('Project / contract number is blank.');
+    if (!val('cSigner') || !val('cSignerTitle')) warns.push('Signer name or title is blank, so the statement of compliance will print with blank lines to fill in by hand.');
+
+    const wm = wageMap();
+    const hasWM = Object.keys(wm).length > 0;
+    const rows = [...document.querySelectorAll('tbody.emp')];
+    if (!rows.length) errors.push('Add at least one employee.');
+    const seen = {};
+    const emps = rows.map(empCalc);
+    emps.forEach((e, idx) => {
+      const n = e.name || ('Employee ' + (idx + 1));
+      if (!e.name) errors.push(n + ': name is missing.');
+      if (e.ssn.length !== 4) errors.push(n + ': enter exactly 4 digits for the SSN / ID number.');
+      if (!e.cls) errors.push(n + ': work classification is missing.');
+      if (e.raw.some((h) => h < 0)) errors.push(n + ': hours cannot be negative.');
+      if (e.raw.some((h) => h > 24)) errors.push(n + ': a day has more than 24 hours.');
+      if (e.total === 0) warns.push(n + ': no hours entered this week.');
+      if (e.total > 0 && e.rate <= 0) errors.push(n + ': hourly rate is missing.');
+      if (e.net < 0) errors.push(n + ': deductions are larger than gross pay, so net pay is negative.');
+      const key = e.name.toLowerCase();
+      if (key) { if (seen[key]) warns.push(n + ': another employee has the same name.'); seen[key] = 1; }
+      if ($('otRule').value === 'manual' && e.total > 40 && e.otSum < e.total - 40 - 0.001) {
+        warns.push(n + ': worked ' + hrs(e.total) + ' hours but only ' + hrs(e.otSum) + ' are marked as overtime.');
+      }
+      if (e.total > 0 && hasWM && e.cls) {
+        const w = wm[normCls(e.cls)];
+        if (!w) warns.push(n + ': "' + e.cls + '" has no matching row in your prevailing wage rates.');
+        else {
+          if (e.rate + 1e-9 < w.basic) errors.push(n + ': basic rate ' + money(e.rate) + '/hr is below the prevailing ' + money(w.basic) + '/hr for ' + w.cls + '.');
+          const pkg = e.rate + e.fp + e.fc, req = w.basic + w.fringe;
+          if (pkg + 1e-9 < req) errors.push(n + ': rate plus fringes (' + money(pkg) + '/hr) is below the required ' + money(req) + '/hr (basic ' + money(w.basic) + ' + fringe ' + money(w.fringe) + '). Add the difference as fringe to plans or as cash.');
+        }
+      }
     });
+    if (!hasWM && rows.length) warns.push('No prevailing wage rates entered, so pay rates can\'t be checked against your wage determination.');
+    if (rows.length) {
+      const fl = fringeFlags(emps);
+      info.push('Statement of compliance: item 4(a) (fringes paid to plans) will be ' + (fl.plans ? 'checked' : 'left unchecked') + '; item 4(b) (fringes paid in cash) will be ' + (fl.cash ? 'checked' : 'left unchecked') + '.');
+    }
+    return { errors, warns, info };
+  }
+
+  function renderChecklist() {
+    const r = runChecks();
+    const li = (cls, icon, t) => `<li class="flex gap-2 ${cls}"><span class="shrink-0 font-bold w-4 text-center">${icon}</span><span>${esc(t)}</span></li>`;
+    $('checkList').innerHTML = r.errors.map((t) => li('text-red-700', '✕', t))
+      .concat(r.warns.map((t) => li('text-amber-700', '⚠', t)), r.info.map((t) => li('text-slate-500', 'ℹ', t))).join('');
+    const b = $('checkBadge');
+    if (!r.errors.length && !r.warns.length) { b.textContent = '✓ Ready to generate'; b.className = 'text-xs font-bold rounded-full px-3 py-1 bg-emerald-100 text-emerald-800'; }
+    else if (!r.errors.length) { b.textContent = r.warns.length + ' warning' + (r.warns.length === 1 ? '' : 's'); b.className = 'text-xs font-bold rounded-full px-3 py-1 bg-amber-100 text-amber-800'; }
+    else { b.textContent = r.errors.length + ' error' + (r.errors.length === 1 ? '' : 's') + (r.warns.length ? ' · ' + r.warns.length + ' warning' + (r.warns.length === 1 ? '' : 's') : ''); b.className = 'text-xs font-bold rounded-full px-3 py-1 bg-red-100 text-red-800'; }
   }
 
   // ---------- Form state: snapshot / apply / sanitize ----------
   function snapshot() {
-    const s = { fields: {}, final: $('pFinal').checked, employees: [] };
+    const s = { fields: {}, final: $('pFinal').checked, wages: [], employees: [] };
     TEXT_FIELDS.forEach((id) => s.fields[id] = $(id).value);
+    document.querySelectorAll('#wageBody tr').forEach((tr) => {
+      const w = { cls: tr.querySelector('.w-cls').value, basic: tr.querySelector('.w-basic').value, fringe: tr.querySelector('.w-fr').value };
+      if (w.cls || w.basic || w.fringe) s.wages.push(w);
+    });
     document.querySelectorAll('tbody.emp').forEach((tb) => {
       s.employees.push({
         name: tb.querySelector('.f-name').value,
         ssn: tb.querySelector('.f-ssn').value,
+        ex: tb.querySelector('.f-ex').value,
         cls: tb.querySelector('.f-class').value,
         st: [...tb.querySelectorAll('.st-h')].map((i) => i.value),
         ot: [...tb.querySelectorAll('.ot-h')].map((i) => i.value),
         rate: tb.querySelector('.f-rate').value,
+        fp: tb.querySelector('.f-fp').value,
+        fc: tb.querySelector('.f-fc').value,
         fica: tb.querySelector('.f-fica').value,
         wh: tb.querySelector('.f-wh').value,
         other: tb.querySelector('.f-other').value
@@ -508,23 +732,35 @@
 
   function sanitizeData(d) {
     d = (d && typeof d === 'object') ? d : {};
-    const s = (v) => v == null ? '' : String(v).slice(0, 200);
+    const s = (v, lim) => v == null ? '' : String(v).slice(0, lim || 200);
     const arr7 = (a) => Array.from({ length: 7 }, (_, i) => (a && a[i] != null) ? s(a[i]) : '');
+    const hasSaved = !!(d.fields && typeof d.fields === 'object' && Object.keys(d.fields).length);
     const f = {};
-    TEXT_FIELDS.forEach((id) => { f[id] = (d.fields && d.fields[id] != null) ? s(d.fields[id]) : ''; });
+    TEXT_FIELDS.forEach((id) => { f[id] = (d.fields && d.fields[id] != null) ? s(d.fields[id], id === 'cRemarks' ? 400 : 200) : ''; });
     if (!f.otMult) f.otMult = '1.5';
+    // Data saved before automatic overtime existed used separate ST/OT entry, so open it in manual mode.
+    if (OT_RULES.indexOf(f.otRule) < 0) f.otRule = hasSaved ? 'manual' : 'weekly';
+    const wages = (Array.isArray(d.wages) ? d.wages : []).slice(0, 100).map((w) => {
+      w = (w && typeof w === 'object') ? w : {};
+      return { cls: s(w.cls), basic: s(w.basic), fringe: s(w.fringe) };
+    });
     const emps = (Array.isArray(d.employees) ? d.employees : []).slice(0, 200).map((e) => {
       e = (e && typeof e === 'object') ? e : {};
-      return { name: s(e.name), ssn: s(e.ssn).replace(/\D/g, '').slice(0, 4), cls: s(e.cls),
-               st: arr7(e.st), ot: arr7(e.ot), rate: s(e.rate), fica: s(e.fica), wh: s(e.wh), other: s(e.other) };
+      return { name: s(e.name), ssn: s(e.ssn).replace(/\D/g, '').slice(0, 4), ex: s(e.ex, 3), cls: s(e.cls),
+               st: arr7(e.st), ot: arr7(e.ot), rate: s(e.rate), fp: s(e.fp), fc: s(e.fc), fica: s(e.fica), wh: s(e.wh), other: s(e.other) };
     });
-    return { fields: f, final: !!d.final, employees: emps };
+    return { fields: f, final: !!d.final, wages, employees: emps };
   }
 
   function applyFormState(state) {
     document.querySelectorAll('tbody.emp').forEach((t) => t.remove());
+    $('wageBody').innerHTML = '';
     TEXT_FIELDS.forEach((id) => $(id).value = state.fields[id]);
+    prevRule = $('otRule').value;
     $('pFinal').checked = state.final;
+    state.wages.forEach((w) => addWageRow(w));
+    if (!state.wages.length) addWageRow();
+    refreshClsList();
     state.employees.forEach((d) => addEmployee(d));
     if (!state.employees.length) addEmployee();
     updateDayHeaders();
@@ -542,7 +778,7 @@
 
   function saveState() {
     const snap = snapshot();
-    writeJSON(STORAGE_KEY, snap); // always keep a working copy (free tier + fallback)
+    writeJSON(STORAGE_KEY, snap);
     if (isPro() && store.activeId && store.profiles[store.activeId]) {
       const p = store.profiles[store.activeId];
       p.data = snap;
@@ -588,7 +824,7 @@
 
   function openProfile(id) {
     if (!store.profiles[id]) return;
-    if (store.activeId && store.profiles[store.activeId]) saveState(); // flush the profile we are leaving
+    if (store.activeId && store.profiles[store.activeId]) saveState();
     store.activeId = id;
     writeJSON(PROFILES_KEY, store);
     applyFormState(sanitizeData(store.profiles[id].data));
@@ -724,16 +960,12 @@
 
   // ---------- Start next week (Pro) ----------
   function nextWeek() {
-    if (!confirm('Start next week’s payroll?\n\nHours and deductions will be cleared, the week-ending date moves forward 7 days, and the payroll number goes up by one. Names, SSN digits, classifications, and rates stay.\n\nGenerate this week’s PDF first if you haven’t yet.')) return;
+    if (!confirm('Start next week\'s payroll?\n\nHours and deductions will be cleared, the week-ending date moves forward 7 days, and the payroll number goes up by one. Names, SSN digits, classifications, rates, fringes, and prevailing wage rates stay.\n\nGenerate this week\'s PDF first if you haven\'t yet.')) return;
     document.querySelectorAll('tbody.emp').forEach((tb) => {
       tb.querySelectorAll('.st-h, .ot-h, .f-fica, .f-wh, .f-other').forEach((i) => i.value = '');
     });
     const we = $('cWeekEnd').value;
-    if (we) {
-      const [y, m, d] = we.split('-').map(Number);
-      const dt = new Date(y, m - 1, d + 7);
-      $('cWeekEnd').value = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-    }
+    if (we) $('cWeekEnd').value = addDaysISO(we, 7);
     const pn = $('cPayrollNo').value.trim();
     const mm = pn.match(/^(.*?)(\d+)$/);
     if (mm) $('cPayrollNo').value = mm[1] + String(parseInt(mm[2], 10) + 1).padStart(mm[2].length, '0');
@@ -875,158 +1107,292 @@
   // ---------- PDF ----------
   function generatePDF() {
     const err = $('errorBox');
-    const problems = [];
-    if (!$('cName').value.trim()) problems.push('Enter the contractor name.');
-    if (!$('cWeekEnd').value) problems.push('Select the week-ending date.');
-    if (!$('pName').value.trim()) problems.push('Enter the project name and location.');
-    const emps = collect();
-    if (!emps.length) problems.push('Add at least one employee.');
-    else if (emps.some((e) => !e.name)) problems.push('Every employee needs a name.');
-    if (problems.length) {
-      err.innerHTML = '<strong>Please fix the following before generating:</strong><ul class="list-disc ml-5 mt-1">' +
-        problems.map((p) => '<li>' + p + '</li>').join('') + '</ul>';
+    if (!document.querySelectorAll('tbody.emp').length) {
+      err.innerHTML = '<strong>Add at least one employee before generating.</strong>';
       err.classList.remove('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     err.classList.add('hidden');
 
+    const chk = runChecks();
+    if (chk.errors.length) {
+      const first = chk.errors.slice(0, 6).map((t) => '• ' + t).join('\n');
+      const more = chk.errors.length > 6 ? '\n…and ' + (chk.errors.length - 6) + ' more' : '';
+      if (!confirm('The checklist found ' + chk.errors.length + ' problem' + (chk.errors.length === 1 ? '' : 's') + ':\n\n' + first + more + '\n\nGenerate the PDF anyway?')) {
+        $('checkPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+
+    const emps = collect();
+    const wm = wageMap();
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
-    const M = 30, PW = 792, PH = 612;
-    const widths = [190, 24, 24, 24, 24, 24, 24, 24, 24, 36, 40, 56, 46, 50, 46, 56];
-    const TW = widths.reduce((a, b) => a + b, 0);
-    const X = []; widths.reduce((acc, w, i) => (X[i] = acc, acc + w), M);
+    const M = 40, PW = 792, PH = 612;
+    const cols = [118, 30, 74, 20].concat(Array(7).fill(20), [30, 44, 52, 36, 40, 36, 42, 50]);
+    const CW = sum(cols);
+    const X = []; cols.reduce((acc, w, i) => (X[i] = acc, acc + w), M);
     const dates = weekDates();
     const mult = num($('otMult').value) || 1.5;
+    const rule = $('otRule').value;
     const val = (id) => $(id).value.trim();
+    const fm = (n) => fmt(n);
+    const weekEnd = $('cWeekEnd').value;
+
+    // ---- Page header: title + official-style info boxes ----
+    function cell(lbl, v, x, y, w, h) {
+      doc.setDrawColor(90); doc.setLineWidth(0.5); doc.rect(x, y, w, h);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(5.5); doc.setTextColor(90);
+      doc.text(lbl, x + 3, y + 7);
+      doc.setTextColor(0); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+      doc.text(doc.splitTextToSize(v || '', w - 6)[0] || '', x + 3, y + 19);
+    }
 
     function pageHeader() {
+      doc.setTextColor(0);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
-      doc.text('PAYROLL  -  Form WH-347 Summary', M, 40);
-      doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-      doc.text('For Contractors\' Use in Reporting Weekly Payroll on Federally Funded / Prevailing Wage Projects', M, 51);
-      doc.setFontSize(9);
-      const rx = PW - M;
-      doc.setFont('helvetica', 'bold'); doc.text('Payroll No.: ', rx - 150, 36); doc.text('Week Ending: ', rx - 150, 49);
-      doc.setFont('helvetica', 'normal');
-      doc.text(val('cPayrollNo') || '-', rx - 95, 36);
-      doc.text(fmtLongDate($('cWeekEnd').value), rx - 95, 49);
-      if ($('pFinal').checked) { doc.setFont('helvetica', 'bold'); doc.text('FINAL PAYROLL', rx - 150, 62); }
-
-      doc.setDrawColor(120); doc.line(M, 58, M + 450, 58);
-      doc.setFontSize(8.5);
-      const L = [
-        ['Contractor:', val('cName') + (val('cAddress') ? '  |  ' + val('cAddress') : '')],
-        ['Project:', val('pName')],
-        ['Project / Contract No.:', val('pNumber') || '-'],
-        ['Prime Contractor:', val('pPrime') || '-']
-      ];
-      L.forEach((r, i) => {
-        const y = 71 + i * 12;
-        doc.setFont('helvetica', 'bold'); doc.text(r[0], M, y);
-        doc.setFont('helvetica', 'normal'); doc.text(doc.splitTextToSize(r[1], 560)[0] || '', M + 105, y);
-      });
-      return 71 + L.length * 12 + 4;
+      doc.text('PAYROLL', M, 38);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+      doc.text('Form WH-347 format - for contractor\'s optional use', M + 76, 38);
+      if ($('pFinal').checked) { doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FINAL PAYROLL', M + CW, 38, { align: 'right' }); }
+      const y0 = 46;
+      cell('NAME OF CONTRACTOR OR SUBCONTRACTOR', val('cName'), M, y0, 250, 26);
+      cell('ADDRESS', val('cAddress'), M + 250, y0, 250, 26);
+      cell('PAYROLL NO.', val('cPayrollNo'), M + 500, y0, 100, 26);
+      cell('FOR WEEK ENDING', fmtLongDate(weekEnd), M + 600, y0, 112, 26);
+      cell('PROJECT AND LOCATION', val('pName'), M, y0 + 26, 332, 26);
+      cell('PROJECT OR CONTRACT NO.', val('pNumber'), M + 332, y0 + 26, 190, 26);
+      cell('PRIME CONTRACTOR', val('pPrime'), M + 522, y0 + 26, 190, 26);
+      return y0 + 56;
     }
 
     function tableHeader(y) {
-      const h = 30;
-      doc.setFillColor(226, 232, 240); doc.setDrawColor(90); doc.setLineWidth(0.5);
-      doc.rect(M, y, TW, h, 'F');
-      const labels = ['Name / SSN (last 4) / Classification', 'Type'].concat(DAYS, ['Total Hrs', 'Rate', 'Gross Earned', 'FICA', 'Withhold.', 'Other Ded.', 'Net Paid']);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5);
-      labels.forEach((t, i) => {
-        doc.rect(X[i], y, widths[i], h);
-        const cx = X[i] + widths[i] / 2;
-        if (i >= 2 && i <= 8) {
-          doc.text(t, cx, y + 12, { align: 'center' });
-          doc.setFont('helvetica', 'normal'); doc.text(dates[i - 2], cx, y + 23, { align: 'center' }); doc.setFont('helvetica', 'bold');
-        } else if (i === 0) {
-          doc.text(t, X[i] + 4, y + 18);
-        } else {
-          doc.text(doc.splitTextToSize(t, widths[i] - 4), cx, y + 13, { align: 'center' });
-        }
+      const HH = 46, TOP = 12;
+      doc.setFillColor(226, 232, 240); doc.rect(M, y, CW, HH, 'F');
+      doc.setDrawColor(90); doc.setLineWidth(0.5); doc.setTextColor(0);
+      doc.setFont('helvetica', 'bold');
+      const lbl = (t, i, ty) => {
+        doc.setFontSize(5.5);
+        doc.text(doc.splitTextToSize(t, cols[i] - 3), X[i] + cols[i] / 2, ty, { align: 'center' });
+      };
+      const full = { 0: '(1) NAME AND INDIVIDUAL IDENTIFYING NUMBER OF WORKER', 1: '(2) W/H EXEMPT.', 2: '(3) WORK CLASSIFICATION',
+        11: '(5) TOTAL HOURS', 12: '(6) RATE OF PAY*', 13: '(7) GROSS AMOUNT EARNED', 18: '(9) NET WAGES PAID FOR WEEK' };
+      Object.keys(full).forEach((k) => { const i = +k; doc.rect(X[i], y, cols[i], HH); lbl(full[k], i, y + 12); });
+      const dayW = sum(cols.slice(3, 11));
+      doc.rect(X[3], y, dayW, TOP); doc.setFontSize(5.5); doc.text('(4) DAY AND DATE', X[3] + dayW / 2, y + 8.5, { align: 'center' });
+      doc.rect(X[3], y + TOP, cols[3], HH - TOP);
+      for (let i = 0; i < 7; i++) {
+        const c = 4 + i;
+        doc.rect(X[c], y + TOP, cols[c], HH - TOP);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.text('SMTWTFS'.charAt(i), X[c] + cols[c] / 2, y + TOP + 12, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(5); doc.text(dates[i] || '', X[c] + cols[c] / 2, y + TOP + 23, { align: 'center' });
+      }
+      const dedW = sum(cols.slice(14, 18));
+      doc.setFont('helvetica', 'bold');
+      doc.rect(X[14], y, dedW, TOP); doc.setFontSize(5.5); doc.text('(8) DEDUCTIONS', X[14] + dedW / 2, y + 8.5, { align: 'center' });
+      ['FICA', 'W/H TAX', 'OTHER', 'TOTAL DED.'].forEach((t, k) => {
+        const c = 14 + k;
+        doc.rect(X[c], y + TOP, cols[c], HH - TOP);
+        doc.setFontSize(5.5); doc.text(t, X[c] + cols[c] / 2, y + TOP + 14, { align: 'center' });
       });
-      return y + h;
+      return y + HH;
     }
 
+    // ---- Employee rows ----
     let y = tableHeader(pageHeader());
-    const RH = 13;
+    const RH = 15;
     doc.setLineWidth(0.4);
 
     emps.forEach((e, idx) => {
-      if (y + RH * 2 > PH - 50) { doc.addPage(); y = tableHeader(pageHeader()); }
+      if (y + RH * 2 > PH - 40) { doc.addPage(); y = tableHeader(pageHeader()); doc.setLineWidth(0.4); }
       const H = RH * 2;
-      doc.setDrawColor(90);
-      doc.rect(X[0], y, widths[0], H);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      doc.text(doc.splitTextToSize((idx + 1) + '. ' + e.name, widths[0] - 8)[0], X[0] + 4, y + 10);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-      const sub = 'XXX-XX-' + (e.ssn || '____') + (e.cls ? '  |  ' + e.cls : '');
-      doc.text(doc.splitTextToSize(sub, widths[0] - 8)[0], X[0] + 4, y + 21);
-      [['ST', e.st], ['OT', e.ot]].forEach((r, ri) => {
+      doc.setDrawColor(90); doc.setTextColor(0);
+      doc.rect(X[0], y, cols[0], H);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+      doc.text(doc.splitTextToSize((idx + 1) + '. ' + e.name, cols[0] - 6)[0] || '', X[0] + 3, y + 11);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5);
+      doc.text('XXX-XX-' + (e.ssn || '____'), X[0] + 3, y + 22);
+      doc.rect(X[1], y, cols[1], H); doc.setFontSize(7.5);
+      doc.text(e.ex || '', X[1] + cols[1] / 2, y + H / 2 + 2.5, { align: 'center' });
+      doc.rect(X[2], y, cols[2], H); doc.setFontSize(6.5);
+      doc.text(doc.splitTextToSize(e.cls, cols[2] - 5).slice(0, 3), X[2] + 3, y + 9);
+
+      [['ST', e.st, e.stSum, e.stRate], ['OT', e.ot, e.otSum, e.otRate]].forEach((r, ri) => {
         const ry = y + ri * RH;
-        doc.rect(X[1], ry, widths[1], RH);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.text(r[0], X[1] + widths[1] / 2, ry + 9, { align: 'center' });
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+        doc.rect(X[3], ry, cols[3], RH);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.text(r[0], X[3] + cols[3] / 2, ry + 9.5, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
         r[1].forEach((h, d) => {
-          doc.rect(X[2 + d], ry, widths[2 + d], RH);
-          if (h) doc.text(hrs(h), X[2 + d] + widths[2 + d] / 2, ry + 9, { align: 'center' });
+          doc.rect(X[4 + d], ry, cols[4 + d], RH);
+          if (h) doc.text(hrs(h), X[4 + d] + cols[4 + d] / 2, ry + 9.5, { align: 'center' });
         });
+        doc.rect(X[11], ry, cols[11], RH);
+        if (ri === 0 || r[2]) doc.text(hrs(r[2]), X[11] + cols[11] / 2, ry + 9.5, { align: 'center' });
+        doc.rect(X[12], ry, cols[12], RH);
+        doc.text(fm(r[3]), X[12] + cols[12] - 3, ry + 9.5, { align: 'right' });
       });
-      const spans = [
-        [9, hrs(e.total), 'center'], [10, fmt(e.rate), 'right'], [11, fmt(e.gross), 'right'],
-        [12, fmt(e.fica), 'right'], [13, fmt(e.wh), 'right'], [14, fmt(e.other), 'right'], [15, fmt(e.net), 'right']
-      ];
-      doc.setFontSize(8);
-      spans.forEach(([i, t, al]) => {
-        doc.rect(X[i], y, widths[i], H);
-        if (i === 15) doc.setFont('helvetica', 'bold'); else doc.setFont('helvetica', 'normal');
-        const tx = al === 'center' ? X[i] + widths[i] / 2 : X[i] + widths[i] - 3;
-        doc.text(t, tx, y + H / 2 + 3, { align: al });
+
+      [[13, e.gross], [14, e.fica], [15, e.wh], [16, e.other], [17, e.ded], [18, e.net]].forEach(([i, v]) => {
+        doc.rect(X[i], y, cols[i], H);
+        doc.setFont('helvetica', i === 18 ? 'bold' : 'normal'); doc.setFontSize(7.5);
+        doc.text(fm(v), X[i] + cols[i] - 3, y + H / 2 + 2.5, { align: 'right' });
       });
       y += H;
     });
 
-    if (y + 20 > PH - 50) { doc.addPage(); y = tableHeader(pageHeader()); }
+    // ---- Totals ----
+    if (y + 16 + 30 > PH - 40) { doc.addPage(); y = tableHeader(pageHeader()); doc.setLineWidth(0.4); }
     const dayTot = [0,0,0,0,0,0,0];
-    const T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, net: 0 };
+    const T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, ded: 0, net: 0 };
     emps.forEach((e) => {
       e.st.forEach((h, i) => dayTot[i] += h + e.ot[i]);
-      T.hrs += e.total; T.gross += e.gross; T.fica += e.fica; T.wh += e.wh; T.other += e.other; T.net += e.net;
+      T.hrs += e.total; T.gross += e.gross; T.fica += e.fica; T.wh += e.wh; T.other += e.other; T.ded += e.ded; T.net += e.net;
     });
-    doc.setFillColor(241, 245, 249); doc.rect(M, y, TW, 16, 'F');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-    doc.rect(X[0], y, widths[0] + widths[1], 16);
-    doc.text('TOTALS (ST + OT)', X[0] + 4, y + 11);
-    dayTot.forEach((t, i) => { doc.rect(X[2 + i], y, widths[2 + i], 16); doc.text(hrs(t), X[2 + i] + widths[2 + i] / 2, y + 11, { align: 'center' }); });
-    doc.rect(X[9], y, widths[9], 16); doc.text(hrs(T.hrs), X[9] + widths[9] / 2, y + 11, { align: 'center' });
-    doc.rect(X[10], y, widths[10], 16);
-    [[11, T.gross], [12, T.fica], [13, T.wh], [14, T.other], [15, T.net]].forEach(([i, t]) => {
-      doc.rect(X[i], y, widths[i], 16); doc.text(fmt(t), X[i] + widths[i] - 3, y + 11, { align: 'right' });
+    Object.keys(T).forEach((k) => T[k] = round2(T[k]));
+    doc.setFillColor(241, 245, 249); doc.rect(M, y, CW, 16, 'F');
+    doc.setDrawColor(90); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(0);
+    doc.rect(X[0], y, cols[0] + cols[1] + cols[2] + cols[3], 16);
+    doc.text('TOTALS (ALL WORKERS)', X[0] + 3, y + 11);
+    dayTot.forEach((t, i) => { doc.rect(X[4 + i], y, cols[4 + i], 16); doc.text(hrs(round2(t)), X[4 + i] + cols[4 + i] / 2, y + 11, { align: 'center' }); });
+    doc.rect(X[11], y, cols[11], 16); doc.text(hrs(T.hrs), X[11] + cols[11] / 2, y + 11, { align: 'center' });
+    doc.rect(X[12], y, cols[12], 16);
+    [[13, T.gross], [14, T.fica], [15, T.wh], [16, T.other], [17, T.ded], [18, T.net]].forEach(([i, v]) => {
+      doc.rect(X[i], y, cols[i], 16); doc.text(fm(v), X[i] + cols[i] - 3, y + 11, { align: 'right' });
     });
     y += 16;
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
-    doc.text('Overtime computed at ' + mult + 'x the hourly rate. Gross = ST hours x rate + OT hours x rate x ' + mult + '. Net = Gross - FICA - Withholding - Other deductions.', M, y + 11);
-    y += 24;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5);
+    const note = '* Column (6) includes any cash paid in lieu of fringe benefits. Overtime rate = basic rate x ' + mult + ' + cash fringe. Overtime counted as: ' + OT_RULE_TEXT[rule] + '. Fringes paid to plans are not part of gross pay; see the Fringe Benefit Detail page.';
+    doc.text(doc.splitTextToSize(note, CW), M, y + 10);
 
-    const stmt = 'I, ' + (val('cSigner') || '______________________') + ', ' + (val('cSignerTitle') || '______________________') +
-      ', do hereby state: (1) that I pay or supervise the payment of the persons employed by ' + val('cName') + ' on the project ' + val('pName') +
-      '; that during the payroll period ending ' + fmtLongDate($('cWeekEnd').value) +
-      ', all persons employed on said project have been paid the full weekly wages earned, that no rebates have been or will be made either directly or indirectly to or on behalf of said contractor from the full weekly wages earned by any person, and that no deductions have been made either directly or indirectly from the full wages earned by any person, other than permissible deductions as defined in Regulations, 29 CFR Part 3; (2) that any payrolls otherwise under this contract required to be submitted for the above period are correct and complete; that the wage rates for laborers or mechanics contained therein are not less than the applicable wage rates contained in any wage determination incorporated into the contract; and that the classifications set forth therein for each laborer or mechanic conform with the work performed.';
-    const lines = doc.splitTextToSize(stmt, TW);
-    const need = 16 + lines.length * 9 + 60;
-    if (y + need > PH - 30) { doc.addPage(); y = 45; }
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('STATEMENT OF COMPLIANCE', M, y); y += 12;
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.text(lines, M, y); y += lines.length * 9 + 28;
-    doc.setDrawColor(0);
-    doc.line(M, y, M + 260, y); doc.line(M + 300, y, M + 460, y); doc.line(M + 500, y, M + 650, y);
-    doc.setFontSize(7.5);
-    doc.text('Signature', M, y + 10); doc.text('Title', M + 300, y + 10); doc.text('Date', M + 500, y + 10);
-    if (val('cSigner')) doc.text(val('cSigner'), M, y - 4);
-    if (val('cSignerTitle')) doc.text(val('cSignerTitle'), M + 300, y - 4);
+    // ---- Statement of compliance page ----
+    doc.addPage();
+    let sy = 48;
+    const ensure = (h) => { if (sy + h > PH - 36) { doc.addPage(); sy = 48; } };
+    function para(text, o) {
+      o = o || {};
+      const size = o.size || 8, indent = o.indent || 0;
+      doc.setFont('helvetica', o.bold ? 'bold' : 'normal'); doc.setFontSize(size);
+      const lines = doc.splitTextToSize(text, CW - indent);
+      ensure(lines.length * size * 1.2 + 4);
+      doc.text(lines, M + indent, sy);
+      sy += lines.length * size * 1.2 + (o.gap == null ? 5 : o.gap);
+    }
+    function checkbox(checked) {
+      doc.setDrawColor(0); doc.setLineWidth(0.6); doc.rect(M, sy - 7, 8, 8);
+      if (checked) { doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text('X', M + 4, sy - 0.5, { align: 'center' }); }
+    }
 
+    doc.setTextColor(0);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('STATEMENT OF COMPLIANCE', M, sy);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text('Date: ______________________', M + CW, sy, { align: 'right' });
+    sy += 20;
+
+    const start = weekEnd ? fmtLongDate(addDaysISO(weekEnd, -6)) : '__/__/____';
+    const end = weekEnd ? fmtLongDate(weekEnd) : '__/__/____';
+    const signer = val('cSigner') || '______________________';
+    const title = val('cSignerTitle') || '______________________';
+    para('I, ' + signer + ', ' + title + ', do hereby state:', { gap: 6 });
+    para('(1) That I pay or supervise the payment of the persons employed by ' + val('cName') + ' on the ' + val('pName') + '; that during the payroll period commencing on ' + start + ' and ending on ' + end + ', all persons employed on said project have been paid the full weekly wages earned, that no rebates have been or will be made either directly or indirectly to or on behalf of said contractor or subcontractor from the full weekly wages earned by any person, and that no deductions have been made either directly or indirectly from the full wages earned by any person, other than permissible deductions as defined in Regulations, Part 3 (29 CFR Subtitle A), issued by the Secretary of Labor under the Copeland Act, as amended (48 Stat. 948, 63 Stat. 108, 72 Stat. 967; 76 Stat. 357; 40 U.S.C. 3145), and described below:', { gap: 3 });
+    para('______________________________________________________________________________________________________________', { gap: 7 });
+    para('(2) That any payrolls otherwise under this contract required to be submitted for the above period are correct and complete; that the wage rates for laborers or mechanics contained therein are not less than the applicable wage rates contained in any wage determination incorporated into the contract; that the classifications set forth therein for each laborer or mechanic conform with the work performed.', { gap: 7 });
+    para('(3) That any apprentices employed in the above period are duly registered in a bona fide apprenticeship program registered with a State apprenticeship agency recognized by the Bureau of Apprenticeship and Training, United States Department of Labor, or if no such recognized agency exists in a State, are registered with the Bureau of Apprenticeship and Training, United States Department of Labor.', { gap: 7 });
+    para('(4) That:', { bold: true, gap: 4 });
+
+    const fl = fringeFlags(emps);
+    ensure(40);
+    checkbox(fl.plans);
+    para('(a) WHERE FRINGE BENEFITS ARE PAID TO APPROVED PLANS, FUNDS, OR PROGRAMS - in addition to the basic hourly wage rates paid to each laborer or mechanic listed in the above referenced payroll, payments of fringe benefits as listed in the contract have been or will be made to appropriate programs for the benefit of such employees, except as noted in Section 4(c) below.', { indent: 16, gap: 6 });
+    ensure(40);
+    checkbox(fl.cash);
+    para('(b) WHERE FRINGE BENEFITS ARE PAID IN CASH - Each laborer or mechanic listed in the above referenced payroll has been paid, as indicated on the payroll, an amount not less than the sum of the applicable basic hourly wage rate plus the amount of the required fringe benefits as listed in the contract, except as noted in Section 4(c) below.', { indent: 16, gap: 6 });
+
+    para('(c) EXCEPTIONS', { bold: true, gap: 3 });
+    const exc = emps.filter((e) => e.total > 0 && e.fc > 0).map((e) => ({
+      craft: e.cls || '-',
+      text: (e.name || 'Worker') + ': $' + fm(e.fc) + '/hr paid in cash in lieu of fringe benefits; $' + fm(e.fp) + '/hr paid to approved plans, funds, or programs.'
+    }));
+    ensure(40);
+    doc.setDrawColor(90); doc.setLineWidth(0.5);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+    doc.rect(M, sy, 200, 12); doc.rect(M + 200, sy, 512, 12);
+    doc.text('EXCEPTION (CRAFT)', M + 4, sy + 8.5); doc.text('EXPLANATION', M + 204, sy + 8.5);
+    sy += 12;
+    const list = exc.length ? exc : [{ craft: '', text: '' }, { craft: '', text: '' }];
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+    list.slice(0, 12).forEach((x) => {
+      const l1 = doc.splitTextToSize(x.craft, 192), l2 = doc.splitTextToSize(x.text, 504);
+      const h = Math.max(14, Math.max(l1.length, l2.length) * 9 + 5);
+      ensure(h);
+      doc.rect(M, sy, 200, h); doc.rect(M + 200, sy, 512, h);
+      doc.text(l1, M + 4, sy + 9.5); doc.text(l2, M + 204, sy + 9.5);
+      sy += h;
+    });
+    if (exc.length > 12) { doc.text('(Additional exceptions are listed on the Fringe Benefit Detail page.)', M, sy + 9); sy += 12; }
+    sy += 8;
+
+    para('(5) REMARKS:', { bold: true, gap: 3 });
+    const rem = doc.splitTextToSize(val('cRemarks'), CW - 8);
+    const remH = Math.max(34, rem.length * 9.5 + 8);
+    ensure(remH + 70);
+    doc.setDrawColor(90); doc.rect(M, sy, CW, remH);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(rem, M + 4, sy + 11);
+    sy += remH + 12;
+
+    ensure(70);
+    doc.rect(M, sy, 356, 34); doc.rect(M + 356, sy, 356, 34);
+    doc.setFontSize(5.5); doc.setTextColor(90);
+    doc.text('NAME AND TITLE', M + 3, sy + 7); doc.text('SIGNATURE', M + 359, sy + 7);
+    doc.setTextColor(0); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+    doc.text(doc.splitTextToSize((val('cSigner') ? val('cSigner') : '') + (val('cSignerTitle') ? ', ' + val('cSignerTitle') : ''), 346)[0] || '', M + 3, sy + 24);
+    sy += 46;
+    para('THE WILLFUL FALSIFICATION OF ANY OF THE ABOVE STATEMENTS MAY SUBJECT THE CONTRACTOR OR SUBCONTRACTOR TO CIVIL OR CRIMINAL PROSECUTION. SEE SECTION 1001 OF TITLE 18 AND SECTION 3729 OF TITLE 31 OF THE UNITED STATES CODE.', { bold: true, size: 7 });
+
+    // ---- Fringe benefit detail page (only when fringes or wage rates are entered) ----
+    const showDetail = Object.keys(wm).length > 0 || emps.some((e) => e.fp > 0 || e.fc > 0);
+    if (showDetail) {
+      const fc = [120, 120, 58, 66, 66, 56, 56, 170];
+      const FX = []; fc.reduce((acc, w, i) => (FX[i] = acc, acc + w), M);
+      const heads = ['WORKER', 'CLASSIFICATION', 'RATE PAID ($/HR)', 'PREVAILING BASIC', 'REQUIRED FRINGE', 'TO PLANS ($/HR)', 'CASH ($/HR)', 'CHECK'];
+      let fy = 48;
+      const detailHeader = () => {
+        doc.setTextColor(0); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+        doc.text('FRINGE BENEFIT DETAIL (ATTACHMENT)', M, fy);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.text('Payroll no. ' + (val('cPayrollNo') || '-') + '  |  Week ending ' + (fmtLongDate(weekEnd) || '-') + '  |  ' + val('cName'), M, fy + 11);
+        fy += 20;
+        doc.setFillColor(226, 232, 240); doc.rect(M, fy, CW, 22, 'F');
+        doc.setDrawColor(90); doc.setLineWidth(0.5); doc.setFont('helvetica', 'bold'); doc.setFontSize(5.5);
+        heads.forEach((t, i) => { doc.rect(FX[i], fy, fc[i], 22); doc.text(doc.splitTextToSize(t, fc[i] - 4), FX[i] + fc[i] / 2, fy + 9, { align: 'center' }); });
+        fy += 22;
+      };
+      doc.addPage();
+      detailHeader();
+      emps.forEach((e) => {
+        const w = wm[normCls(e.cls)];
+        let status = 'No matching prevailing wage rate entered';
+        if (w) {
+          const probs = [];
+          if (e.rate + 1e-9 < w.basic) probs.push('basic rate below prevailing');
+          const pkg = e.rate + e.fp + e.fc, req = w.basic + w.fringe;
+          if (pkg + 1e-9 < req) probs.push('package short $' + fm(req - pkg) + '/hr');
+          status = probs.length ? probs.join('; ') : 'OK';
+        }
+        const cellsTxt = [e.name, e.cls, fm(e.rate), w ? fm(w.basic) : '-', w ? fm(w.fringe) : '-', fm(e.fp), fm(e.fc), status];
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        const wrapped = cellsTxt.map((t, i) => doc.splitTextToSize(String(t), fc[i] - 6));
+        const h = Math.max(14, Math.max.apply(null, wrapped.map((l) => l.length)) * 8.5 + 5);
+        if (fy + h > PH - 36) { doc.addPage(); fy = 48; detailHeader(); }
+        wrapped.forEach((lines, i) => {
+          doc.setDrawColor(90); doc.rect(FX[i], fy, fc[i], h);
+          const right = i >= 2 && i <= 6;
+          doc.text(lines.slice(0, 4), right ? FX[i] + fc[i] - 3 : FX[i] + 3, fy + 9.5, right ? { align: 'right' } : undefined);
+        });
+        fy += h;
+      });
+    }
+
+    // ---- Footer on every page ----
     const pages = doc.getNumberOfPages();
     for (let p = 1; p <= pages; p++) {
       doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(110);
@@ -1037,7 +1403,7 @@
 
     logHistory(T, emps.length);
     const safe = (s) => s.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
-    doc.save('WH-347_' + safe(val('cName')) + '_' + $('cWeekEnd').value + '.pdf');
+    doc.save('WH-347_' + safe(val('cName')) + '_' + weekEnd + '.pdf');
   }
 
   // ---------- Events ----------
@@ -1046,6 +1412,24 @@
   $('generateTop').addEventListener('click', generatePDF);
   $('cWeekEnd').addEventListener('input', updateDayHeaders);
   $('otMult').addEventListener('input', recalc);
+
+  $('otRule').addEventListener('change', () => {
+    const rule = $('otRule').value;
+    document.querySelectorAll('tbody.emp').forEach((tb) => {
+      const r1 = [...tb.querySelectorAll('.st-h')], o1 = [...tb.querySelectorAll('.ot-h')];
+      if (prevRule === 'manual' && rule !== 'manual') {
+        // Straight time + overtime entries become total hours worked
+        r1.forEach((el, i) => { const t = num(el.value) + num(o1[i].value); el.value = t ? String(round2(t)) : ''; });
+      } else if (prevRule !== 'manual' && rule === 'manual') {
+        // Keep the computed straight-time hours so ST + OT still add up to the same total
+        const split = computeSplit(r1.map((el) => Math.max(0, num(el.value))), prevRule);
+        r1.forEach((el, i) => { el.value = split.st[i] ? String(split.st[i]) : ''; });
+      }
+    });
+    prevRule = rule;
+    recalc();
+  });
+
   table.addEventListener('input', (e) => {
     if (e.target.classList.contains('f-ssn')) e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
     recalc();
@@ -1058,9 +1442,20 @@
     }
   });
 
+  $('addWage').addEventListener('click', () => { addWageRow(); saveState(); });
+  $('wageCard').addEventListener('input', () => { refreshClsList(); recalc(); });
+  $('wageCard').addEventListener('click', (e) => {
+    if (e.target.classList.contains('w-rm')) {
+      e.target.closest('tr').remove();
+      if (!$('wageBody').children.length) addWageRow();
+      refreshClsList(); recalc(); saveState();
+    }
+  });
+
   // Auto-save on any edit in the form (ignores the modals and the profile switcher)
   function autoSave(e) {
     if (e.target.closest('[role="dialog"]') || e.target.id === 'profileSwitcher') return;
+    renderChecklist();
     saveState();
   }
   document.addEventListener('input', autoSave);
