@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="google-site-verification" content="fuqvPR9pxs0kihM69Obs0RJ7dBdLdQWsJLYL0a71Pts" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Certified Payroll WH-347 Generator</title>
@@ -29,9 +28,13 @@
     </div>
     <div class="flex flex-wrap items-center gap-3">
       <span id="saveStatus" class="text-xs text-emerald-300 opacity-0" aria-live="polite">✓ Saved on this device</span>
+      <div id="profileSwitcherWrap" class="hidden items-center gap-2">
+        <label for="profileSwitcher" class="text-xs text-slate-300">Profile</label>
+        <select id="profileSwitcher" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg px-3 py-2.5 max-w-[210px] focus:outline-none focus:ring-2 focus:ring-amber-400"></select>
+      </div>
       <button id="manageProfilesBtn" type="button" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-semibold px-4 py-3 rounded-lg transition">
         <span>📂 Manage Multiple Profiles</span>
-        <span class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">PRO</span>
+        <span id="proBadge" class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">PRO</span>
       </button>
       <button id="generateTop" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-lg shadow transition">
         Generate Form WH-347
@@ -112,7 +115,13 @@
         <h2 class="font-semibold text-lg">Employee Payroll</h2>
         <p class="text-sm text-slate-500">ST = straight-time hours, OT = overtime hours. Gross = ST × rate + OT × rate × multiplier.</p>
       </div>
-      <button id="addEmp" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">+ Add Employee</button>
+      <div class="flex flex-wrap gap-2">
+        <button id="nextWeekBtn" type="button" class="flex items-center gap-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">
+          <span>↻ Start Next Week</span>
+          <span id="nextWeekTag" class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">PRO</span>
+        </button>
+        <button id="addEmp" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">+ Add Employee</button>
+      </div>
     </div>
     <div class="overflow-x-auto">
       <table id="payTable" class="text-sm border-collapse">
@@ -181,11 +190,14 @@
   </div>
 </main>
 
-<!-- Paywall modal -->
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+<!-- Paywall modal (free users) -->
 <div id="paywallModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
-  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
     <div class="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500"></div>
-    <button id="paywallClose" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
     <div class="px-8 pt-8 pb-7">
       <div class="inline-block text-[11px] font-bold tracking-widest uppercase bg-amber-100 text-amber-800 rounded-full px-3 py-1 mb-4">Pro Feature</div>
       <h2 id="paywallTitle" class="text-2xl font-extrabold text-slate-900 tracking-tight">✨ Upgrade to Certified Payroll Pro</h2>
@@ -198,33 +210,146 @@
         <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Cloud syncing across all your devices</li>
       </ul>
       <div class="mt-8 flex flex-col sm:flex-row gap-3">
-        <a id="upgradeNow" href="https://formifytools.lemonsqueezy.com/checkout/buy/aadbbe3a-f4c2-4095-9e43-8de80a56b195" target="_blank" rel="noopener noreferrer"
+        <a id="upgradeNow" href="https://your-payment-link-here.com" target="_blank" rel="noopener noreferrer"
            class="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-6 py-3.5 rounded-xl shadow-lg transition">
           Upgrade Now
         </a>
-        <button id="paywallLater" type="button" class="sm:w-auto px-6 py-3.5 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition">
+        <button data-close type="button" class="sm:w-auto px-6 py-3.5 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition">
           Maybe Later
         </button>
       </div>
       <p class="mt-4 text-xs text-slate-400 text-center">Secure checkout. Cancel anytime.</p>
+
+      <div class="mt-5 pt-4 border-t border-slate-200 text-center">
+        <button id="haveLicenseBtn" type="button" class="text-sm text-slate-500 hover:text-slate-800 underline">Already upgraded? Enter your license key</button>
+        <div id="licenseBox" class="hidden mt-3 text-left">
+          <div class="flex gap-2">
+            <input id="licenseInput" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your license key"
+              class="flex-1 min-w-0 rounded-md border border-slate-300 px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none">
+            <button id="licenseBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-md transition">Activate</button>
+          </div>
+          <p id="licenseMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profiles manager modal (Pro users) -->
+<div id="profilesModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="profilesTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="h-2 shrink-0 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500"></div>
+    <div class="shrink-0 flex items-center justify-between gap-3 px-6 pt-5 pb-3">
+      <div class="flex items-center gap-3">
+        <h2 id="profilesTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">📂 Your Profiles</h2>
+        <span class="text-[10px] font-bold tracking-wider bg-emerald-100 text-emerald-800 rounded px-2 py-1">PRO ACTIVE</span>
+        <span id="profileCount" class="text-sm text-slate-500"></span>
+      </div>
+      <button data-close type="button" class="text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    </div>
+    <div class="shrink-0 flex flex-wrap gap-2 px-6 pb-4 border-b border-slate-200">
+      <button id="newProfileBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">+ New Blank Profile</button>
+      <button id="exportBtn" type="button" class="border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">⬇ Export Backup</button>
+      <button id="importBtn" type="button" class="border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">⬆ Import Backup</button>
+      <input id="importFile" type="file" accept="application/json,.json" class="hidden">
+    </div>
+    <div class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+      <div>
+        <div id="profileList" class="space-y-3"></div>
+        <p class="mt-3 text-xs text-slate-400">Each profile keeps its own contractor info, project info, and employees. Switch profiles any time from the header menu. Export a backup to move your profiles to another device.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-slate-800 mb-2">Payroll history <span class="text-slate-400 font-normal text-sm">(active profile)</span></h3>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+              <tr>
+                <th class="px-3 py-2 text-left">Week ending</th>
+                <th class="px-3 py-2 text-left">Payroll no.</th>
+                <th class="px-3 py-2 text-right">Employees</th>
+                <th class="px-3 py-2 text-right">Gross</th>
+                <th class="px-3 py-2 text-right">Net</th>
+                <th class="px-3 py-2 text-left">Generated</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="shrink-0 flex flex-wrap items-center justify-between gap-2 px-6 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
+      <span id="licenseInfo"></span>
+      <button id="deactivateBtn" type="button" class="underline hover:text-red-600">Deactivate Pro on this device</button>
     </div>
   </div>
 </div>
 
 <script>
 (function () {
+  // ======================= CONFIG =======================
+  // Lemon Squeezy: enable "license keys" on your product, then paste its numeric Product ID here
+  // so license keys from your other products can't unlock this app. Leave null to skip that check.
+  const LS_PRODUCT_ID = null;
+  const LS_API = 'https://api.lemonsqueezy.com/v1/licenses';
+  // ======================================================
+
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const STORAGE_KEY = 'wh347_payroll_v1';
+  const PROFILES_KEY = 'wh347_profiles_v1';
+  const PRO_KEY = 'wh347_pro_v1';
+  const REVALIDATE_MS = 7 * 24 * 60 * 60 * 1000;
   const TEXT_FIELDS = ['cName','cAddress','cPayrollNo','cWeekEnd','cSigner','cSignerTitle','pName','pNumber','pPrime','otMult'];
   const $ = (id) => document.getElementById(id);
   const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
   const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const hrs = (n) => (Math.round(n * 100) / 100).toString();
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
   const inputCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 focus:ring-2 focus:ring-amber-400 focus:outline-none';
   const hourCls = 'w-full rounded-md border border-slate-300 px-1 py-1 text-center focus:ring-2 focus:ring-amber-400 focus:outline-none';
   const moneyCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 text-right focus:ring-2 focus:ring-amber-400 focus:outline-none';
   const table = $('payTable');
+
+  // ---------- Storage helpers ----------
+  function readJSON(key) { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+  function writeJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { console.warn('Storage write failed:', e); return false; } }
+
+  let pro = readJSON(PRO_KEY);
+  let store = readJSON(PROFILES_KEY);
+  if (!store || typeof store !== 'object' || !store.profiles || typeof store.profiles !== 'object') store = { activeId: null, profiles: {} };
+  const isPro = () => !!(pro && pro.key && pro.instanceId);
+
+  // ---------- Toast ----------
+  let toastTimer = null;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.remove('opacity-0');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.add('opacity-0'), 2600);
+  }
+
+  // ---------- Modals ----------
+  let lastFocus = null;
+  function openModal(el, focusEl) {
+    lastFocus = document.activeElement;
+    el.classList.remove('hidden');
+    el.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    if (focusEl) focusEl.focus();
+  }
+  function closeModal(el) {
+    el.classList.add('hidden');
+    el.classList.remove('flex');
+    if (!document.querySelector('[role="dialog"].flex')) document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.querySelectorAll('[role="dialog"]').forEach((m) => {
+    m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('[data-close]')) closeModal(m); });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll('[role="dialog"].flex').forEach(closeModal);
+  });
 
   // ---------- Employee rows ----------
   function addEmployee(data) {
@@ -361,7 +486,52 @@
     });
   }
 
-  // ---------- LocalStorage persistence ----------
+  // ---------- Form state: snapshot / apply / sanitize ----------
+  function snapshot() {
+    const s = { fields: {}, final: $('pFinal').checked, employees: [] };
+    TEXT_FIELDS.forEach((id) => s.fields[id] = $(id).value);
+    document.querySelectorAll('tbody.emp').forEach((tb) => {
+      s.employees.push({
+        name: tb.querySelector('.f-name').value,
+        ssn: tb.querySelector('.f-ssn').value,
+        cls: tb.querySelector('.f-class').value,
+        st: [...tb.querySelectorAll('.st-h')].map((i) => i.value),
+        ot: [...tb.querySelectorAll('.ot-h')].map((i) => i.value),
+        rate: tb.querySelector('.f-rate').value,
+        fica: tb.querySelector('.f-fica').value,
+        wh: tb.querySelector('.f-wh').value,
+        other: tb.querySelector('.f-other').value
+      });
+    });
+    return s;
+  }
+
+  function sanitizeData(d) {
+    d = (d && typeof d === 'object') ? d : {};
+    const s = (v) => v == null ? '' : String(v).slice(0, 200);
+    const arr7 = (a) => Array.from({ length: 7 }, (_, i) => (a && a[i] != null) ? s(a[i]) : '');
+    const f = {};
+    TEXT_FIELDS.forEach((id) => { f[id] = (d.fields && d.fields[id] != null) ? s(d.fields[id]) : ''; });
+    if (!f.otMult) f.otMult = '1.5';
+    const emps = (Array.isArray(d.employees) ? d.employees : []).slice(0, 200).map((e) => {
+      e = (e && typeof e === 'object') ? e : {};
+      return { name: s(e.name), ssn: s(e.ssn).replace(/\D/g, '').slice(0, 4), cls: s(e.cls),
+               st: arr7(e.st), ot: arr7(e.ot), rate: s(e.rate), fica: s(e.fica), wh: s(e.wh), other: s(e.other) };
+    });
+    return { fields: f, final: !!d.final, employees: emps };
+  }
+
+  function applyFormState(state) {
+    document.querySelectorAll('tbody.emp').forEach((t) => t.remove());
+    TEXT_FIELDS.forEach((id) => $(id).value = state.fields[id]);
+    $('pFinal').checked = state.final;
+    state.employees.forEach((d) => addEmployee(d));
+    if (!state.employees.length) addEmployee();
+    updateDayHeaders();
+    recalc();
+  }
+
+  // ---------- Persistence ----------
   let statusTimer = null;
   function flashSaved() {
     const el = $('saveStatus');
@@ -371,49 +541,336 @@
   }
 
   function saveState() {
-    try {
-      const state = { v: 1, fields: {}, final: $('pFinal').checked, employees: [] };
-      TEXT_FIELDS.forEach((id) => state.fields[id] = $(id).value);
-      document.querySelectorAll('tbody.emp').forEach((tb) => {
-        state.employees.push({
-          name: tb.querySelector('.f-name').value,
-          ssn: tb.querySelector('.f-ssn').value,
-          cls: tb.querySelector('.f-class').value,
-          st: [...tb.querySelectorAll('.st-h')].map((i) => i.value),
-          ot: [...tb.querySelectorAll('.ot-h')].map((i) => i.value),
-          rate: tb.querySelector('.f-rate').value,
-          fica: tb.querySelector('.f-fica').value,
-          wh: tb.querySelector('.f-wh').value,
-          other: tb.querySelector('.f-other').value
-        });
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      flashSaved();
-    } catch (e) {
-      console.warn('Could not save to localStorage:', e);
+    const snap = snapshot();
+    writeJSON(STORAGE_KEY, snap); // always keep a working copy (free tier + fallback)
+    if (isPro() && store.activeId && store.profiles[store.activeId]) {
+      const p = store.profiles[store.activeId];
+      p.data = snap;
+      p.updatedAt = Date.now();
+      writeJSON(PROFILES_KEY, store);
     }
+    flashSaved();
   }
 
   function loadState() {
-    let loaded = false;
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const state = JSON.parse(raw);
-        if (state && typeof state === 'object') {
-          if (state.fields) TEXT_FIELDS.forEach((id) => { if (typeof state.fields[id] === 'string') $(id).value = state.fields[id]; });
-          $('pFinal').checked = !!state.final;
-          if (Array.isArray(state.employees)) {
-            state.employees.forEach((d) => addEmployee(d));
-            loaded = state.employees.length > 0;
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('Could not load saved data:', e);
+    let state = null;
+    if (isPro()) {
+      ensureProfiles(readJSON(STORAGE_KEY));
+      const p = store.profiles[store.activeId];
+      if (p) state = p.data;
     }
-    if (!loaded) addEmployee();
+    if (!state) state = readJSON(STORAGE_KEY);
+    applyFormState(sanitizeData(state));
   }
+
+  // ---------- Profiles (Pro) ----------
+  const newId = () => 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function blankData() { return sanitizeData({}); }
+
+  function createProfile(name, data) {
+    const id = newId();
+    store.profiles[id] = { id, name: String(name || 'New profile').slice(0, 80), createdAt: Date.now(), updatedAt: Date.now(), data, history: [] };
+    writeJSON(PROFILES_KEY, store);
+    return id;
+  }
+
+  function ensureProfiles(seed) {
+    let ids = Object.keys(store.profiles);
+    if (!ids.length) {
+      const data = sanitizeData(seed);
+      const id = createProfile(data.fields.cName || 'Profile 1', data);
+      store.activeId = id;
+      ids = [id];
+    }
+    if (!store.profiles[store.activeId]) store.activeId = ids[0];
+    writeJSON(PROFILES_KEY, store);
+  }
+
+  function openProfile(id) {
+    if (!store.profiles[id]) return;
+    if (store.activeId && store.profiles[store.activeId]) saveState(); // flush the profile we are leaving
+    store.activeId = id;
+    writeJSON(PROFILES_KEY, store);
+    applyFormState(sanitizeData(store.profiles[id].data));
+    saveState();
+    refreshProUI();
+    renderProfiles();
+  }
+
+  function renameProfile(id) {
+    const p = store.profiles[id]; if (!p) return;
+    const name = prompt('Profile name:', p.name);
+    if (name && name.trim()) { p.name = name.trim().slice(0, 80); writeJSON(PROFILES_KEY, store); refreshProUI(); renderProfiles(); }
+  }
+
+  function duplicateProfile(id) {
+    const p = store.profiles[id]; if (!p) return;
+    if (id === store.activeId) saveState();
+    const data = sanitizeData(JSON.parse(JSON.stringify(p.data)));
+    createProfile(p.name + ' (copy)', data);
+    refreshProUI(); renderProfiles(); toast('Profile duplicated');
+  }
+
+  function deleteProfile(id) {
+    const p = store.profiles[id]; if (!p) return;
+    if (!confirm('Delete the profile "' + p.name + '"? This cannot be undone.')) return;
+    delete store.profiles[id];
+    writeJSON(PROFILES_KEY, store);
+    if (id === store.activeId) {
+      const rest = Object.keys(store.profiles);
+      const next = rest.length ? rest[0] : createProfile('Profile 1', blankData());
+      store.activeId = null;
+      openProfile(next);
+    } else {
+      refreshProUI(); renderProfiles();
+    }
+    toast('Profile deleted');
+  }
+
+  function renderProfiles() {
+    const ids = Object.keys(store.profiles).sort((a, b) => store.profiles[b].updatedAt - store.profiles[a].updatedAt);
+    $('profileCount').textContent = ids.length + (ids.length === 1 ? ' profile' : ' profiles');
+    $('profileList').innerHTML = ids.map((id) => {
+      const p = store.profiles[id];
+      const f = (p.data && p.data.fields) || {};
+      const n = ((p.data && p.data.employees) || []).length;
+      const active = id === store.activeId;
+      const btn = 'px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium';
+      return `<div class="rounded-xl border ${active ? 'border-amber-400 bg-amber-50' : 'border-slate-200'} p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900 flex items-center gap-2">${esc(p.name)}${active ? '<span class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">ACTIVE</span>' : ''}</div>
+          <div class="text-sm text-slate-500 truncate">${esc(f.cName || 'No contractor yet')} · ${esc(f.pName || 'No project yet')} · ${n} employee${n === 1 ? '' : 's'}</div>
+          <div class="text-xs text-slate-400">Updated ${esc(new Date(p.updatedAt).toLocaleString())}</div>
+        </div>
+        <div class="flex flex-wrap gap-2 text-sm">
+          ${active ? '' : `<button type="button" data-act="open" data-id="${id}" class="px-3 py-1.5 rounded-md bg-slate-900 text-white hover:bg-slate-700 font-semibold">Open</button>`}
+          <button type="button" data-act="rename" data-id="${id}" class="${btn}">Rename</button>
+          <button type="button" data-act="duplicate" data-id="${id}" class="${btn}">Duplicate</button>
+          <button type="button" data-act="delete" data-id="${id}" class="px-3 py-1.5 rounded-md border border-red-200 text-red-600 hover:bg-red-50 font-medium">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    const act = store.profiles[store.activeId];
+    const h = ((act && act.history) || []).slice().reverse().slice(0, 15);
+    $('historyBody').innerHTML = h.length ? h.map((r) => `<tr class="border-t border-slate-100">
+        <td class="px-3 py-2">${esc(fmtLongDate(r.weekEnd) || '-')}</td>
+        <td class="px-3 py-2">${esc(r.payrollNo || '-')}</td>
+        <td class="px-3 py-2 text-right">${esc(r.employees)}</td>
+        <td class="px-3 py-2 text-right">${esc(money(num(r.gross)))}</td>
+        <td class="px-3 py-2 text-right">${esc(money(num(r.net)))}</td>
+        <td class="px-3 py-2 text-slate-500">${esc(new Date(r.at).toLocaleString())}</td></tr>`).join('')
+      : '<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400">No payrolls generated for this profile yet.</td></tr>';
+
+    const last4 = pro && pro.key ? String(pro.key).slice(-4) : '';
+    $('licenseInfo').textContent = 'Licensed' + (pro && pro.email ? ' to ' + pro.email : '') + (last4 ? ' · key ending ' + last4 : '');
+  }
+
+  $('profileList').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const id = b.dataset.id;
+    if (b.dataset.act === 'open') { openProfile(id); toast('Opened "' + store.profiles[id].name + '"'); }
+    else if (b.dataset.act === 'rename') renameProfile(id);
+    else if (b.dataset.act === 'duplicate') duplicateProfile(id);
+    else if (b.dataset.act === 'delete') deleteProfile(id);
+  });
+
+  $('newProfileBtn').addEventListener('click', () => {
+    const name = prompt('Name for the new profile (e.g. contractor or project):', 'New profile');
+    if (!name || !name.trim()) return;
+    const id = createProfile(name.trim(), blankData());
+    openProfile(id);
+    toast('Blank profile created');
+  });
+
+  $('profileSwitcher').addEventListener('change', (e) => openProfile(e.target.value));
+
+  // Export / import
+  $('exportBtn').addEventListener('click', () => {
+    if (store.activeId) saveState();
+    const payload = { app: 'wh347', version: 1, exportedAt: new Date().toISOString(), profiles: store.profiles };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wh347-profiles-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Backup downloaded');
+  });
+  $('importBtn').addEventListener('click', () => $('importFile').click());
+  $('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const j = JSON.parse(r.result);
+        if (!j || j.app !== 'wh347' || !j.profiles || typeof j.profiles !== 'object') throw new Error('bad file');
+        const list = Object.values(j.profiles).filter((p) => p && p.data && typeof p.data === 'object');
+        if (!list.length) throw new Error('empty');
+        if (!confirm('Import ' + list.length + ' profile' + (list.length === 1 ? '' : 's') + ' from this backup? They will be added to your existing profiles.')) return;
+        list.forEach((p) => {
+          const id = newId();
+          store.profiles[id] = { id, name: String(p.name || 'Imported profile').slice(0, 80), createdAt: Date.now(), updatedAt: Date.now(),
+            data: sanitizeData(p.data), history: Array.isArray(p.history) ? p.history.slice(-104) : [] };
+        });
+        writeJSON(PROFILES_KEY, store);
+        refreshProUI(); renderProfiles(); toast('Backup imported');
+      } catch (err) { toast('That file is not a valid backup.'); }
+    };
+    r.readAsText(file);
+    e.target.value = '';
+  });
+
+  // ---------- Start next week (Pro) ----------
+  function nextWeek() {
+    if (!confirm('Start next week’s payroll?\n\nHours and deductions will be cleared, the week-ending date moves forward 7 days, and the payroll number goes up by one. Names, SSN digits, classifications, and rates stay.\n\nGenerate this week’s PDF first if you haven’t yet.')) return;
+    document.querySelectorAll('tbody.emp').forEach((tb) => {
+      tb.querySelectorAll('.st-h, .ot-h, .f-fica, .f-wh, .f-other').forEach((i) => i.value = '');
+    });
+    const we = $('cWeekEnd').value;
+    if (we) {
+      const [y, m, d] = we.split('-').map(Number);
+      const dt = new Date(y, m - 1, d + 7);
+      $('cWeekEnd').value = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+    }
+    const pn = $('cPayrollNo').value.trim();
+    const mm = pn.match(/^(.*?)(\d+)$/);
+    if (mm) $('cPayrollNo').value = mm[1] + String(parseInt(mm[2], 10) + 1).padStart(mm[2].length, '0');
+    $('pFinal').checked = false;
+    updateDayHeaders(); recalc(); saveState();
+    toast('Next week is ready');
+  }
+
+  // ---------- Payroll history (Pro) ----------
+  function logHistory(T, count) {
+    if (!isPro() || !store.activeId || !store.profiles[store.activeId]) return;
+    const p = store.profiles[store.activeId];
+    p.history = p.history || [];
+    p.history.push({ at: Date.now(), weekEnd: $('cWeekEnd').value, payrollNo: $('cPayrollNo').value.trim(), employees: count, gross: T.gross, net: T.net });
+    if (p.history.length > 104) p.history = p.history.slice(-104);
+    writeJSON(PROFILES_KEY, store);
+  }
+
+  // ---------- Licensing (Lemon Squeezy License API) ----------
+  async function lsPost(path, params) {
+    const res = await fetch(LS_API + '/' + path, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params)
+    });
+    return res.json();
+  }
+
+  function licenseMsg(text, isError) {
+    const m = $('licenseMsg');
+    m.textContent = text;
+    m.className = 'mt-2 text-sm min-h-[1.25rem] ' + (isError ? 'text-red-600' : 'text-emerald-700');
+  }
+
+  async function activateLicense() {
+    const key = $('licenseInput').value.trim();
+    const btn = $('licenseBtn');
+    if (!key) { licenseMsg('Enter your license key.', true); return; }
+    btn.disabled = true; btn.textContent = 'Activating…'; licenseMsg('', false);
+    try {
+      const data = await lsPost('activate', {
+        license_key: key,
+        instance_name: 'WH347-' + Math.random().toString(36).slice(2, 8)
+      });
+      if (!data.activated) { licenseMsg(data.error || 'That license key could not be activated.', true); return; }
+      if (LS_PRODUCT_ID && data.meta && Number(data.meta.product_id) !== Number(LS_PRODUCT_ID)) {
+        lsPost('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => {});
+        licenseMsg('This license key belongs to a different product.', true);
+        return;
+      }
+      pro = { key, instanceId: data.instance.id, email: (data.meta && data.meta.customer_email) || '', checkedAt: Date.now() };
+      writeJSON(PRO_KEY, pro);
+      onProUnlocked();
+    } catch (e) {
+      licenseMsg('Could not reach the licensing server. Check your connection and try again.', true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Activate';
+    }
+  }
+
+  function onProUnlocked() {
+    ensureProfiles(snapshot());
+    saveState();
+    refreshProUI();
+    renderProfiles();
+    $('licenseInput').value = '';
+    licenseMsg('', false);
+    closeModal($('paywallModal'));
+    openModal($('profilesModal'));
+    toast('✨ Pro unlocked. Welcome aboard!');
+  }
+
+  async function deactivateLicense() {
+    if (!isPro()) return;
+    if (!confirm('Deactivate Pro on this device?\n\nYour saved profiles stay on this device but are locked until you activate your license again.')) return;
+    try {
+      await lsPost('deactivate', { license_key: pro.key, instance_id: pro.instanceId });
+    } catch (e) {
+      toast('Could not reach the licensing server. Try again when you are online.');
+      return;
+    }
+    pro = null;
+    try { localStorage.removeItem(PRO_KEY); } catch (e) {}
+    closeModal($('profilesModal'));
+    refreshProUI();
+    toast('Pro deactivated on this device');
+  }
+
+  async function revalidate() {
+    if (!isPro() || Date.now() - (pro.checkedAt || 0) < REVALIDATE_MS) return;
+    try {
+      const data = await lsPost('validate', { license_key: pro.key, instance_id: pro.instanceId });
+      if (data.valid === true) { pro.checkedAt = Date.now(); writeJSON(PRO_KEY, pro); }
+      else if (data.valid === false) {
+        pro = null;
+        try { localStorage.removeItem(PRO_KEY); } catch (e) {}
+        refreshProUI();
+        toast('Your Pro license is no longer active.');
+      }
+    } catch (e) { /* offline: keep Pro until we can check again */ }
+  }
+
+  $('haveLicenseBtn').addEventListener('click', () => {
+    $('licenseBox').classList.toggle('hidden');
+    $('licenseInput').focus();
+  });
+  $('licenseBtn').addEventListener('click', activateLicense);
+  $('licenseInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') activateLicense(); });
+  $('deactivateBtn').addEventListener('click', deactivateLicense);
+
+  // ---------- Pro-aware UI ----------
+  function refreshProUI() {
+    const on = isPro();
+    const badge = $('proBadge');
+    badge.textContent = on ? '✓ PRO' : 'PRO';
+    badge.className = 'text-[10px] font-bold tracking-wider rounded px-1.5 py-0.5 ' + (on ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-900');
+    $('nextWeekTag').classList.toggle('hidden', on);
+    $('profileSwitcherWrap').classList.toggle('hidden', !on);
+    if (on) {
+      const ids = Object.keys(store.profiles).sort((a, b) => store.profiles[a].name.localeCompare(store.profiles[b].name));
+      $('profileSwitcher').innerHTML = ids.map((id) => `<option value="${id}"${id === store.activeId ? ' selected' : ''}>${esc(store.profiles[id].name)}</option>`).join('');
+    }
+  }
+
+  $('manageProfilesBtn').addEventListener('click', () => {
+    if (isPro()) {
+      ensureProfiles(snapshot());
+      saveState();
+      renderProfiles();
+      openModal($('profilesModal'));
+    } else {
+      openModal($('paywallModal'), $('upgradeNow'));
+    }
+  });
+  $('nextWeekBtn').addEventListener('click', () => {
+    if (isPro()) nextWeek(); else openModal($('paywallModal'), $('upgradeNow'));
+  });
 
   // ---------- PDF ----------
   function generatePDF() {
@@ -578,33 +1035,10 @@
       doc.setTextColor(0);
     }
 
+    logHistory(T, emps.length);
     const safe = (s) => s.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
     doc.save('WH-347_' + safe(val('cName')) + '_' + $('cWeekEnd').value + '.pdf');
   }
-
-  // ---------- Paywall modal ----------
-  const modal = $('paywallModal');
-  let lastFocus = null;
-  function openPaywall() {
-    lastFocus = document.activeElement;
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-    $('upgradeNow').focus();
-  }
-  function closePaywall() {
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = '';
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
-  }
-  $('manageProfilesBtn').addEventListener('click', openPaywall);
-  $('paywallClose').addEventListener('click', closePaywall);
-  $('paywallLater').addEventListener('click', closePaywall);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closePaywall(); });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closePaywall();
-  });
 
   // ---------- Events ----------
   $('addEmp').addEventListener('click', () => { addEmployee(); saveState(); });
@@ -624,88 +1058,30 @@
     }
   });
 
-  // Auto-save on any edit anywhere on the page (runs after the handlers above)
-  document.addEventListener('input', (e) => {
-    if (e.target.closest('#paywallModal')) return;
+  // Auto-save on any edit in the form (ignores the modals and the profile switcher)
+  function autoSave(e) {
+    if (e.target.closest('[role="dialog"]') || e.target.id === 'profileSwitcher') return;
     saveState();
-  });
-  document.addEventListener('change', (e) => {
-    if (e.target.closest('#paywallModal')) return;
-    saveState();
-  });
+  }
+  document.addEventListener('input', autoSave);
+  document.addEventListener('change', autoSave);
 
   $('clearData').addEventListener('click', () => {
-    if (confirm('Clear all saved contractor, project, and employee data from this browser? This cannot be undone.')) {
+    if (confirm('Clear the current form and its auto-saved copy from this browser? Saved Pro profiles are not deleted. This cannot be undone.')) {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      if (isPro() && store.activeId && store.profiles[store.activeId]) {
+        store.profiles[store.activeId].data = blankData();
+        writeJSON(PROFILES_KEY, store);
+      }
       location.reload();
     }
   });
 
   // ---------- Init ----------
   loadState();
-  updateDayHeaders();
-  recalc();
+  refreshProUI();
+  revalidate();
 })();
 </script>
-<!-- SEO CONTENT SECTION FOR GOOGLE RANKING -->
-<section class="max-w-5xl mx-auto mt-16 p-8 bg-white border border-slate-100 rounded-2xl shadow-sm text-slate-700">
-    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-6">
-        How to Fill Out Form WH-347: The Ultimate Certified Payroll Compliance Guide
-    </h2>
-    <p class="text-lg leading-relaxed mb-6 text-slate-600">
-        Navigating government compliance on federal or state-funded construction projects can be incredibly daunting. Under the <strong>Davis-Bacon Act</strong>, contractors and subcontractors are legally required to submit weekly certified payroll records using <strong>Form WH-347</strong>. A single math error, misclassified worker, or missed filing window can result in severe penalties, frozen contract payments, or audits. 
-    </p>
-
-    <div class="grid md:grid-cols-2 gap-8 my-8">
-        <div class="p-6 bg-slate-50 border border-slate-100 rounded-xl">
-            <h3 class="text-xl font-bold text-slate-800 mb-3">📋 What is Form WH-347?</h3>
-            <p class="text-sm leading-relaxed text-slate-600">
-                Form WH-347 is a weekly payroll report mandated by the U.S. Department of Labor (DOL) for public works projects. It tracks the exact daily hours, wage rates, and fringe benefits paid to every laborer on the job site to prove adherence to prevailing wage laws.
-            </p>
-        </div>
-        <div class="p-6 bg-slate-50 border border-slate-100 rounded-xl">
-            <h3 class="text-xl font-bold text-slate-800 mb-3">⏳ Timely Filing Rules</h3>
-            <p class="text-sm leading-relaxed text-slate-600">
-                Certified payroll reports must be completed and submitted to the project's contracting agency exactly <strong>seven days</strong> after the end of each workweek. Delays can freeze funding for the entire project.
-            </p>
-        </div>
-    </div>
-
-    <h3 class="text-2xl font-bold text-slate-900 mt-8 mb-4">Step-by-Step Instructions for Form WH-347 Fields</h3>
-    <p class="mb-4">
-        To properly satisfy audit requirements, ensure your administrative team populates the following fields meticulously:
-    </p>
-    <ul class="list-disc pl-6 space-y-3 mb-6 text-slate-600">
-        <li><strong>Contractor / Subcontractor Details:</strong> State your full legal corporate identity and official address. Make sure to clearly state whether you are the Prime Contractor or a Subcontractor.</li>
-        <li><strong>Project Identification Number:</strong> Input the precise federal contract tracking number provided by the hiring agency. Missing this causes immediate system rejection.</li>
-        <li><strong>Employee Personal Identifiers:</strong> Enter the full name and only the <strong>last 4 digits of the Social Security Number (SSN)</strong> for every laborer. Full SSNs should never be included due to privacy compliance laws.</li>
-        <li><strong>Work Classification:</strong> State the exact tier of the laborer (e.g., Journeyman Electrician, Apprentice Plumber). The title must match the official local prevailing wage determination sheet perfectly.</li>
-    </ul>
-
-    <h3 class="text-2xl font-bold text-slate-900 mt-8 mb-4">Understanding Tiered Daily Math & Overtime Rules</h3>
-    <p class="mb-4">
-        The most common reason for audit failures is incorrect math regarding Straight Time (ST) versus Overtime (OT). Under the Contract Work Hours and Safety Standards Act, any hours worked over <strong>8 hours per day</strong> or <strong>40 hours per week</strong> must be paid at a minimum of 1.5 times the basic prevailing wage rate.
-    </p>
-    <div class="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-900 rounded-r-lg text-sm mb-6">
-        <strong>⚠️ Crucial Audit Tip:</strong> When filling out the grid manually, calculations must show daily breakdowns. Manually calculating these figures for 20+ workers frequently leads to fractional rounding mistakes. Our interactive dynamic calculator widget above completely automates this math natively in the browser to eliminate risk.
-    </p>
-
-    <h3 class="text-2xl font-bold text-slate-900 mt-8 mb-4">Frequently Asked Questions (FAQ)</h3>
-    <div class="space-y-6 mt-4">
-        <div>
-            <h4 class="font-bold text-slate-800">1. What happens if we don't have any work during a specific week?</h4>
-            <p class="text-sm text-slate-600 mt-1">
-                You must still submit a report! It is called a "No Work" report. You increment the payroll number sequentially, write "No Work" across the employee rows, sign the statement of compliance, and submit it on time.
-            </p>
-        </div>
-        <div>
-            <h4 class="font-bold text-slate-800">2. How long are we required to store our historical WH-347 payroll records?</h4>
-            <p class="text-sm text-slate-600 mt-1">
-                The Department of Labor requires all contractors to securely preserve their certified payroll data and corresponding site records for at least <strong>3 years</strong> following the formal completion of the contract.
-            </p>
-        </div>
-    </div>
-</section>
-
 </body>
 </html>
