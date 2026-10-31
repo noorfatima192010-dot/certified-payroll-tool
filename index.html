@@ -3,109 +3,1893 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy Policy | Certified Payroll Generator</title>
-<meta name="description" content="How Certified Payroll Generator handles your data. Your payroll entries stay in your browser unless you turn on optional encrypted cloud sync.">
+<title>Free Certified Payroll WH-347 Generator for Subcontractors</title>
+<meta name="description" content="Prepare weekly certified payroll in WH-347 format with automatic overtime, fringe benefits, a prevailing wage check, and a statement of compliance. Free, no signup. Your data stays private.">
+<meta name="theme-color" content="#0f172a">
+<meta property="og:title" content="Free Certified Payroll WH-347 Generator for Subcontractors">
+<meta property="og:description" content="Weekly certified payroll in minutes. Automatic overtime, prevailing wage check, and a print-ready PDF. Free, no signup.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8B%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  .doc h2 { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 .5rem; color: #0f172a; }
-  .doc p { margin: .6rem 0; line-height: 1.75; color: #334155; }
-  .doc ul { list-style: disc; margin: .6rem 0 .6rem 1.4rem; }
-  .doc li { margin: .3rem 0; line-height: 1.75; color: #334155; }
-  .doc a { color: #b45309; text-decoration: underline; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+  #payTable { table-layout: fixed; width: 1424px; }
+  #payTable tbody.emp:nth-of-type(even) { background: #f8fafc; }
+  #payTable input { min-width: 0; }
+  #saveStatus { transition: opacity .4s ease; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
+  .modal-card { animation: modalIn .22s ease-out; }
+  .site-link { text-decoration: underline; }
+  .site-link:hover { color: #b45309; }
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
+<noscript><div style="background:#fef2f2;color:#991b1b;padding:12px;text-align:center">This tool needs JavaScript. Please enable it in your browser.</div></noscript>
+
 <header class="bg-slate-900 text-white">
-  <div class="max-w-3xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
-    <a href="index.html" class="font-bold tracking-tight">Certified Payroll Generator</a>
-    <a href="index.html" class="text-sm bg-amber-500 hover:bg-amber-400 text-slate-900 font-semibold px-4 py-2 rounded-lg">← Back to the generator</a>
+  <div class="max-w-[1400px] mx-auto px-6 pt-5 pb-4 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold tracking-tight">Certified Payroll Generator</h1>
+      <p class="text-slate-300 text-sm">Form WH-347 style payroll and statement of compliance for construction subcontractors</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <span id="saveStatus" class="text-xs text-emerald-300 opacity-0" aria-live="polite">✓ Saved on this device</span>
+      <span id="syncStatus" class="hidden text-xs text-sky-200" aria-live="polite"></span>
+      <div id="profileSwitcherWrap" class="hidden items-center gap-2">
+        <label for="profileSwitcher" class="text-xs text-slate-300">Profile</label>
+        <select id="profileSwitcher" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg px-3 py-2.5 max-w-[210px] focus:outline-none focus:ring-2 focus:ring-amber-400"></select>
+      </div>
+      <button id="manageProfilesBtn" type="button" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-semibold px-4 py-3 rounded-lg transition">
+        <span>📂 Manage Multiple Profiles</span>
+        <span id="proBadge" class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">PRO</span>
+      </button>
+      <button id="generateTop" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-lg shadow transition">
+        Generate Form WH-347
+      </button>
+    </div>
+  </div>
+  <div class="max-w-[1400px] mx-auto px-6 pb-6 border-t border-slate-800 pt-4">
+    <p class="text-lg md:text-xl font-semibold tracking-tight">Weekly certified payroll, finished in minutes.</p>
+    <p class="text-slate-300 text-sm mt-1 max-w-3xl">Prepare a WH-347 format payroll, a statement of compliance, and a fringe benefit detail page, with automatic overtime and a prevailing wage check. Free to use, no signup.</p>
+    <div class="flex flex-wrap gap-2 mt-3 text-xs text-slate-200">
+      <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ Free to use</span>
+      <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ No signup</span>
+      <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ Your data stays private</span>
+      <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ Automatic overtime</span>
+      <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ Prevailing wage check</span>
+    </div>
   </div>
 </header>
 
-<main class="max-w-3xl mx-auto px-6 py-10">
-  <article class="doc bg-white rounded-xl shadow-sm border border-slate-200 px-8 py-8">
-    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Privacy Policy</h1>
-    <p class="text-sm text-slate-500">Last updated: October 30, 2026</p>
+<main class="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
 
-    <div class="mt-5 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
-      <p style="margin:0"><strong>The short version:</strong> what you type into the generator is saved in your own browser, and the free version never uploads it. If you turn on optional Pro cloud sync, your profiles are encrypted in your browser with a passphrase only you know before they are uploaded, so we cannot read them.</p>
+  <div id="errorBox" class="hidden bg-red-50 border border-red-300 text-red-800 rounded-lg px-4 py-3 text-sm"></div>
+
+  <!-- Summary cards -->
+  <section class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Employees</div>
+      <div id="sumEmp" class="text-2xl font-bold mt-1">0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Total Hours</div>
+      <div id="sumHrs" class="text-2xl font-bold mt-1">0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Gross Wages</div>
+      <div id="sumGross" class="text-2xl font-bold mt-1">$0.00</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Deductions</div>
+      <div id="sumDed" class="text-2xl font-bold mt-1">$0.00</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-emerald-200 p-4">
+      <div class="text-xs uppercase tracking-wide text-emerald-700">Net Wages</div>
+      <div id="sumNet" class="text-2xl font-bold mt-1 text-emerald-700">$0.00</div>
+    </div>
+  </section>
+
+  <!-- Contractor & Project -->
+  <section class="grid lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+      <h2 class="font-semibold text-lg mb-4">Contractor Information</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Contractor / Subcontractor Name</span>
+          <input id="cName" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Address</span>
+          <input id="cAddress" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Payroll No.</span>
+          <input id="cPayrollNo" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Week Ending (Saturday)</span>
+          <input id="cWeekEnd" type="date" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Signer Name</span>
+          <input id="cSigner" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Signer Title</span>
+          <input id="cSignerTitle" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Remarks <span class="text-slate-400 font-normal">(printed in item 5 of the statement of compliance)</span></span>
+          <textarea id="cRemarks" rows="2" maxlength="400" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></textarea></label>
+      </div>
     </div>
 
-    <h2>1. Who we are</h2>
-    <p>Certified Payroll Generator (“we”, “us”, “our”) is a browser-based tool operated by Formify Tools. It helps contractors prepare weekly payroll sheets and statements of compliance. You can reach us at <a href="mailto:noorfatima192010@gmail.com">noorfatima192010@gmail.com</a>.</p>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+      <h2 class="font-semibold text-lg mb-4">Project Information</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <label class="block sm:col-span-2"><span class="text-sm font-medium">Project Name &amp; Location</span>
+          <input id="pName" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Project / Contract No.</span>
+          <input id="pNumber" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Prime Contractor</span>
+          <input id="pPrime" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Overtime Multiplier</span>
+          <input id="otMult" type="number" step="0.05" min="1" value="1.5" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
+        <label class="block"><span class="text-sm font-medium">Overtime Rule</span>
+          <select id="otRule" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
+            <option value="weekly">Automatic: hours over 40 in the workweek</option>
+            <option value="daily">Automatic: hours over 8 in a day</option>
+            <option value="both">Automatic: over 8 a day, then over 40 a week</option>
+            <option value="manual">Manual: I enter overtime myself</option>
+          </select></label>
+        <label class="flex items-center gap-2 sm:col-span-2"><input id="pFinal" type="checkbox" class="h-4 w-4 rounded border-slate-300">
+          <span class="text-sm font-medium">This is the final payroll for this project</span></label>
+      </div>
+    </div>
+  </section>
 
-    <h2>2. Information that stays on your device</h2>
-    <p>When you use the generator, the following is saved in your browser’s local storage on your own device:</p>
-    <ul>
-      <li>Contractor and project information, remarks, and signer details</li>
-      <li>Prevailing wage rates you enter</li>
-      <li>Employee names, the last 4 digits of an SSN or ID number, withholding exemptions, work classifications, hours, pay rates, fringe amounts, and deductions</li>
-      <li>Pro users: saved profiles, payroll history totals, a record of your license activation, and, if you turn on cloud sync, your sync passphrase</li>
+  <!-- Prevailing wage rates -->
+  <section id="wageCard" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+    <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+      <div>
+        <h2 class="font-semibold text-lg">Prevailing Wage Rates</h2>
+        <p class="text-sm text-slate-500 max-w-3xl">Copy the basic hourly rate and required fringe benefit for each classification from your project's wage determination. The checklist flags any worker paid below them. Names in the Work Classification column autocomplete from this list.</p>
+      </div>
+      <button id="addWage" type="button" class="border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">+ Add Rate</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm" style="min-width:560px">
+        <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+          <tr>
+            <th class="px-2 py-2 text-left">Classification</th>
+            <th class="px-2 py-2 text-right w-40">Basic rate ($/hr)</th>
+            <th class="px-2 py-2 text-right w-40">Required fringe ($/hr)</th>
+            <th class="px-2 py-2 w-24"></th>
+          </tr>
+        </thead>
+        <tbody id="wageBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Employees -->
+  <section class="bg-white rounded-xl shadow-sm border border-slate-200">
+    <div class="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-slate-200">
+      <div>
+        <h2 class="font-semibold text-lg">Employee Payroll</h2>
+        <p class="text-sm text-slate-500 max-w-3xl">Enter total hours worked each day. With an automatic overtime rule, the OT row fills itself in. Gross = ST hours × (rate + cash fringe) + OT hours × (rate × multiplier + cash fringe). Fringes paid to plans are reported but are not part of the worker's gross pay.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button id="nextWeekBtn" type="button" class="flex items-center gap-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">
+          <span>↻ Start Next Week</span>
+          <span id="nextWeekTag" class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">PRO</span>
+        </button>
+        <button id="addEmp" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">+ Add Employee</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table id="payTable" class="text-sm border-collapse">
+        <colgroup>
+          <col style="width:240px">
+          <col style="width:44px">
+          <col style="width:56px"><col style="width:56px"><col style="width:56px"><col style="width:56px">
+          <col style="width:56px"><col style="width:56px"><col style="width:56px">
+          <col style="width:64px">
+          <col style="width:120px">
+          <col style="width:100px">
+          <col style="width:96px"><col style="width:96px"><col style="width:96px">
+          <col style="width:100px">
+          <col style="width:76px">
+        </colgroup>
+        <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+          <tr>
+            <th class="px-2 py-3 text-left">Name / SSN last 4 / Exempt. / Classification</th>
+            <th class="px-1 py-3">Type</th>
+            <th class="px-1 py-3 day-h">Sun<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Mon<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Tue<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Wed<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Thu<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Fri<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-1 py-3 day-h">Sat<br><span class="font-normal normal-case text-slate-400">&nbsp;</span></th>
+            <th class="px-2 py-3">Total Hrs</th>
+            <th class="px-2 py-3">Rate / Fringe ($/hr)</th>
+            <th class="px-2 py-3">Gross Earned</th>
+            <th class="px-2 py-3">FICA</th>
+            <th class="px-2 py-3">Withholding</th>
+            <th class="px-2 py-3">Other Ded.</th>
+            <th class="px-2 py-3">Net Paid</th>
+            <th class="px-2 py-3"></th>
+          </tr>
+        </thead>
+        <!-- Employee <tbody> groups are inserted here by JavaScript, directly inside the table -->
+        <tfoot class="bg-slate-900 text-white font-semibold">
+          <tr>
+            <td class="px-2 py-3" colspan="2">TOTALS (ST + OT)</td>
+            <td class="px-1 py-3 text-center ft-day">0</td><td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-1 py-3 text-center ft-day">0</td><td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-1 py-3 text-center ft-day">0</td><td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-1 py-3 text-center ft-day">0</td>
+            <td class="px-2 py-3 text-center" id="ftHrs">0</td>
+            <td></td>
+            <td class="px-2 py-3 text-right" id="ftGross">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftFica">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftWh">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftOther">$0.00</td>
+            <td class="px-2 py-3 text-right" id="ftNet">$0.00</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- Pre-submission checklist -->
+  <section id="checkPanel" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+      <h2 class="font-semibold text-lg">Pre-Submission Checklist</h2>
+      <span id="checkBadge" class="text-xs font-bold rounded-full px-3 py-1 bg-slate-100 text-slate-600"></span>
+    </div>
+    <ul id="checkList" class="space-y-1.5 text-sm"></ul>
+    <p class="mt-3 text-xs text-slate-400">The checklist updates as you type. Errors mean the sheet is likely to be rejected. Warnings are worth a second look.</p>
+  </section>
+
+  <!-- Generate -->
+  <div class="flex flex-col items-center gap-3 pt-2">
+    <button id="generateBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-10 py-4 rounded-xl shadow-lg transition">
+      Generate Form WH-347
+    </button>
+    <p class="text-xs text-slate-500 max-w-2xl text-center">Creates a print-ready PDF: a WH-347 style payroll page, a statement of compliance, and a fringe benefit detail page when fringes are entered. Always verify requirements with your contracting officer or prime contractor. This tool is not legal advice. <a href="disclaimer.html" class="site-link text-slate-600">Read the full notice.</a></p>
+    <p class="text-xs text-slate-500 max-w-2xl text-center">Your entries are saved automatically in this browser. They are not uploaded unless you turn on Pro cloud sync, and then only in encrypted form.
+      <button id="clearData" type="button" class="underline text-slate-600 hover:text-red-600 ml-1">Clear saved data</button></p>
+  </div>
+
+  <!-- Trust section -->
+  <section id="trust" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl mx-auto w-full">
+    <h2 class="text-lg font-bold text-slate-900">Built for small contractors. Your data stays with you.</h2>
+    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Everything you type is saved in your own browser, and the free version never uploads it. If you turn on optional Pro cloud sync, your profiles are encrypted in your browser with a passphrase only you know before they are uploaded, so we can’t read your payroll, employee names, or SSN digits. You can clear your saved data any time with one click.</p>
+    <p class="mt-3 text-sm text-slate-600 leading-relaxed"><strong class="text-slate-900">Independent tool.</strong> Certified Payroll Generator is not affiliated with or endorsed by the U.S. Department of Labor. It produces a payroll and statement of compliance in the WH-347 format. Always confirm that your contract, prime contractor, or agency accepts this format or requires its own portal.</p>
+    <p class="mt-3 text-sm text-slate-600 leading-relaxed"><strong class="text-slate-900">Fair pricing.</strong> Free to use. Pro is $29/month, with no contract, and you can cancel any time.</p>
+    <p class="mt-3 text-sm text-slate-600 leading-relaxed"><strong class="text-slate-900">Questions or problems?</strong> Email <a href="mailto:noorfatima192010@gmail.com" class="site-link text-slate-800">noorfatima192010@gmail.com</a> and a real person will reply.</p>
+  </section>
+
+  <!-- WH-347 guide -->
+  <article id="guide" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 max-w-4xl mx-auto w-full">
+    <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">How to Fill Out Form WH-347: The Ultimate Certified Payroll Compliance Guide</h2>
+    <p class="mt-3 text-sm text-slate-600 leading-relaxed">Navigating government compliance on federal and state-funded construction projects can feel daunting. Under the <strong class="text-slate-800">Davis-Bacon Act</strong> and many state prevailing wage laws, contractors and subcontractors on covered projects must submit certified weekly payroll records, and <strong class="text-slate-800">Form WH-347</strong> is a common way to do it. A single math error, a misclassified worker, or a missed filing can lead to withheld payments, penalties, or an audit.</p>
+
+    <div class="mt-5 grid md:grid-cols-2 gap-4">
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <h3 class="font-bold text-slate-900 text-sm">📋 What is Form WH-347?</h3>
+        <p class="mt-2 text-xs text-slate-600 leading-relaxed">Form WH-347 is a weekly payroll report published by the U.S. Department of Labor (DOL) for contractors on covered public works projects. Using it is optional: you may use your own payroll form as long as it contains the same information. It records each worker's daily hours, pay rates, gross pay, and deductions, and the statement of compliance certifies that wages and fringe benefits were paid correctly.</p>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+        <h3 class="font-bold text-slate-900 text-sm">⏳ Timely Filing Rules</h3>
+        <p class="mt-2 text-xs text-slate-600 leading-relaxed">Certified payrolls are generally submitted every week while work is performed, typically within seven days after the regular payment date of the payroll period. Your contract or agency may set its own deadline or require an online portal, so confirm yours. Late or missing payrolls can lead to withheld payments.</p>
+      </div>
+    </div>
+
+    <h3 class="mt-8 text-lg font-bold text-slate-900">Step-by-Step Instructions for Form WH-347 Fields</h3>
+    <p class="mt-2 text-sm text-slate-600">To satisfy audit requirements, make sure each of these fields is filled in carefully:</p>
+    <ul class="mt-3 list-disc pl-5 space-y-2 text-sm text-slate-600 leading-relaxed">
+      <li><strong class="text-slate-800">Contractor / Subcontractor Details:</strong> Enter your full legal business name and official address. Many agencies also want to know whether you are the prime contractor or a subcontractor.</li>
+      <li><strong class="text-slate-800">Project or Contract Number:</strong> Enter the project or contract number provided by the hiring agency or prime contractor. A missing number can cause the payroll to be rejected.</li>
+      <li><strong class="text-slate-800">Employee Personal Identifiers:</strong> Enter the full name and only the <strong class="text-slate-800">last 4 digits of the Social Security Number (SSN)</strong> for every worker. Full SSNs should not be included, for privacy reasons.</li>
+      <li><strong class="text-slate-800">Work Classification:</strong> State the worker's classification (for example, Journeyman Electrician, Laborer, or registered Apprentice). It must match a classification in your project's wage determination.</li>
+      <li><strong class="text-slate-800">Rate of Pay, Gross, and Deductions:</strong> Record the hourly rate (including any cash paid in lieu of fringe benefits), gross pay, each deduction, and net pay for the week.</li>
     </ul>
-    <p>PDFs are created inside your browser. Backup files you export are saved on your own device, and you are responsible for keeping them safe. Unless you turn on cloud sync (section 4), we do not receive, access, or store any of this.</p>
-    <p>The app only accepts the last 4 digits of an SSN or ID number. Please do not enter a full Social Security number anywhere in the tool. You can erase the saved form at any time with the “Clear saved data” button, or by clearing your browser’s site data. Because the data lives in your browser, it can be lost if you clear your browser data or switch devices, so keep your own records.</p>
 
-    <h2>3. Information we may receive</h2>
-    <ul>
-      <li><strong>When you buy Pro:</strong> payments, billing, and taxes are handled by our payment provider, Lemon Squeezy, which acts as the merchant of record. We receive limited order information from it, such as your email address, order details, and license key. We never see your full card number.</li>
-      <li><strong>When you contact us:</strong> your email address and the contents of your message.</li>
-    </ul>
+    <h3 class="mt-8 text-lg font-bold text-slate-900">Understanding Daily Math &amp; Overtime Rules</h3>
+    <p class="mt-2 text-sm text-slate-600 leading-relaxed">Overtime is one of the most common sources of payroll errors. Under the Contract Work Hours and Safety Standards Act (CWHSSA), hours worked over <strong class="text-slate-800">40 in a workweek</strong> must be paid at no less than 1.5 times the basic rate of pay. Some states, contracts, and union agreements also require daily overtime (for example, hours over 8 in a day), so check the rules for your project.</p>
 
-    <h2>4. Optional cloud sync (Pro)</h2>
-    <p>Cloud sync is optional, off by default, and available only to Pro subscribers. If you turn it on:</p>
-    <ul>
-      <li><strong>Your profiles are encrypted in your browser before they leave your device.</strong> The encryption key is derived from a passphrase that you choose. Your passphrase is never sent to us. We store only the encrypted data, so we cannot read your profiles, employee names, SSN digits, or pay rates.</li>
-      <li><strong>What we store:</strong> the encrypted data, a random value used in the encryption, a version number, the time of the last update, and a one-way hash of your license key that identifies your storage. We do not store your license key itself in this table.</li>
-      <li><strong>What we receive when syncing:</strong> your license key and a device identifier, which we use to confirm with Lemon Squeezy that your subscription is active, plus standard connection information such as your IP address.</li>
-      <li><strong>If you forget your passphrase, we cannot recover your synced data.</strong> Data stored on your devices is not affected.</li>
-      <li><strong>Retention and deletion:</strong> synced data is kept while your subscription is active and for up to 12 months after your last sync, then deleted. You can delete it any time with “Delete my cloud data” in the Profiles window, or by emailing us.</li>
-    </ul>
+    <div class="mt-6 rounded-xl border-l-4 border-amber-400 bg-amber-50 p-5">
+      <p class="text-sm text-slate-700 leading-relaxed"><strong class="text-amber-800">⚠️ Audit Tip:</strong> Show daily hours for each worker and calculate straight time and overtime separately. Doing this by hand for 20 or more workers often leads to rounding and addition mistakes. The calculator above does the arithmetic and runs a checklist for you, but you are still responsible for reviewing every figure before you sign.</p>
 
-    <h2>5. Third-party services</h2>
-    <ul>
-      <li><strong>Lemon Squeezy.</strong> When you activate Pro, and about once a week while Pro is active, the app sends your license key and a random device name to Lemon Squeezy to check that the license is valid. No payroll data is sent.</li>
-      <li><strong>Supabase.</strong> If you use cloud sync, the encrypted data is stored with our database and function provider, Supabase, which also processes standard request information such as IP addresses.</li>
-      <li><strong>Script providers.</strong> The page loads code libraries (for example Tailwind CSS and jsPDF) from content delivery networks. Like any website, those providers can see standard request information such as your IP address and browser type.</li>
-      <li><strong>Hosting provider.</strong> Our host may keep standard server logs, such as IP address and pages requested.</li>
-    </ul>
-    <p>These providers have their own privacy policies.</p>
+      <h3 class="mt-6 text-lg font-bold text-slate-900">Frequently Asked Questions (FAQ)</h3>
+      <div class="mt-3 space-y-4 text-sm text-slate-600 leading-relaxed">
+        <div>
+          <p class="font-semibold text-slate-800">1. What happens if we don't have any work during a specific week?</p>
+          <p>Rules vary by agency, and many require a "No Work" payroll. If yours does, increment the payroll number, write "No Work" across the employee rows, sign the statement of compliance, and submit it on time. Ask your contracting officer whether it is required for your project.</p>
+        </div>
+        <div>
+          <p class="font-semibold text-slate-800">2. How long are we required to keep our certified payroll records?</p>
+          <p>At least three years after the work on the contract is completed, under the Davis-Bacon contract clauses. Some states and agencies require longer, so check your contract.</p>
+        </div>
+        <div>
+          <p class="font-semibold text-slate-800">3. Is Form WH-347 required?</p>
+          <p>No. You may use your own payroll form if it contains the same information, but the statement of compliance is still required. Some agencies require their own form or an online portal, so confirm before you submit.</p>
+        </div>
+      </div>
+    </div>
 
-    <h2>6. Cookies and analytics</h2>
-    <p>We do not set cookies, and we do not currently use advertising or analytics tools. The tool uses your browser’s local storage only to remember your work, your Pro license, and your sync settings. If we add analytics later, we will update this policy first.</p>
-
-    <h2>7. How we use the information we receive</h2>
-    <p>We use it to provide and support Pro, answer your questions, prevent misuse of license keys, and meet legal obligations. We do not sell your personal information.</p>
-
-    <h2>8. Keeping and deleting information</h2>
-    <p>Data on your device is yours to delete at any time. For information we hold, such as emails and order details, we keep it only as long as needed for support, accounting, and legal reasons. Synced data is handled as described in section 4. To ask us to delete anything we hold, email us.</p>
-
-    <h2>9. Your choices and rights</h2>
-    <p>Depending on where you live, you may have rights to access, correct, or delete personal information we hold about you. Email us and we will respond within a reasonable time.</p>
-
-    <h2>10. Security</h2>
-    <p>Because your payroll entries are stored on your device, their security depends on your device. Please use a screen lock, avoid shared or public computers, choose a strong sync passphrase that you do not use elsewhere, and keep exported backups private. No method of storage or transmission is completely secure.</p>
-
-    <h2>11. Children</h2>
-    <p>This tool is built for business use and is not directed to anyone under 18.</p>
-
-    <h2>12. Changes to this policy</h2>
-    <p>We may update this policy from time to time. The “Last updated” date above shows the latest version.</p>
-
-    <h2>13. Contact</h2>
-    <p>Questions about this policy? Email <a href="mailto:noorfatima192010@gmail.com">noorfatima192010@gmail.com</a>.</p>
+    <p class="mt-5 text-xs text-slate-400">This guide is general information, not legal advice. Always verify requirements with your contracting officer or prime contractor. <a href="disclaimer.html" class="underline hover:text-amber-700">Read the full notice.</a></p>
   </article>
 </main>
 
-<footer class="border-t border-slate-200 bg-white">
-  <div class="max-w-3xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
-    <p>© 2026 Certified Payroll Generator</p>
-    <nav class="flex flex-wrap gap-5">
-      <a href="index.html" class="underline hover:text-amber-700">Home</a>
-      <a href="privacy.html" class="underline hover:text-amber-700">Privacy Policy</a>
-      <a href="terms.html" class="underline hover:text-amber-700">Terms of Service</a>
-      <a href="disclaimer.html" class="underline hover:text-amber-700">Disclaimer</a>
+<footer class="border-t border-slate-200 bg-white mt-4">
+  <div class="max-w-[1400px] mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+    <p>© 2026 Certified Payroll Generator. Independent tool, not affiliated with the U.S. Department of Labor.</p>
+    <nav class="flex flex-wrap gap-5" aria-label="Legal">
+      <a href="privacy.html" class="site-link">Privacy Policy</a>
+      <a href="terms.html" class="site-link">Terms of Service</a>
+      <a href="disclaimer.html" class="site-link">Disclaimer</a>
+      <a href="mailto:noorfatima192010@gmail.com" class="site-link">Contact</a>
     </nav>
   </div>
 </footer>
+
+<datalist id="clsList"></datalist>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+<!-- Paywall modal (free users) -->
+<div id="paywallModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
+    <div class="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500"></div>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <div class="px-8 pt-8 pb-7">
+      <div class="inline-block text-[11px] font-bold tracking-widest uppercase bg-amber-100 text-amber-800 rounded-full px-3 py-1 mb-4">Pro Feature</div>
+      <h2 id="paywallTitle" class="text-2xl font-extrabold text-slate-900 tracking-tight">✨ Upgrade to Certified Payroll Pro</h2>
+      <p class="mt-3 text-slate-600 leading-relaxed">
+        Save unlimited contractor profiles, manage multiple federal project sites simultaneously, and unlock cloud syncing. Start saving hours every week for just <strong class="text-slate-900">$29/month</strong>.
+      </p>
+      <ul class="mt-5 space-y-2 text-sm text-slate-700">
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Unlimited contractor profiles</li>
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Multiple federal project sites at once</li>
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Encrypted cloud syncing across all your devices</li>
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Start Next Week in one click, plus payroll history</li>
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Clean PDFs without the “Created with” footer</li>
+      </ul>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a id="upgradeNow" href="https://formifytools.lemonsqueezy.com/checkout/buy/1f2c4147-27e9-4f02-9002-f817f3392026" target="_blank" rel="noopener noreferrer"
+           class="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-6 py-3.5 rounded-xl shadow-lg transition">
+          Upgrade Now
+        </a>
+        <button data-close type="button" class="sm:w-auto px-6 py-3.5 rounded-xl border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition">
+          Maybe Later
+        </button>
+      </div>
+      <p class="mt-4 text-xs text-slate-400 text-center">Secure checkout. Cancel anytime. By upgrading you agree to our <a href="terms.html" target="_blank" rel="noopener" class="underline">Terms of Service</a> and <a href="privacy.html" target="_blank" rel="noopener" class="underline">Privacy Policy</a>.</p>
+
+      <div class="mt-5 pt-4 border-t border-slate-200 text-center">
+        <button id="haveLicenseBtn" type="button" class="text-sm text-slate-500 hover:text-slate-800 underline">Already upgraded? Enter your license key</button>
+        <div id="licenseBox" class="hidden mt-3 text-left">
+          <div class="flex gap-2">
+            <input id="licenseInput" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your license key"
+              class="flex-1 min-w-0 rounded-md border border-slate-300 px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none">
+            <button id="licenseBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-md transition">Activate</button>
+          </div>
+          <p id="licenseMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profiles manager modal (Pro users) -->
+<div id="profilesModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="profilesTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div class="h-2 shrink-0 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500"></div>
+    <div class="shrink-0 flex items-center justify-between gap-3 px-6 pt-5 pb-3">
+      <div class="flex items-center gap-3">
+        <h2 id="profilesTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">📂 Your Profiles</h2>
+        <span class="text-[10px] font-bold tracking-wider bg-emerald-100 text-emerald-800 rounded px-2 py-1">PRO ACTIVE</span>
+        <span id="profileCount" class="text-sm text-slate-500"></span>
+      </div>
+      <button data-close type="button" class="text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    </div>
+    <div class="shrink-0 flex flex-wrap gap-2 px-6 pb-4 border-b border-slate-200">
+      <button id="newProfileBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">+ New Blank Profile</button>
+      <button id="exportBtn" type="button" class="border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">⬇ Export Backup</button>
+      <button id="importBtn" type="button" class="border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">⬆ Import Backup</button>
+      <input id="importFile" type="file" accept="application/json,.json" class="hidden">
+    </div>
+    <div class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+
+      <!-- Cloud sync panel -->
+      <div id="syncPanel" class="rounded-xl border border-sky-200 bg-sky-50 p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 class="font-semibold text-slate-900">☁ Cloud sync</h3>
+          <span id="syncPanelStatus" class="text-xs text-slate-600"></span>
+        </div>
+        <p id="syncNotConfigured" class="hidden mt-2 text-sm text-slate-600">Cloud sync isn't set up on this site yet.</p>
+        <div id="syncOff" class="mt-2">
+          <p class="text-sm text-slate-600 leading-relaxed">Keep your profiles in sync across your devices. Everything is encrypted in your browser with a passphrase only you know before it is uploaded, so we can't read it. <strong>If you forget the passphrase, we can't recover your synced data.</strong> On your first device, choose a passphrase. On your other devices, enter the same one.</p>
+          <div class="mt-3 grid sm:grid-cols-2 gap-2">
+            <input id="syncPass" type="password" autocomplete="off" placeholder="Sync passphrase (8+ characters)" class="rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+            <input id="syncPass2" type="password" autocomplete="off" placeholder="Confirm (first device only)" class="rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+          </div>
+          <button id="syncEnableBtn" type="button" class="mt-3 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">Turn on cloud sync</button>
+        </div>
+        <div id="syncOn" class="hidden mt-2">
+          <p class="text-sm text-slate-600">Cloud sync is on for this device. Changes upload automatically a few seconds after you stop typing.</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button id="syncNowBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">Sync now</button>
+            <button id="syncOffBtn" type="button" class="border border-slate-300 hover:bg-white text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">Turn off on this device</button>
+            <button id="syncDeleteBtn" type="button" class="border border-red-200 text-red-600 hover:bg-red-50 text-sm font-semibold px-4 py-2 rounded-lg transition">Delete my cloud data</button>
+          </div>
+        </div>
+        <p id="syncMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
+      </div>
+
+      <div>
+        <div id="profileList" class="space-y-3"></div>
+        <p class="mt-3 text-xs text-slate-400">Each profile keeps its own contractor info, project info, prevailing wage rates, and employees. Switch profiles any time from the header menu. Export a backup to keep a copy of your profiles as a file.</p>
+      </div>
+      <div>
+        <h3 class="font-semibold text-slate-800 mb-2">Payroll history <span class="text-slate-400 font-normal text-sm">(active profile)</span></h3>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+              <tr>
+                <th class="px-3 py-2 text-left">Week ending</th>
+                <th class="px-3 py-2 text-left">Payroll no.</th>
+                <th class="px-3 py-2 text-right">Employees</th>
+                <th class="px-3 py-2 text-right">Gross</th>
+                <th class="px-3 py-2 text-right">Net</th>
+                <th class="px-3 py-2 text-left">Generated</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="shrink-0 flex flex-wrap items-center justify-between gap-2 px-6 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
+      <span id="licenseInfo"></span>
+      <button id="deactivateBtn" type="button" class="underline hover:text-red-600">Deactivate Pro on this device</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ======================= CONFIG =======================
+  // Lemon Squeezy numeric Product ID. Only license keys from this product can unlock Pro.
+  // Test-mode and live-mode products have different IDs. Set to null to skip the check.
+  const LS_PRODUCT_ID = 1482993;
+  const LS_API = 'https://api.lemonsqueezy.com/v1/licenses';
+  // Your Supabase Edge Function URL for cloud sync (see setup steps). Replace YOUR-PROJECT-REF.
+  const SYNC_URL = 'https://ivxaorkxzybnudxlridd.supabase.co/functions/v1/smooth-worker';
+  // ======================================================
+
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const STORAGE_KEY = 'wh347_payroll_v1';
+  const PROFILES_KEY = 'wh347_profiles_v1';
+  const PRO_KEY = 'wh347_pro_v1';
+  const SYNC_KEY = 'wh347_sync_v1';
+  const REVALIDATE_MS = 7 * 24 * 60 * 60 * 1000;
+  const TEXT_FIELDS = ['cName','cAddress','cPayrollNo','cWeekEnd','cSigner','cSignerTitle','cRemarks','pName','pNumber','pPrime','otMult','otRule'];
+  const OT_RULES = ['weekly','daily','both','manual'];
+  const OT_RULE_TEXT = {
+    weekly: 'hours over 40 in the workweek',
+    daily: 'hours over 8 in a day',
+    both: 'hours over 8 in a day, then over 40 in the workweek',
+    manual: 'as entered by the preparer'
+  };
+  const $ = (id) => document.getElementById(id);
+  const num = (v) => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
+  const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+  const sum = (a) => a.reduce((x, y) => x + y, 0);
+  const money = (n) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  const fmt = (n) => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const hrs = (n) => (Math.round(n * 100) / 100).toString();
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const normCls = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const inputCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const hourCls = 'w-full rounded-md border border-slate-300 px-1 py-1 text-center focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const moneyCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 text-right focus:ring-2 focus:ring-amber-400 focus:outline-none';
+  const table = $('payTable');
+
+  // ---------- Storage helpers ----------
+  function readJSON(key) { try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } catch (e) { return null; } }
+  function writeJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { console.warn('Storage write failed:', e); return false; } }
+
+  let pro = readJSON(PRO_KEY);
+  let store = readJSON(PROFILES_KEY);
+  if (!store || typeof store !== 'object' || !store.profiles || typeof store.profiles !== 'object') store = { activeId: null, profiles: {} };
+  const isPro = () => !!(pro && pro.key && pro.instanceId);
+  let prevRule = 'weekly';
+
+  // ---------- Toast ----------
+  let toastTimer = null;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.remove('opacity-0');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.add('opacity-0'), 2600);
+  }
+
+  // ---------- Modals ----------
+  let lastFocus = null;
+  function openModal(el, focusEl) {
+    lastFocus = document.activeElement;
+    el.classList.remove('hidden');
+    el.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    if (focusEl) focusEl.focus();
+  }
+  function closeModal(el) {
+    el.classList.add('hidden');
+    el.classList.remove('flex');
+    if (!document.querySelector('[role="dialog"].flex')) document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.querySelectorAll('[role="dialog"]').forEach((m) => {
+    m.addEventListener('click', (e) => { if (e.target === m || e.target.closest('[data-close]')) closeModal(m); });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll('[role="dialog"].flex').forEach(closeModal);
+  });
+
+  // ---------- Dates ----------
+  function addDaysISO(iso, n) {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(y, m - 1, d + n);
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+  function weekDates() {
+    const v = $('cWeekEnd').value;
+    if (!v) return DAYS.map(() => '');
+    const [y, m, d] = v.split('-').map(Number);
+    return DAYS.map((_, i) => {
+      const dt = new Date(y, m - 1, d - (6 - i));
+      return String(dt.getMonth() + 1).padStart(2, '0') + '/' + String(dt.getDate()).padStart(2, '0');
+    });
+  }
+  function updateDayHeaders() {
+    const dates = weekDates();
+    document.querySelectorAll('.day-h span').forEach((s, i) => s.innerHTML = dates[i] || '&nbsp;');
+  }
+  function fmtLongDate(v) {
+    if (!v) return '';
+    const [y, m, d] = v.split('-').map(Number);
+    return String(m).padStart(2, '0') + '/' + String(d).padStart(2, '0') + '/' + y;
+  }
+
+  // ---------- Overtime ----------
+  function computeSplit(total, rule) {
+    const st = [], ot = [];
+    let runST = 0;
+    for (let i = 0; i < 7; i++) {
+      const h = total[i];
+      let s = h, o = 0;
+      if (rule === 'daily' || rule === 'both') { s = Math.min(h, 8); o = h - s; }
+      if (rule === 'weekly' || rule === 'both') {
+        if (runST + s > 40) { const conv = Math.min(s, runST + s - 40); s -= conv; o += conv; }
+      }
+      s = round2(s); o = round2(o);
+      runST += s;
+      st.push(s); ot.push(o);
+    }
+    return { st, ot };
+  }
+
+  function applyRuleUI() {
+    const manual = $('otRule').value === 'manual';
+    document.querySelectorAll('.ot-h').forEach((el) => {
+      el.readOnly = !manual;
+      el.tabIndex = manual ? 0 : -1;
+      el.classList.toggle('bg-slate-100', !manual);
+      el.classList.toggle('text-slate-500', !manual);
+    });
+    document.querySelectorAll('.lbl-st').forEach((el) => el.textContent = manual ? 'ST' : 'Hrs');
+  }
+
+  // ---------- Employee rows ----------
+  function addEmployee(data) {
+    const tb = document.createElement('tbody');
+    tb.className = 'emp border-b border-slate-200';
+    const cells = (cls) => DAYS.map(() =>
+      `<td class="px-0.5 py-1"><input type="number" min="0" max="24" step="0.25" class="${hourCls} ${cls}" placeholder="0"></td>`).join('');
+    tb.innerHTML = `
+      <tr>
+        <td rowspan="2" class="px-2 py-2 align-middle">
+          <div class="flex flex-col gap-1.5 w-full">
+            <input type="text" class="${inputCls} f-name" placeholder="Employee name">
+            <div class="flex gap-1.5">
+              <input type="text" inputmode="numeric" maxlength="4" class="${inputCls} f-ssn" placeholder="SSN last 4">
+              <input type="text" maxlength="3" class="${inputCls} f-ex" placeholder="Exempt." title="Number of withholding exemptions">
+            </div>
+            <input type="text" list="clsList" class="${inputCls} f-class" placeholder="Work classification">
+          </div>
+        </td>
+        <td class="px-1 text-xs font-semibold text-slate-500 text-center lbl-st">Hrs</td>
+        ${cells('st-h')}
+        <td rowspan="2" class="px-2 text-center font-semibold f-hrs">0</td>
+        <td rowspan="2" class="px-2 align-middle">
+          <div class="flex flex-col gap-1.5">
+            <input type="number" min="0" step="0.01" class="${moneyCls} f-rate" placeholder="Rate $/hr" title="Basic hourly rate paid">
+            <input type="number" min="0" step="0.01" class="${moneyCls} f-fp" placeholder="Fringe: plans" title="Fringe benefits per hour paid to approved plans, funds, or programs">
+            <input type="number" min="0" step="0.01" class="${moneyCls} f-fc" placeholder="Fringe: cash" title="Fringe benefits per hour paid in cash to the worker (added to gross pay)">
+          </div>
+        </td>
+        <td rowspan="2" class="px-2 text-right font-semibold f-gross">$0.00</td>
+        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-fica" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-wh" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2"><input type="number" min="0" step="0.01" class="${moneyCls} f-other" placeholder="0.00"></td>
+        <td rowspan="2" class="px-2 text-right font-bold text-emerald-700 f-net">$0.00</td>
+        <td rowspan="2" class="px-2 text-center"><button type="button" class="rm text-red-600 hover:text-red-800 text-xs font-semibold" title="Remove employee">Remove</button></td>
+      </tr>
+      <tr>
+        <td class="px-1 text-xs font-semibold text-amber-600 text-center">OT</td>
+        ${cells('ot-h')}
+      </tr>`;
+    if (data) fillEmployee(tb, data);
+    table.insertBefore(tb, table.querySelector('tfoot'));
+    recalc();
+    return tb;
+  }
+
+  function fillEmployee(tb, d) {
+    tb.querySelector('.f-name').value = d.name || '';
+    tb.querySelector('.f-ssn').value = String(d.ssn || '').replace(/\D/g, '').slice(0, 4);
+    tb.querySelector('.f-ex').value = d.ex || '';
+    tb.querySelector('.f-class').value = d.cls || '';
+    tb.querySelectorAll('.st-h').forEach((el, i) => el.value = (d.st && d.st[i]) || '');
+    tb.querySelectorAll('.ot-h').forEach((el, i) => el.value = (d.ot && d.ot[i]) || '');
+    tb.querySelector('.f-rate').value = d.rate || '';
+    tb.querySelector('.f-fp').value = d.fp || '';
+    tb.querySelector('.f-fc').value = d.fc || '';
+    tb.querySelector('.f-fica').value = d.fica || '';
+    tb.querySelector('.f-wh').value = d.wh || '';
+    tb.querySelector('.f-other').value = d.other || '';
+  }
+
+  // ---------- Prevailing wage rows ----------
+  function addWageRow(d) {
+    d = d || {};
+    const tr = document.createElement('tr');
+    tr.className = 'border-t border-slate-100';
+    tr.innerHTML = `
+      <td class="px-2 py-1.5"><input type="text" class="${inputCls} w-cls" placeholder="e.g. Electrician (Journeyman)"></td>
+      <td class="px-2 py-1.5"><input type="number" min="0" step="0.01" class="${moneyCls} w-basic" placeholder="0.00"></td>
+      <td class="px-2 py-1.5"><input type="number" min="0" step="0.01" class="${moneyCls} w-fr" placeholder="0.00"></td>
+      <td class="px-2 py-1.5 text-center"><button type="button" class="w-rm text-red-600 hover:text-red-800 text-xs font-semibold">Remove</button></td>`;
+    tr.querySelector('.w-cls').value = d.cls || '';
+    tr.querySelector('.w-basic').value = d.basic || '';
+    tr.querySelector('.w-fr').value = d.fringe || '';
+    $('wageBody').appendChild(tr);
+  }
+
+  function refreshClsList() {
+    const seen = {}, opts = [];
+    document.querySelectorAll('#wageBody .w-cls').forEach((i) => {
+      const v = i.value.trim();
+      if (v && !seen[normCls(v)]) { seen[normCls(v)] = 1; opts.push('<option value="' + esc(v) + '">'); }
+    });
+    $('clsList').innerHTML = opts.join('');
+  }
+
+  function wageMap() {
+    const m = {};
+    document.querySelectorAll('#wageBody tr').forEach((tr) => {
+      const cls = tr.querySelector('.w-cls').value;
+      if (!cls.trim()) return;
+      m[normCls(cls)] = { cls: cls.trim(), basic: num(tr.querySelector('.w-basic').value), fringe: num(tr.querySelector('.w-fr').value) };
+    });
+    return m;
+  }
+
+  // ---------- Per-employee calculations ----------
+  function empCalc(tb) {
+    const mult = num($('otMult').value) || 1.5;
+    const rule = $('otRule').value;
+    const raw = [...tb.querySelectorAll('.st-h')].map((i) => num(i.value));
+    let st, ot;
+    if (rule === 'manual') {
+      st = raw.map((h) => Math.max(0, h));
+      ot = [...tb.querySelectorAll('.ot-h')].map((i) => Math.max(0, num(i.value)));
+    } else {
+      const r = computeSplit(raw.map((h) => Math.max(0, h)), rule);
+      st = r.st; ot = r.ot;
+    }
+    const stSum = round2(sum(st)), otSum = round2(sum(ot));
+    const rate = num(tb.querySelector('.f-rate').value);
+    const fp = num(tb.querySelector('.f-fp').value);
+    const fc = num(tb.querySelector('.f-fc').value);
+    const stRate = round2(rate + fc), otRate = round2(rate * mult + fc);
+    const gross = round2(stSum * stRate + otSum * otRate);
+    const fica = num(tb.querySelector('.f-fica').value);
+    const wh = num(tb.querySelector('.f-wh').value);
+    const other = num(tb.querySelector('.f-other').value);
+    const ded = round2(fica + wh + other);
+    return {
+      name: tb.querySelector('.f-name').value.trim(),
+      ssn: tb.querySelector('.f-ssn').value.replace(/\D/g, ''),
+      ex: tb.querySelector('.f-ex').value.trim(),
+      cls: tb.querySelector('.f-class').value.trim(),
+      raw, st, ot, stSum, otSum, total: round2(stSum + otSum),
+      rate, fp, fc, stRate, otRate, gross, fica, wh, other, ded, net: round2(gross - ded)
+    };
+  }
+  const collect = () => [...document.querySelectorAll('tbody.emp')].map(empCalc);
+
+  // ---------- Live totals ----------
+  function recalc() {
+    applyRuleUI();
+    const rule = $('otRule').value;
+    const rows = document.querySelectorAll('tbody.emp');
+    const dayTotals = [0,0,0,0,0,0,0];
+    const T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, net: 0 };
+
+    rows.forEach((tb) => {
+      const e = empCalc(tb);
+      if (rule !== 'manual') {
+        tb.querySelectorAll('.ot-h').forEach((el, i) => {
+          const s = e.ot[i] ? String(round2(e.ot[i])) : '';
+          if (el.value !== s) el.value = s;
+        });
+      }
+      e.st.forEach((h, i) => dayTotals[i] += h + e.ot[i]);
+      tb.querySelector('.f-hrs').innerHTML = hrs(e.total) + (e.otSum ? '<div class="text-xs font-normal text-amber-600">' + hrs(e.otSum) + ' OT</div>' : '');
+      tb.querySelector('.f-gross').textContent = money(e.gross);
+      const netEl = tb.querySelector('.f-net');
+      netEl.textContent = money(e.net);
+      netEl.classList.toggle('text-red-600', e.net < 0);
+      netEl.classList.toggle('text-emerald-700', e.net >= 0);
+      T.hrs += e.total; T.gross += e.gross; T.fica += e.fica; T.wh += e.wh; T.other += e.other; T.net += e.net;
+    });
+
+    document.querySelectorAll('.ft-day').forEach((el, i) => el.textContent = hrs(dayTotals[i]));
+    $('ftHrs').textContent = hrs(T.hrs);
+    $('ftGross').textContent = money(T.gross);
+    $('ftFica').textContent = money(T.fica);
+    $('ftWh').textContent = money(T.wh);
+    $('ftOther').textContent = money(T.other);
+    $('ftNet').textContent = money(T.net);
+
+    $('sumEmp').textContent = rows.length;
+    $('sumHrs').textContent = hrs(T.hrs);
+    $('sumGross').textContent = money(T.gross);
+    $('sumDed').textContent = money(T.fica + T.wh + T.other);
+    $('sumNet').textContent = money(T.net);
+    renderChecklist();
+  }
+
+  // ---------- Pre-submission checklist ----------
+  function fringeFlags(emps) {
+    const w = emps.filter((e) => e.total > 0);
+    return { plans: w.some((e) => e.fp > 0), cash: w.some((e) => e.fc > 0) };
+  }
+
+  function runChecks() {
+    const errors = [], warns = [], info = [];
+    const val = (id) => $(id).value.trim();
+    if (!val('cName')) errors.push('Contractor name is missing.');
+    if (!val('pName')) errors.push('Project name and location is missing.');
+    const we = $('cWeekEnd').value;
+    if (!we) errors.push('Week-ending date is missing.');
+    else {
+      const [y, m, d] = we.split('-').map(Number);
+      if (new Date(y, m - 1, d).getDay() !== 6) warns.push('The week-ending date is not a Saturday. Make sure it matches your project\'s payroll week.');
+    }
+    if (!val('cPayrollNo')) warns.push('Payroll number is blank. Payrolls are normally numbered consecutively.');
+    if (!val('pNumber')) warns.push('Project / contract number is blank.');
+    if (!val('cSigner') || !val('cSignerTitle')) warns.push('Signer name or title is blank, so the statement of compliance will print with blank lines to fill in by hand.');
+
+    const wm = wageMap();
+    const hasWM = Object.keys(wm).length > 0;
+    const rows = [...document.querySelectorAll('tbody.emp')];
+    if (!rows.length) errors.push('Add at least one employee.');
+    const seen = {};
+    const emps = rows.map(empCalc);
+    emps.forEach((e, idx) => {
+      const n = e.name || ('Employee ' + (idx + 1));
+      if (!e.name) errors.push(n + ': name is missing.');
+      if (e.ssn.length !== 4) errors.push(n + ': enter exactly 4 digits for the SSN / ID number.');
+      if (!e.cls) errors.push(n + ': work classification is missing.');
+      if (e.raw.some((h) => h < 0)) errors.push(n + ': hours cannot be negative.');
+      if (e.raw.some((h) => h > 24)) errors.push(n + ': a day has more than 24 hours.');
+      if (e.total === 0) warns.push(n + ': no hours entered this week.');
+      if (e.total > 0 && e.rate <= 0) errors.push(n + ': hourly rate is missing.');
+      if (e.net < 0) errors.push(n + ': deductions are larger than gross pay, so net pay is negative.');
+      const key = e.name.toLowerCase();
+      if (key) { if (seen[key]) warns.push(n + ': another employee has the same name.'); seen[key] = 1; }
+      if ($('otRule').value === 'manual' && e.total > 40 && e.otSum < e.total - 40 - 0.001) {
+        warns.push(n + ': worked ' + hrs(e.total) + ' hours but only ' + hrs(e.otSum) + ' are marked as overtime.');
+      }
+      if (e.total > 0 && hasWM && e.cls) {
+        const w = wm[normCls(e.cls)];
+        if (!w) warns.push(n + ': "' + e.cls + '" has no matching row in your prevailing wage rates.');
+        else {
+          if (e.rate + 1e-9 < w.basic) errors.push(n + ': basic rate ' + money(e.rate) + '/hr is below the prevailing ' + money(w.basic) + '/hr for ' + w.cls + '.');
+          const pkg = e.rate + e.fp + e.fc, req = w.basic + w.fringe;
+          if (pkg + 1e-9 < req) errors.push(n + ': rate plus fringes (' + money(pkg) + '/hr) is below the required ' + money(req) + '/hr (basic ' + money(w.basic) + ' + fringe ' + money(w.fringe) + '). Add the difference as fringe to plans or as cash.');
+        }
+      }
+    });
+    if (!hasWM && rows.length) warns.push('No prevailing wage rates entered, so pay rates can\'t be checked against your wage determination.');
+    if (rows.length) {
+      const fl = fringeFlags(emps);
+      info.push('Statement of compliance: item 4(a) (fringes paid to plans) will be ' + (fl.plans ? 'checked' : 'left unchecked') + '; item 4(b) (fringes paid in cash) will be ' + (fl.cash ? 'checked' : 'left unchecked') + '.');
+    }
+    return { errors, warns, info };
+  }
+
+  function renderChecklist() {
+    const r = runChecks();
+    const li = (cls, icon, t) => `<li class="flex gap-2 ${cls}"><span class="shrink-0 font-bold w-4 text-center">${icon}</span><span>${esc(t)}</span></li>`;
+    $('checkList').innerHTML = r.errors.map((t) => li('text-red-700', '✕', t))
+      .concat(r.warns.map((t) => li('text-amber-700', '⚠', t)), r.info.map((t) => li('text-slate-500', 'ℹ', t))).join('');
+    const b = $('checkBadge');
+    if (!r.errors.length && !r.warns.length) { b.textContent = '✓ Ready to generate'; b.className = 'text-xs font-bold rounded-full px-3 py-1 bg-emerald-100 text-emerald-800'; }
+    else if (!r.errors.length) { b.textContent = r.warns.length + ' warning' + (r.warns.length === 1 ? '' : 's'); b.className = 'text-xs font-bold rounded-full px-3 py-1 bg-amber-100 text-amber-800'; }
+    else { b.textContent = r.errors.length + ' error' + (r.errors.length === 1 ? '' : 's') + (r.warns.length ? ' · ' + r.warns.length + ' warning' + (r.warns.length === 1 ? '' : 's') : ''); b.className = 'text-xs font-bold rounded-full px-3 py-1 bg-red-100 text-red-800'; }
+  }
+
+  // ---------- Form state: snapshot / apply / sanitize ----------
+  function snapshot() {
+    const s = { fields: {}, final: $('pFinal').checked, wages: [], employees: [] };
+    TEXT_FIELDS.forEach((id) => s.fields[id] = $(id).value);
+    document.querySelectorAll('#wageBody tr').forEach((tr) => {
+      const w = { cls: tr.querySelector('.w-cls').value, basic: tr.querySelector('.w-basic').value, fringe: tr.querySelector('.w-fr').value };
+      if (w.cls || w.basic || w.fringe) s.wages.push(w);
+    });
+    document.querySelectorAll('tbody.emp').forEach((tb) => {
+      s.employees.push({
+        name: tb.querySelector('.f-name').value,
+        ssn: tb.querySelector('.f-ssn').value,
+        ex: tb.querySelector('.f-ex').value,
+        cls: tb.querySelector('.f-class').value,
+        st: [...tb.querySelectorAll('.st-h')].map((i) => i.value),
+        ot: [...tb.querySelectorAll('.ot-h')].map((i) => i.value),
+        rate: tb.querySelector('.f-rate').value,
+        fp: tb.querySelector('.f-fp').value,
+        fc: tb.querySelector('.f-fc').value,
+        fica: tb.querySelector('.f-fica').value,
+        wh: tb.querySelector('.f-wh').value,
+        other: tb.querySelector('.f-other').value
+      });
+    });
+    return s;
+  }
+
+  function sanitizeData(d) {
+    d = (d && typeof d === 'object') ? d : {};
+    const s = (v, lim) => v == null ? '' : String(v).slice(0, lim || 200);
+    const arr7 = (a) => Array.from({ length: 7 }, (_, i) => (a && a[i] != null) ? s(a[i]) : '');
+    const hasSaved = !!(d.fields && typeof d.fields === 'object' && Object.keys(d.fields).length);
+    const f = {};
+    TEXT_FIELDS.forEach((id) => { f[id] = (d.fields && d.fields[id] != null) ? s(d.fields[id], id === 'cRemarks' ? 400 : 200) : ''; });
+    if (!f.otMult) f.otMult = '1.5';
+    // Data saved before automatic overtime existed used separate ST/OT entry, so open it in manual mode.
+    if (OT_RULES.indexOf(f.otRule) < 0) f.otRule = hasSaved ? 'manual' : 'weekly';
+    const wages = (Array.isArray(d.wages) ? d.wages : []).slice(0, 100).map((w) => {
+      w = (w && typeof w === 'object') ? w : {};
+      return { cls: s(w.cls), basic: s(w.basic), fringe: s(w.fringe) };
+    });
+    const emps = (Array.isArray(d.employees) ? d.employees : []).slice(0, 200).map((e) => {
+      e = (e && typeof e === 'object') ? e : {};
+      return { name: s(e.name), ssn: s(e.ssn).replace(/\D/g, '').slice(0, 4), ex: s(e.ex, 3), cls: s(e.cls),
+               st: arr7(e.st), ot: arr7(e.ot), rate: s(e.rate), fp: s(e.fp), fc: s(e.fc), fica: s(e.fica), wh: s(e.wh), other: s(e.other) };
+    });
+    return { fields: f, final: !!d.final, wages, employees: emps };
+  }
+
+  function applyFormState(state) {
+    document.querySelectorAll('tbody.emp').forEach((t) => t.remove());
+    $('wageBody').innerHTML = '';
+    TEXT_FIELDS.forEach((id) => $(id).value = state.fields[id]);
+    prevRule = $('otRule').value;
+    $('pFinal').checked = state.final;
+    state.wages.forEach((w) => addWageRow(w));
+    if (!state.wages.length) addWageRow();
+    refreshClsList();
+    state.employees.forEach((d) => addEmployee(d));
+    if (!state.employees.length) addEmployee();
+    updateDayHeaders();
+    recalc();
+  }
+
+  // ---------- Persistence ----------
+  let statusTimer = null;
+  function flashSaved() {
+    const el = $('saveStatus');
+    el.classList.remove('opacity-0');
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => el.classList.add('opacity-0'), 1500);
+  }
+
+  function saveState() {
+    const snap = snapshot();
+    writeJSON(STORAGE_KEY, snap);
+    if (isPro() && store.activeId && store.profiles[store.activeId]) {
+      const p = store.profiles[store.activeId];
+      p.data = snap;
+      p.updatedAt = Date.now();
+      writeJSON(PROFILES_KEY, store);
+    }
+    flashSaved();
+    scheduleSync();
+  }
+
+  function loadState() {
+    let state = null;
+    if (isPro()) {
+      ensureProfiles(readJSON(STORAGE_KEY));
+      const p = store.profiles[store.activeId];
+      if (p) state = p.data;
+    }
+    if (!state) state = readJSON(STORAGE_KEY);
+    applyFormState(sanitizeData(state));
+  }
+
+  // ---------- Profiles (Pro) ----------
+  const newId = () => 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  function blankData() { return sanitizeData({}); }
+
+  function createProfile(name, data) {
+    const id = newId();
+    store.profiles[id] = { id, name: String(name || 'New profile').slice(0, 80), createdAt: Date.now(), updatedAt: Date.now(), data, history: [] };
+    writeJSON(PROFILES_KEY, store);
+    return id;
+  }
+
+  function ensureProfiles(seed) {
+    let ids = Object.keys(store.profiles);
+    if (!ids.length) {
+      const data = sanitizeData(seed);
+      const id = createProfile(data.fields.cName || 'Profile 1', data);
+      store.activeId = id;
+      ids = [id];
+    }
+    if (!store.profiles[store.activeId]) store.activeId = ids[0];
+    writeJSON(PROFILES_KEY, store);
+  }
+
+  function openProfile(id) {
+    if (!store.profiles[id]) return;
+    if (store.activeId && store.profiles[store.activeId]) saveState();
+    store.activeId = id;
+    writeJSON(PROFILES_KEY, store);
+    applyFormState(sanitizeData(store.profiles[id].data));
+    saveState();
+    refreshProUI();
+    renderProfiles();
+  }
+
+  function renameProfile(id) {
+    const p = store.profiles[id]; if (!p) return;
+    const name = prompt('Profile name:', p.name);
+    if (name && name.trim()) { p.name = name.trim().slice(0, 80); p.updatedAt = Date.now(); writeJSON(PROFILES_KEY, store); refreshProUI(); renderProfiles(); scheduleSync(); }
+  }
+
+  function duplicateProfile(id) {
+    const p = store.profiles[id]; if (!p) return;
+    if (id === store.activeId) saveState();
+    const data = sanitizeData(JSON.parse(JSON.stringify(p.data)));
+    createProfile(p.name + ' (copy)', data);
+    refreshProUI(); renderProfiles(); toast('Profile duplicated'); scheduleSync();
+  }
+
+  function deleteProfile(id) {
+    const p = store.profiles[id]; if (!p) return;
+    if (!confirm('Delete the profile "' + p.name + '"? This cannot be undone.')) return;
+    delete store.profiles[id];
+    noteDeleted(id);
+    writeJSON(PROFILES_KEY, store);
+    if (id === store.activeId) {
+      const rest = Object.keys(store.profiles);
+      const next = rest.length ? rest[0] : createProfile('Profile 1', blankData());
+      store.activeId = null;
+      openProfile(next);
+    } else {
+      refreshProUI(); renderProfiles();
+    }
+    toast('Profile deleted');
+    scheduleSync();
+  }
+
+  function renderProfiles() {
+    const ids = Object.keys(store.profiles).sort((a, b) => store.profiles[b].updatedAt - store.profiles[a].updatedAt);
+    $('profileCount').textContent = ids.length + (ids.length === 1 ? ' profile' : ' profiles');
+    $('profileList').innerHTML = ids.map((id) => {
+      const p = store.profiles[id];
+      const f = (p.data && p.data.fields) || {};
+      const n = ((p.data && p.data.employees) || []).length;
+      const active = id === store.activeId;
+      const btn = 'px-3 py-1.5 rounded-md border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium';
+      return `<div class="rounded-xl border ${active ? 'border-amber-400 bg-amber-50' : 'border-slate-200'} p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900 flex items-center gap-2">${esc(p.name)}${active ? '<span class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">ACTIVE</span>' : ''}</div>
+          <div class="text-sm text-slate-500 truncate">${esc(f.cName || 'No contractor yet')} · ${esc(f.pName || 'No project yet')} · ${n} employee${n === 1 ? '' : 's'}</div>
+          <div class="text-xs text-slate-400">Updated ${esc(new Date(p.updatedAt).toLocaleString())}</div>
+        </div>
+        <div class="flex flex-wrap gap-2 text-sm">
+          ${active ? '' : `<button type="button" data-act="open" data-id="${id}" class="px-3 py-1.5 rounded-md bg-slate-900 text-white hover:bg-slate-700 font-semibold">Open</button>`}
+          <button type="button" data-act="rename" data-id="${id}" class="${btn}">Rename</button>
+          <button type="button" data-act="duplicate" data-id="${id}" class="${btn}">Duplicate</button>
+          <button type="button" data-act="delete" data-id="${id}" class="px-3 py-1.5 rounded-md border border-red-200 text-red-600 hover:bg-red-50 font-medium">Delete</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    const act = store.profiles[store.activeId];
+    const h = ((act && act.history) || []).slice().reverse().slice(0, 15);
+    $('historyBody').innerHTML = h.length ? h.map((r) => `<tr class="border-t border-slate-100">
+        <td class="px-3 py-2">${esc(fmtLongDate(r.weekEnd) || '-')}</td>
+        <td class="px-3 py-2">${esc(r.payrollNo || '-')}</td>
+        <td class="px-3 py-2 text-right">${esc(r.employees)}</td>
+        <td class="px-3 py-2 text-right">${esc(money(num(r.gross)))}</td>
+        <td class="px-3 py-2 text-right">${esc(money(num(r.net)))}</td>
+        <td class="px-3 py-2 text-slate-500">${esc(new Date(r.at).toLocaleString())}</td></tr>`).join('')
+      : '<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400">No payrolls generated for this profile yet.</td></tr>';
+
+    const last4 = pro && pro.key ? String(pro.key).slice(-4) : '';
+    $('licenseInfo').textContent = 'Licensed' + (pro && pro.email ? ' to ' + pro.email : '') + (last4 ? ' · key ending ' + last4 : '');
+    renderSyncUI();
+    renderSyncStatus();
+  }
+
+  $('profileList').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const id = b.dataset.id;
+    if (b.dataset.act === 'open') { openProfile(id); toast('Opened "' + store.profiles[id].name + '"'); }
+    else if (b.dataset.act === 'rename') renameProfile(id);
+    else if (b.dataset.act === 'duplicate') duplicateProfile(id);
+    else if (b.dataset.act === 'delete') deleteProfile(id);
+  });
+
+  $('newProfileBtn').addEventListener('click', () => {
+    const name = prompt('Name for the new profile (e.g. contractor or project):', 'New profile');
+    if (!name || !name.trim()) return;
+    const id = createProfile(name.trim(), blankData());
+    openProfile(id);
+    toast('Blank profile created');
+  });
+
+  $('profileSwitcher').addEventListener('change', (e) => openProfile(e.target.value));
+
+  // Export / import
+  $('exportBtn').addEventListener('click', () => {
+    if (store.activeId) saveState();
+    const payload = { app: 'wh347', version: 1, exportedAt: new Date().toISOString(), profiles: store.profiles };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wh347-profiles-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Backup downloaded');
+  });
+  $('importBtn').addEventListener('click', () => $('importFile').click());
+  $('importFile').addEventListener('change', (e) => {
+    const file = e.target.files[0]; if (!file) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const j = JSON.parse(r.result);
+        if (!j || j.app !== 'wh347' || !j.profiles || typeof j.profiles !== 'object') throw new Error('bad file');
+        const list = Object.values(j.profiles).filter((p) => p && p.data && typeof p.data === 'object');
+        if (!list.length) throw new Error('empty');
+        if (!confirm('Import ' + list.length + ' profile' + (list.length === 1 ? '' : 's') + ' from this backup? They will be added to your existing profiles.')) return;
+        list.forEach((p) => {
+          const id = newId();
+          store.profiles[id] = { id, name: String(p.name || 'Imported profile').slice(0, 80), createdAt: Date.now(), updatedAt: Date.now(),
+            data: sanitizeData(p.data), history: Array.isArray(p.history) ? p.history.slice(-104) : [] };
+        });
+        writeJSON(PROFILES_KEY, store);
+        refreshProUI(); renderProfiles(); toast('Backup imported'); scheduleSync();
+      } catch (err) { toast('That file is not a valid backup.'); }
+    };
+    r.readAsText(file);
+    e.target.value = '';
+  });
+
+  // ---------- Start next week (Pro) ----------
+  function nextWeek() {
+    if (!confirm('Start next week\'s payroll?\n\nHours and deductions will be cleared, the week-ending date moves forward 7 days, and the payroll number goes up by one. Names, SSN digits, classifications, rates, fringes, and prevailing wage rates stay.\n\nGenerate this week\'s PDF first if you haven\'t yet.')) return;
+    document.querySelectorAll('tbody.emp').forEach((tb) => {
+      tb.querySelectorAll('.st-h, .ot-h, .f-fica, .f-wh, .f-other').forEach((i) => i.value = '');
+    });
+    const we = $('cWeekEnd').value;
+    if (we) $('cWeekEnd').value = addDaysISO(we, 7);
+    const pn = $('cPayrollNo').value.trim();
+    const mm = pn.match(/^(.*?)(\d+)$/);
+    if (mm) $('cPayrollNo').value = mm[1] + String(parseInt(mm[2], 10) + 1).padStart(mm[2].length, '0');
+    $('pFinal').checked = false;
+    updateDayHeaders(); recalc(); saveState();
+    toast('Next week is ready');
+  }
+
+  // ---------- Payroll history (Pro) ----------
+  function logHistory(T, count) {
+    if (!isPro() || !store.activeId || !store.profiles[store.activeId]) return;
+    const p = store.profiles[store.activeId];
+    p.history = p.history || [];
+    p.history.push({ at: Date.now(), weekEnd: $('cWeekEnd').value, payrollNo: $('cPayrollNo').value.trim(), employees: count, gross: T.gross, net: T.net });
+    if (p.history.length > 104) p.history = p.history.slice(-104);
+    p.updatedAt = Date.now();
+    writeJSON(PROFILES_KEY, store);
+    scheduleSync();
+  }
+
+  // ---------- Licensing (Lemon Squeezy License API) ----------
+  async function lsPost(path, params) {
+    const res = await fetch(LS_API + '/' + path, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params)
+    });
+    return res.json();
+  }
+
+  function licenseMsg(text, isError) {
+    const m = $('licenseMsg');
+    m.textContent = text;
+    m.className = 'mt-2 text-sm min-h-[1.25rem] ' + (isError ? 'text-red-600' : 'text-emerald-700');
+  }
+
+  async function activateLicense() {
+    const key = $('licenseInput').value.trim();
+    const btn = $('licenseBtn');
+    if (!key) { licenseMsg('Enter your license key.', true); return; }
+    btn.disabled = true; btn.textContent = 'Activating…'; licenseMsg('', false);
+    try {
+      const data = await lsPost('activate', {
+        license_key: key,
+        instance_name: 'WH347-' + Math.random().toString(36).slice(2, 8)
+      });
+      if (!data.activated) { licenseMsg(data.error || 'That license key could not be activated.', true); return; }
+      if (LS_PRODUCT_ID && data.meta && Number(data.meta.product_id) !== Number(LS_PRODUCT_ID)) {
+        lsPost('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => {});
+        licenseMsg('This license key belongs to a different product.', true);
+        return;
+      }
+      pro = { key, instanceId: data.instance.id, email: (data.meta && data.meta.customer_email) || '', checkedAt: Date.now() };
+      writeJSON(PRO_KEY, pro);
+      onProUnlocked();
+    } catch (e) {
+      licenseMsg('Could not reach the licensing server. Check your connection and try again.', true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Activate';
+    }
+  }
+
+  function onProUnlocked() {
+    ensureProfiles(snapshot());
+    saveState();
+    refreshProUI();
+    renderProfiles();
+    $('licenseInput').value = '';
+    licenseMsg('', false);
+    closeModal($('paywallModal'));
+    openModal($('profilesModal'));
+    toast('✨ Pro unlocked. Welcome aboard!');
+  }
+
+  async function deactivateLicense() {
+    if (!isPro()) return;
+    if (!confirm('Deactivate Pro on this device?\n\nYour saved profiles stay on this device but are locked until you activate your license again. Cloud sync will be turned off on this device (your cloud data is not deleted).')) return;
+    try {
+      await lsPost('deactivate', { license_key: pro.key, instance_id: pro.instanceId });
+    } catch (e) {
+      toast('Could not reach the licensing server. Try again when you are online.');
+      return;
+    }
+    pro = null;
+    try { localStorage.removeItem(PRO_KEY); } catch (e) {}
+    syncCfg = defaultSyncCfg(); saveSyncCfg(); syncState = 'idle';
+    closeModal($('profilesModal'));
+    refreshProUI();
+    renderSyncStatus();
+    toast('Pro deactivated on this device');
+  }
+
+  async function revalidate() {
+    if (!isPro() || Date.now() - (pro.checkedAt || 0) < REVALIDATE_MS) return;
+    try {
+      const data = await lsPost('validate', { license_key: pro.key, instance_id: pro.instanceId });
+      if (data.valid === true) { pro.checkedAt = Date.now(); writeJSON(PRO_KEY, pro); }
+      else if (data.valid === false) {
+        pro = null;
+        try { localStorage.removeItem(PRO_KEY); } catch (e) {}
+        refreshProUI();
+        renderSyncStatus();
+        toast('Your Pro license is no longer active.');
+      }
+    } catch (e) { /* offline: keep Pro until we can check again */ }
+  }
+
+  $('haveLicenseBtn').addEventListener('click', () => {
+    $('licenseBox').classList.toggle('hidden');
+    $('licenseInput').focus();
+  });
+  $('licenseBtn').addEventListener('click', activateLicense);
+  $('licenseInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') activateLicense(); });
+  $('deactivateBtn').addEventListener('click', deactivateLicense);
+
+  // ---------- Pro-aware UI ----------
+  function refreshProUI() {
+    const on = isPro();
+    const badge = $('proBadge');
+    badge.textContent = on ? '✓ PRO' : 'PRO';
+    badge.className = 'text-[10px] font-bold tracking-wider rounded px-1.5 py-0.5 ' + (on ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-900');
+    $('nextWeekTag').classList.toggle('hidden', on);
+    $('profileSwitcherWrap').classList.toggle('hidden', !on);
+    if (on) {
+      const ids = Object.keys(store.profiles).sort((a, b) => store.profiles[a].name.localeCompare(store.profiles[b].name));
+      $('profileSwitcher').innerHTML = ids.map((id) => `<option value="${id}"${id === store.activeId ? ' selected' : ''}>${esc(store.profiles[id].name)}</option>`).join('');
+    }
+  }
+
+  $('manageProfilesBtn').addEventListener('click', () => {
+    if (isPro()) {
+      ensureProfiles(snapshot());
+      saveState();
+      renderProfiles();
+      openModal($('profilesModal'));
+    } else {
+      openModal($('paywallModal'), $('upgradeNow'));
+    }
+  });
+  $('nextWeekBtn').addEventListener('click', () => {
+    if (isPro()) nextWeek(); else openModal($('paywallModal'), $('upgradeNow'));
+  });
+
+  // ---------- PDF ----------
+  function generatePDF() {
+    const err = $('errorBox');
+    if (!document.querySelectorAll('tbody.emp').length) {
+      err.innerHTML = '<strong>Add at least one employee before generating.</strong>';
+      err.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    err.classList.add('hidden');
+
+    const chk = runChecks();
+    if (chk.errors.length) {
+      const first = chk.errors.slice(0, 6).map((t) => '• ' + t).join('\n');
+      const more = chk.errors.length > 6 ? '\n…and ' + (chk.errors.length - 6) + ' more' : '';
+      if (!confirm('The checklist found ' + chk.errors.length + ' problem' + (chk.errors.length === 1 ? '' : 's') + ':\n\n' + first + more + '\n\nGenerate the PDF anyway?')) {
+        $('checkPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+
+    const emps = collect();
+    const wm = wageMap();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+    const M = 40, PW = 792, PH = 612;
+    const cols = [118, 30, 74, 20].concat(Array(7).fill(20), [30, 44, 52, 36, 40, 36, 42, 50]);
+    const CW = sum(cols);
+    const X = []; cols.reduce((acc, w, i) => (X[i] = acc, acc + w), M);
+    const dates = weekDates();
+    const mult = num($('otMult').value) || 1.5;
+    const rule = $('otRule').value;
+    const val = (id) => $(id).value.trim();
+    const fm = (n) => fmt(n);
+    const weekEnd = $('cWeekEnd').value;
+
+    // ---- Page header: title + official-style info boxes ----
+    function cell(lbl, v, x, y, w, h) {
+      doc.setDrawColor(90); doc.setLineWidth(0.5); doc.rect(x, y, w, h);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(5.5); doc.setTextColor(90);
+      doc.text(lbl, x + 3, y + 7);
+      doc.setTextColor(0); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+      doc.text(doc.splitTextToSize(v || '', w - 6)[0] || '', x + 3, y + 19);
+    }
+
+    function pageHeader() {
+      doc.setTextColor(0);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
+      doc.text('PAYROLL', M, 38);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+      doc.text('Form WH-347 format - for contractor\'s optional use', M + 76, 38);
+      if ($('pFinal').checked) { doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FINAL PAYROLL', M + CW, 38, { align: 'right' }); }
+      const y0 = 46;
+      cell('NAME OF CONTRACTOR OR SUBCONTRACTOR', val('cName'), M, y0, 250, 26);
+      cell('ADDRESS', val('cAddress'), M + 250, y0, 250, 26);
+      cell('PAYROLL NO.', val('cPayrollNo'), M + 500, y0, 100, 26);
+      cell('FOR WEEK ENDING', fmtLongDate(weekEnd), M + 600, y0, 112, 26);
+      cell('PROJECT AND LOCATION', val('pName'), M, y0 + 26, 332, 26);
+      cell('PROJECT OR CONTRACT NO.', val('pNumber'), M + 332, y0 + 26, 190, 26);
+      cell('PRIME CONTRACTOR', val('pPrime'), M + 522, y0 + 26, 190, 26);
+      return y0 + 56;
+    }
+
+    function tableHeader(y) {
+      const HH = 46, TOP = 12;
+      doc.setFillColor(226, 232, 240); doc.rect(M, y, CW, HH, 'F');
+      doc.setDrawColor(90); doc.setLineWidth(0.5); doc.setTextColor(0);
+      doc.setFont('helvetica', 'bold');
+      const lbl = (t, i, ty) => {
+        doc.setFontSize(5.5);
+        doc.text(doc.splitTextToSize(t, cols[i] - 3), X[i] + cols[i] / 2, ty, { align: 'center' });
+      };
+      const full = { 0: '(1) NAME AND INDIVIDUAL IDENTIFYING NUMBER OF WORKER', 1: '(2) W/H EXEMPT.', 2: '(3) WORK CLASSIFICATION',
+        11: '(5) TOTAL HOURS', 12: '(6) RATE OF PAY*', 13: '(7) GROSS AMOUNT EARNED', 18: '(9) NET WAGES PAID FOR WEEK' };
+      Object.keys(full).forEach((k) => { const i = +k; doc.rect(X[i], y, cols[i], HH); lbl(full[k], i, y + 12); });
+      const dayW = sum(cols.slice(3, 11));
+      doc.rect(X[3], y, dayW, TOP); doc.setFontSize(5.5); doc.text('(4) DAY AND DATE', X[3] + dayW / 2, y + 8.5, { align: 'center' });
+      doc.rect(X[3], y + TOP, cols[3], HH - TOP);
+      for (let i = 0; i < 7; i++) {
+        const c = 4 + i;
+        doc.rect(X[c], y + TOP, cols[c], HH - TOP);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.text('SMTWTFS'.charAt(i), X[c] + cols[c] / 2, y + TOP + 12, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(5); doc.text(dates[i] || '', X[c] + cols[c] / 2, y + TOP + 23, { align: 'center' });
+      }
+      const dedW = sum(cols.slice(14, 18));
+      doc.setFont('helvetica', 'bold');
+      doc.rect(X[14], y, dedW, TOP); doc.setFontSize(5.5); doc.text('(8) DEDUCTIONS', X[14] + dedW / 2, y + 8.5, { align: 'center' });
+      ['FICA', 'W/H TAX', 'OTHER', 'TOTAL DED.'].forEach((t, k) => {
+        const c = 14 + k;
+        doc.rect(X[c], y + TOP, cols[c], HH - TOP);
+        doc.setFontSize(5.5); doc.text(t, X[c] + cols[c] / 2, y + TOP + 14, { align: 'center' });
+      });
+      return y + HH;
+    }
+
+    // ---- Employee rows ----
+    let y = tableHeader(pageHeader());
+    const RH = 15;
+    doc.setLineWidth(0.4);
+
+    emps.forEach((e, idx) => {
+      if (y + RH * 2 > PH - 40) { doc.addPage(); y = tableHeader(pageHeader()); doc.setLineWidth(0.4); }
+      const H = RH * 2;
+      doc.setDrawColor(90); doc.setTextColor(0);
+      doc.rect(X[0], y, cols[0], H);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+      doc.text(doc.splitTextToSize((idx + 1) + '. ' + e.name, cols[0] - 6)[0] || '', X[0] + 3, y + 11);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5);
+      doc.text('XXX-XX-' + (e.ssn || '____'), X[0] + 3, y + 22);
+      doc.rect(X[1], y, cols[1], H); doc.setFontSize(7.5);
+      doc.text(e.ex || '', X[1] + cols[1] / 2, y + H / 2 + 2.5, { align: 'center' });
+      doc.rect(X[2], y, cols[2], H); doc.setFontSize(6.5);
+      doc.text(doc.splitTextToSize(e.cls, cols[2] - 5).slice(0, 3), X[2] + 3, y + 9);
+
+      [['ST', e.st, e.stSum, e.stRate], ['OT', e.ot, e.otSum, e.otRate]].forEach((r, ri) => {
+        const ry = y + ri * RH;
+        doc.rect(X[3], ry, cols[3], RH);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.text(r[0], X[3] + cols[3] / 2, ry + 9.5, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        r[1].forEach((h, d) => {
+          doc.rect(X[4 + d], ry, cols[4 + d], RH);
+          if (h) doc.text(hrs(h), X[4 + d] + cols[4 + d] / 2, ry + 9.5, { align: 'center' });
+        });
+        doc.rect(X[11], ry, cols[11], RH);
+        if (ri === 0 || r[2]) doc.text(hrs(r[2]), X[11] + cols[11] / 2, ry + 9.5, { align: 'center' });
+        doc.rect(X[12], ry, cols[12], RH);
+        doc.text(fm(r[3]), X[12] + cols[12] - 3, ry + 9.5, { align: 'right' });
+      });
+
+      [[13, e.gross], [14, e.fica], [15, e.wh], [16, e.other], [17, e.ded], [18, e.net]].forEach(([i, v]) => {
+        doc.rect(X[i], y, cols[i], H);
+        doc.setFont('helvetica', i === 18 ? 'bold' : 'normal'); doc.setFontSize(7.5);
+        doc.text(fm(v), X[i] + cols[i] - 3, y + H / 2 + 2.5, { align: 'right' });
+      });
+      y += H;
+    });
+
+    // ---- Totals ----
+    if (y + 16 + 30 > PH - 40) { doc.addPage(); y = tableHeader(pageHeader()); doc.setLineWidth(0.4); }
+    const dayTot = [0,0,0,0,0,0,0];
+    const T = { hrs: 0, gross: 0, fica: 0, wh: 0, other: 0, ded: 0, net: 0 };
+    emps.forEach((e) => {
+      e.st.forEach((h, i) => dayTot[i] += h + e.ot[i]);
+      T.hrs += e.total; T.gross += e.gross; T.fica += e.fica; T.wh += e.wh; T.other += e.other; T.ded += e.ded; T.net += e.net;
+    });
+    Object.keys(T).forEach((k) => T[k] = round2(T[k]));
+    doc.setFillColor(241, 245, 249); doc.rect(M, y, CW, 16, 'F');
+    doc.setDrawColor(90); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(0);
+    doc.rect(X[0], y, cols[0] + cols[1] + cols[2] + cols[3], 16);
+    doc.text('TOTALS (ALL WORKERS)', X[0] + 3, y + 11);
+    dayTot.forEach((t, i) => { doc.rect(X[4 + i], y, cols[4 + i], 16); doc.text(hrs(round2(t)), X[4 + i] + cols[4 + i] / 2, y + 11, { align: 'center' }); });
+    doc.rect(X[11], y, cols[11], 16); doc.text(hrs(T.hrs), X[11] + cols[11] / 2, y + 11, { align: 'center' });
+    doc.rect(X[12], y, cols[12], 16);
+    [[13, T.gross], [14, T.fica], [15, T.wh], [16, T.other], [17, T.ded], [18, T.net]].forEach(([i, v]) => {
+      doc.rect(X[i], y, cols[i], 16); doc.text(fm(v), X[i] + cols[i] - 3, y + 11, { align: 'right' });
+    });
+    y += 16;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5);
+    const note = '* Column (6) includes any cash paid in lieu of fringe benefits. Overtime rate = basic rate x ' + mult + ' + cash fringe. Overtime counted as: ' + OT_RULE_TEXT[rule] + '. Fringes paid to plans are not part of gross pay; see the Fringe Benefit Detail page.';
+    doc.text(doc.splitTextToSize(note, CW), M, y + 10);
+
+    // ---- Statement of compliance page ----
+    doc.addPage();
+    let sy = 48;
+    const ensure = (h) => { if (sy + h > PH - 36) { doc.addPage(); sy = 48; } };
+    function para(text, o) {
+      o = o || {};
+      const size = o.size || 8, indent = o.indent || 0;
+      doc.setFont('helvetica', o.bold ? 'bold' : 'normal'); doc.setFontSize(size);
+      const lines = doc.splitTextToSize(text, CW - indent);
+      ensure(lines.length * size * 1.2 + 4);
+      doc.text(lines, M + indent, sy);
+      sy += lines.length * size * 1.2 + (o.gap == null ? 5 : o.gap);
+    }
+    function checkbox(checked) {
+      doc.setDrawColor(0); doc.setLineWidth(0.6); doc.rect(M, sy - 7, 8, 8);
+      if (checked) { doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text('X', M + 4, sy - 0.5, { align: 'center' }); }
+    }
+
+    doc.setTextColor(0);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text('STATEMENT OF COMPLIANCE', M, sy);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text('Date: ______________________', M + CW, sy, { align: 'right' });
+    sy += 20;
+
+    const start = weekEnd ? fmtLongDate(addDaysISO(weekEnd, -6)) : '__/__/____';
+    const end = weekEnd ? fmtLongDate(weekEnd) : '__/__/____';
+    const signer = val('cSigner') || '______________________';
+    const title = val('cSignerTitle') || '______________________';
+    para('I, ' + signer + ', ' + title + ', do hereby state:', { gap: 6 });
+    para('(1) That I pay or supervise the payment of the persons employed by ' + val('cName') + ' on the ' + val('pName') + '; that during the payroll period commencing on ' + start + ' and ending on ' + end + ', all persons employed on said project have been paid the full weekly wages earned, that no rebates have been or will be made either directly or indirectly to or on behalf of said contractor or subcontractor from the full weekly wages earned by any person, and that no deductions have been made either directly or indirectly from the full wages earned by any person, other than permissible deductions as defined in Regulations, Part 3 (29 CFR Subtitle A), issued by the Secretary of Labor under the Copeland Act, as amended (48 Stat. 948, 63 Stat. 108, 72 Stat. 967; 76 Stat. 357; 40 U.S.C. 3145), and described below:', { gap: 3 });
+    para('______________________________________________________________________________________________________________', { gap: 7 });
+    para('(2) That any payrolls otherwise under this contract required to be submitted for the above period are correct and complete; that the wage rates for laborers or mechanics contained therein are not less than the applicable wage rates contained in any wage determination incorporated into the contract; that the classifications set forth therein for each laborer or mechanic conform with the work performed.', { gap: 7 });
+    para('(3) That any apprentices employed in the above period are duly registered in a bona fide apprenticeship program registered with a State apprenticeship agency recognized by the Bureau of Apprenticeship and Training, United States Department of Labor, or if no such recognized agency exists in a State, are registered with the Bureau of Apprenticeship and Training, United States Department of Labor.', { gap: 7 });
+    para('(4) That:', { bold: true, gap: 4 });
+
+    const fl = fringeFlags(emps);
+    ensure(40);
+    checkbox(fl.plans);
+    para('(a) WHERE FRINGE BENEFITS ARE PAID TO APPROVED PLANS, FUNDS, OR PROGRAMS - in addition to the basic hourly wage rates paid to each laborer or mechanic listed in the above referenced payroll, payments of fringe benefits as listed in the contract have been or will be made to appropriate programs for the benefit of such employees, except as noted in Section 4(c) below.', { indent: 16, gap: 6 });
+    ensure(40);
+    checkbox(fl.cash);
+    para('(b) WHERE FRINGE BENEFITS ARE PAID IN CASH - Each laborer or mechanic listed in the above referenced payroll has been paid, as indicated on the payroll, an amount not less than the sum of the applicable basic hourly wage rate plus the amount of the required fringe benefits as listed in the contract, except as noted in Section 4(c) below.', { indent: 16, gap: 6 });
+
+    para('(c) EXCEPTIONS', { bold: true, gap: 3 });
+    const exc = emps.filter((e) => e.total > 0 && e.fc > 0).map((e) => ({
+      craft: e.cls || '-',
+      text: (e.name || 'Worker') + ': $' + fm(e.fc) + '/hr paid in cash in lieu of fringe benefits; $' + fm(e.fp) + '/hr paid to approved plans, funds, or programs.'
+    }));
+    ensure(40);
+    doc.setDrawColor(90); doc.setLineWidth(0.5);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+    doc.rect(M, sy, 200, 12); doc.rect(M + 200, sy, 512, 12);
+    doc.text('EXCEPTION (CRAFT)', M + 4, sy + 8.5); doc.text('EXPLANATION', M + 204, sy + 8.5);
+    sy += 12;
+    const list = exc.length ? exc : [{ craft: '', text: '' }, { craft: '', text: '' }];
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+    list.slice(0, 12).forEach((x) => {
+      const l1 = doc.splitTextToSize(x.craft, 192), l2 = doc.splitTextToSize(x.text, 504);
+      const h = Math.max(14, Math.max(l1.length, l2.length) * 9 + 5);
+      ensure(h);
+      doc.rect(M, sy, 200, h); doc.rect(M + 200, sy, 512, h);
+      doc.text(l1, M + 4, sy + 9.5); doc.text(l2, M + 204, sy + 9.5);
+      sy += h;
+    });
+    if (exc.length > 12) { doc.text('(Additional exceptions are listed on the Fringe Benefit Detail page.)', M, sy + 9); sy += 12; }
+    sy += 8;
+
+    para('(5) REMARKS:', { bold: true, gap: 3 });
+    const rem = doc.splitTextToSize(val('cRemarks'), CW - 8);
+    const remH = Math.max(34, rem.length * 9.5 + 8);
+    ensure(remH + 70);
+    doc.setDrawColor(90); doc.rect(M, sy, CW, remH);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.text(rem, M + 4, sy + 11);
+    sy += remH + 12;
+
+    ensure(70);
+    doc.rect(M, sy, 356, 34); doc.rect(M + 356, sy, 356, 34);
+    doc.setFontSize(5.5); doc.setTextColor(90);
+    doc.text('NAME AND TITLE', M + 3, sy + 7); doc.text('SIGNATURE', M + 359, sy + 7);
+    doc.setTextColor(0); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+    doc.text(doc.splitTextToSize((val('cSigner') ? val('cSigner') : '') + (val('cSignerTitle') ? ', ' + val('cSignerTitle') : ''), 346)[0] || '', M + 3, sy + 24);
+    sy += 46;
+    para('THE WILLFUL FALSIFICATION OF ANY OF THE ABOVE STATEMENTS MAY SUBJECT THE CONTRACTOR OR SUBCONTRACTOR TO CIVIL OR CRIMINAL PROSECUTION. SEE SECTION 1001 OF TITLE 18 AND SECTION 3729 OF TITLE 31 OF THE UNITED STATES CODE.', { bold: true, size: 7 });
+
+    // ---- Fringe benefit detail page (only when fringes or wage rates are entered) ----
+    const showDetail = Object.keys(wm).length > 0 || emps.some((e) => e.fp > 0 || e.fc > 0);
+    if (showDetail) {
+      const fc = [120, 120, 58, 66, 66, 56, 56, 170];
+      const FX = []; fc.reduce((acc, w, i) => (FX[i] = acc, acc + w), M);
+      const heads = ['WORKER', 'CLASSIFICATION', 'RATE PAID ($/HR)', 'PREVAILING BASIC', 'REQUIRED FRINGE', 'TO PLANS ($/HR)', 'CASH ($/HR)', 'CHECK'];
+      let fy = 48;
+      const detailHeader = () => {
+        doc.setTextColor(0); doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+        doc.text('FRINGE BENEFIT DETAIL (ATTACHMENT)', M, fy);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.text('Payroll no. ' + (val('cPayrollNo') || '-') + '  |  Week ending ' + (fmtLongDate(weekEnd) || '-') + '  |  ' + val('cName'), M, fy + 11);
+        fy += 20;
+        doc.setFillColor(226, 232, 240); doc.rect(M, fy, CW, 22, 'F');
+        doc.setDrawColor(90); doc.setLineWidth(0.5); doc.setFont('helvetica', 'bold'); doc.setFontSize(5.5);
+        heads.forEach((t, i) => { doc.rect(FX[i], fy, fc[i], 22); doc.text(doc.splitTextToSize(t, fc[i] - 4), FX[i] + fc[i] / 2, fy + 9, { align: 'center' }); });
+        fy += 22;
+      };
+      doc.addPage();
+      detailHeader();
+      emps.forEach((e) => {
+        const w = wm[normCls(e.cls)];
+        let status = 'No matching prevailing wage rate entered';
+        if (w) {
+          const probs = [];
+          if (e.rate + 1e-9 < w.basic) probs.push('basic rate below prevailing');
+          const pkg = e.rate + e.fp + e.fc, req = w.basic + w.fringe;
+          if (pkg + 1e-9 < req) probs.push('package short $' + fm(req - pkg) + '/hr');
+          status = probs.length ? probs.join('; ') : 'OK';
+        }
+        const cellsTxt = [e.name, e.cls, fm(e.rate), w ? fm(w.basic) : '-', w ? fm(w.fringe) : '-', fm(e.fp), fm(e.fc), status];
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        const wrapped = cellsTxt.map((t, i) => doc.splitTextToSize(String(t), fc[i] - 6));
+        const h = Math.max(14, Math.max.apply(null, wrapped.map((l) => l.length)) * 8.5 + 5);
+        if (fy + h > PH - 36) { doc.addPage(); fy = 48; detailHeader(); }
+        wrapped.forEach((lines, i) => {
+          doc.setDrawColor(90); doc.rect(FX[i], fy, fc[i], h);
+          const right = i >= 2 && i <= 6;
+          doc.text(lines.slice(0, 4), right ? FX[i] + fc[i] - 3 : FX[i] + 3, fy + 9.5, right ? { align: 'right' } : undefined);
+        });
+        fy += h;
+      });
+    }
+
+    // ---- Footer on every page ----
+    const pages = doc.getNumberOfPages();
+    const freeVersion = !isPro();
+    for (let p = 1; p <= pages; p++) {
+      doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(110);
+      doc.text('Generated ' + new Date().toLocaleDateString('en-US') + '  |  ' + val('cName'), M, PH - 18);
+      doc.text('Page ' + p + ' of ' + pages, PW - M, PH - 18, { align: 'right' });
+      if (freeVersion) {
+        doc.setFontSize(6.5);
+        doc.text('Created with Certified Payroll Generator (free version)', PW / 2, PH - 8, { align: 'center' });
+      }
+      doc.setTextColor(0);
+    }
+
+    logHistory(T, emps.length);
+    const safe = (s) => s.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+    doc.save('WH-347_' + safe(val('cName')) + '_' + weekEnd + '.pdf');
+  }
+
+  // =====================================================================
+  // ---------- Cloud sync (Pro): end-to-end encrypted ----------
+  // Profiles are encrypted in the browser (AES-GCM, key derived from the user's
+  // passphrase with PBKDF2). The server only ever stores ciphertext.
+  // =====================================================================
+  const enc = new TextEncoder(), dec = new TextDecoder();
+  const syncConfigured = () => SYNC_URL.indexOf('YOUR-PROJECT-REF') < 0 && /^https:\/\//.test(SYNC_URL);
+  function defaultSyncCfg() { return { on: false, pass: '', deleted: {}, lastSync: 0 }; }
+  let syncCfg = Object.assign(defaultSyncCfg(), readJSON(SYNC_KEY) || {});
+  if (!syncCfg.deleted || typeof syncCfg.deleted !== 'object') syncCfg.deleted = {};
+  let syncState = 'idle', syncing = false, syncQueued = false, syncTimer = null;
+  let keyCache = { id: '', key: null };
+  const syncOn = () => !!(syncCfg.on && syncCfg.pass);
+  const syncReady = () => syncConfigured() && isPro() && syncOn() && navigator.onLine !== false;
+  const saveSyncCfg = () => writeJSON(SYNC_KEY, syncCfg);
+
+  function toB64(bytes) {
+    let s = ''; const CH = 0x8000;
+    for (let i = 0; i < bytes.length; i += CH) s += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+    return btoa(s);
+  }
+  function fromB64(str) {
+    const s = atob(str), out = new Uint8Array(s.length);
+    for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+    return out;
+  }
+  const randomSalt = () => toB64(crypto.getRandomValues(new Uint8Array(16)));
+
+  async function getKey(pass, saltB64) {
+    const id = pass + '|' + saltB64;
+    if (keyCache.id === id && keyCache.key) return keyCache.key;
+    const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: fromB64(saltB64), iterations: 250000, hash: 'SHA-256' },
+      base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    keyCache = { id, key };
+    return key;
+  }
+  async function encryptJSON(key, obj) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+    return toB64(iv) + '.' + toB64(new Uint8Array(ct));
+  }
+  async function decryptJSON(key, blob) {
+    const parts = String(blob).split('.');
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(parts[0]) }, key, fromB64(parts[1]));
+    return JSON.parse(dec.decode(pt));
+  }
+
+  async function syncApi(action, extra) {
+    const res = await fetch(SYNC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ action, license_key: pro.key, instance_id: pro.instanceId }, extra || {}))
+    });
+    const data = await res.json().catch(() => ({}));
+    return { status: res.status, data };
+  }
+
+  function cleanRemote(r) {
+    const out = { profiles: {}, deleted: {} };
+    const cleanHist = (h) => ({ at: num(h && h.at), weekEnd: String((h && h.weekEnd) || '').slice(0, 10), payrollNo: String((h && h.payrollNo) || '').slice(0, 40),
+      employees: num(h && h.employees), gross: num(h && h.gross), net: num(h && h.net) });
+    if (r && r.profiles && typeof r.profiles === 'object') {
+      Object.keys(r.profiles).slice(0, 500).forEach((id) => {
+        const p = r.profiles[id];
+        if (!p || typeof p !== 'object' || !/^[a-z0-9]{6,40}$/i.test(id)) return;
+        out.profiles[id] = { id, name: String(p.name || 'Profile').slice(0, 80), createdAt: num(p.createdAt) || Date.now(), updatedAt: num(p.updatedAt),
+          data: sanitizeData(p.data), history: Array.isArray(p.history) ? p.history.slice(-104).map(cleanHist) : [] };
+      });
+    }
+    if (r && r.deleted && typeof r.deleted === 'object') {
+      Object.keys(r.deleted).slice(0, 1000).forEach((id) => { if (/^[a-z0-9]{6,40}$/i.test(id)) out.deleted[id] = num(r.deleted[id]); });
+    }
+    return out;
+  }
+
+  function mergeStores(local, remote) {
+    const out = { profiles: {}, deleted: {} };
+    const tomb = {}, cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+    [local.deleted || {}, remote.deleted || {}].forEach((d) => Object.keys(d).forEach((id) => { tomb[id] = Math.max(tomb[id] || 0, num(d[id])); }));
+    const ids = new Set(Object.keys(local.profiles || {}).concat(Object.keys(remote.profiles || {})));
+    ids.forEach((id) => {
+      const a = (local.profiles || {})[id], b = (remote.profiles || {})[id];
+      const pick = a && b ? ((b.updatedAt || 0) > (a.updatedAt || 0) ? b : a) : (a || b);
+      if (!pick) return;
+      if (tomb[id] && tomb[id] >= (pick.updatedAt || 0)) return;
+      out.profiles[id] = pick;
+    });
+    Object.keys(tomb).forEach((id) => { if (!out.profiles[id] && tomb[id] > cutoff) out.deleted[id] = tomb[id]; });
+    return out;
+  }
+
+  function sameStores(a, b) {
+    const ka = Object.keys(a.profiles), kb = Object.keys(b.profiles || {});
+    if (ka.length !== kb.length) return false;
+    for (const id of ka) { if (!b.profiles[id] || (b.profiles[id].updatedAt || 0) !== (a.profiles[id].updatedAt || 0)) return false; }
+    const da = Object.keys(a.deleted), db = Object.keys(b.deleted || {});
+    if (da.length !== db.length) return false;
+    for (const id of da) { if ((b.deleted[id] || 0) !== a.deleted[id]) return false; }
+    return true;
+  }
+
+  function applyMerged(merged) {
+    const prevUpdated = (store.activeId && store.profiles[store.activeId]) ? store.profiles[store.activeId].updatedAt : 0;
+    store.profiles = merged.profiles;
+    syncCfg.deleted = merged.deleted;
+    let reload = false;
+    if (!store.profiles[store.activeId]) {
+      const ids = Object.keys(store.profiles);
+      store.activeId = ids.length ? ids[0] : createProfile('Profile 1', blankData());
+      reload = true;
+    } else if (store.profiles[store.activeId].updatedAt > prevUpdated) {
+      reload = true;
+    }
+    writeJSON(PROFILES_KEY, store);
+    saveSyncCfg();
+    if (reload) { applyFormState(sanitizeData(store.profiles[store.activeId].data)); writeJSON(STORAGE_KEY, snapshot()); }
+    refreshProUI();
+    if ($('profilesModal').classList.contains('flex')) renderProfiles();
+    return reload;
+  }
+
+  function noteDeleted(id) {
+    if (syncOn()) { syncCfg.deleted[id] = Date.now(); saveSyncCfg(); }
+  }
+
+  function scheduleSync() {
+    if (!syncReady()) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(() => syncNow(), 4000);
+  }
+
+  async function syncNow(manual) {
+    if (!syncReady()) { if (manual) syncMsg('Cloud sync is not available right now.', true); return; }
+    if (syncing) { syncQueued = true; return; }
+    syncing = true; syncState = 'syncing'; renderSyncStatus();
+    try {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const pull = await syncApi('pull');
+        if (pull.status === 401) { syncState = 'license'; return; }
+        if (pull.status !== 200) throw new Error(pull.data.error || 'Server error');
+        const version = pull.data.version || 0;
+        const fresh = !pull.data.blob;
+        const salt = fresh ? randomSalt() : pull.data.salt;
+        const key = await getKey(syncCfg.pass, salt);
+        let remote = { profiles: {}, deleted: {} };
+        if (!fresh) {
+          try { remote = cleanRemote(await decryptJSON(key, pull.data.blob)); }
+          catch (e) { syncState = 'badpass'; return; }
+        }
+        const merged = mergeStores({ profiles: store.profiles, deleted: syncCfg.deleted }, remote);
+        const reloaded = applyMerged(merged);
+        if (!fresh && sameStores(merged, remote)) {
+          syncCfg.lastSync = Date.now(); saveSyncCfg(); syncState = 'ok';
+          if (reloaded) toast('☁ Updated from your other device');
+          if (manual) syncMsg('Everything is up to date.', false);
+          return;
+        }
+        const blob = await encryptJSON(key, { v: 1, profiles: merged.profiles, deleted: merged.deleted });
+        const push = await syncApi('push', { base_version: version, salt, blob });
+        if (push.status === 200) {
+          syncCfg.lastSync = Date.now(); saveSyncCfg(); syncState = 'ok';
+          if (reloaded) toast('☁ Updated from your other device');
+          if (manual) syncMsg('Synced.', false);
+          return;
+        }
+        if (push.status === 409) continue;
+        if (push.status === 401) { syncState = 'license'; return; }
+        throw new Error(push.data.error || 'Upload failed');
+      }
+      throw new Error('Too many conflicts, will retry');
+    } catch (e) {
+      console.warn('Sync failed:', e);
+      syncState = 'error';
+      if (manual) syncMsg('Sync problem: ' + (e.message || 'unknown error'), true);
+    } finally {
+      syncing = false;
+      renderSyncStatus();
+      if (syncQueued) { syncQueued = false; scheduleSync(); }
+    }
+  }
+
+  function syncMsg(text, isError) {
+    const m = $('syncMsg');
+    m.textContent = text;
+    m.className = 'mt-2 text-sm min-h-[1.25rem] ' + (isError ? 'text-red-600' : 'text-emerald-700');
+  }
+
+  function renderSyncStatus() {
+    const map = { idle: '', syncing: '☁ Syncing…', error: '☁ Sync problem, will retry', badpass: '☁ Passphrase doesn\'t match', license: '☁ Paused: license inactive' };
+    let t = map[syncState] || '';
+    if (syncState === 'ok' || (syncState === 'idle' && syncCfg.lastSync)) {
+      t = '☁ Synced ' + new Date(syncCfg.lastSync).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+    const show = isPro() && syncOn();
+    const h = $('syncStatus');
+    h.textContent = show ? t : '';
+    h.classList.toggle('hidden', !show);
+    $('syncPanelStatus').textContent = show ? t : '';
+  }
+
+  function renderSyncUI() {
+    const configured = syncConfigured(), on = syncOn();
+    $('syncNotConfigured').classList.toggle('hidden', configured);
+    $('syncOff').classList.toggle('hidden', on || !configured);
+    $('syncOn').classList.toggle('hidden', !on || !configured);
+  }
+
+  async function enableSync() {
+    if (!isPro()) return;
+    const pass = $('syncPass').value, pass2 = $('syncPass2').value, btn = $('syncEnableBtn');
+    if (pass.length < 8) { syncMsg('Choose a passphrase with at least 8 characters.', true); return; }
+    btn.disabled = true; btn.textContent = 'Checking…'; syncMsg('', false);
+    try {
+      const pull = await syncApi('pull');
+      if (pull.status === 401) { syncMsg('Your license is not active, so cloud sync can\'t be turned on.', true); return; }
+      if (pull.status !== 200) { syncMsg(pull.data.error || 'The sync service is not available right now.', true); return; }
+      if (pull.data.blob) {
+        try { await decryptJSON(await getKey(pass, pull.data.salt), pull.data.blob); }
+        catch (e) { syncMsg('That passphrase doesn\'t match the one used on your other devices.', true); return; }
+      } else if (pass !== pass2) {
+        syncMsg('The two passphrases don\'t match. Type the same passphrase twice on your first device.', true);
+        return;
+      }
+      syncCfg.on = true; syncCfg.pass = pass; syncCfg.lastSync = 0;
+      saveSyncCfg();
+      $('syncPass').value = ''; $('syncPass2').value = '';
+      renderSyncUI(); renderSyncStatus();
+      await syncNow(true);
+      toast('☁ Cloud sync is on');
+    } catch (e) {
+      syncMsg('Could not reach the sync service. Check your connection and try again.', true);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Turn on cloud sync';
+    }
+  }
+
+  function turnOffSync(silent) {
+    syncCfg = defaultSyncCfg(); saveSyncCfg(); syncState = 'idle'; keyCache = { id: '', key: null };
+    renderSyncUI(); renderSyncStatus();
+    if (!silent) syncMsg('Cloud sync is off on this device. Your cloud data was not deleted.', false);
+  }
+
+  async function deleteCloud() {
+    if (!isPro() || !syncConfigured()) return;
+    if (!confirm('Delete your synced data from the cloud?\n\nProfiles on your devices are not affected, and cloud sync will be turned off on this device. Turn sync off on your other devices too, or they will upload their copies again.')) return;
+    try {
+      const r = await syncApi('delete');
+      if (r.status === 200) { turnOffSync(true); syncMsg('Your cloud data was deleted.', false); toast('Cloud data deleted'); }
+      else if (r.status === 401) syncMsg('Your license is not active, so the delete request was refused. Email us and we will remove it for you.', true);
+      else syncMsg(r.data.error || 'Could not delete cloud data right now.', true);
+    } catch (e) { syncMsg('Could not reach the sync service. Try again when you are online.', true); }
+  }
+
+  $('syncEnableBtn').addEventListener('click', enableSync);
+  $('syncNowBtn').addEventListener('click', () => { syncMsg('', false); syncNow(true); });
+  $('syncOffBtn').addEventListener('click', () => turnOffSync(false));
+  $('syncDeleteBtn').addEventListener('click', deleteCloud);
+
+  function startSync() {
+    renderSyncUI(); renderSyncStatus();
+    if (syncReady()) setTimeout(() => syncNow(), 800);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && syncReady() && Date.now() - syncCfg.lastSync > 20000) syncNow();
+    });
+    window.addEventListener('online', () => { if (syncReady()) syncNow(); });
+    setInterval(() => { if (!document.hidden && syncReady()) syncNow(); }, 120000);
+  }
+
+  // ---------- Events ----------
+  $('addEmp').addEventListener('click', () => { addEmployee(); saveState(); });
+  $('generateBtn').addEventListener('click', generatePDF);
+  $('generateTop').addEventListener('click', generatePDF);
+  $('cWeekEnd').addEventListener('input', updateDayHeaders);
+  $('otMult').addEventListener('input', recalc);
+
+  $('otRule').addEventListener('change', () => {
+    const rule = $('otRule').value;
+    document.querySelectorAll('tbody.emp').forEach((tb) => {
+      const r1 = [...tb.querySelectorAll('.st-h')], o1 = [...tb.querySelectorAll('.ot-h')];
+      if (prevRule === 'manual' && rule !== 'manual') {
+        // Straight time + overtime entries become total hours worked
+        r1.forEach((el, i) => { const t = num(el.value) + num(o1[i].value); el.value = t ? String(round2(t)) : ''; });
+      } else if (prevRule !== 'manual' && rule === 'manual') {
+        // Keep the computed straight-time hours so ST + OT still add up to the same total
+        const split = computeSplit(r1.map((el) => Math.max(0, num(el.value))), prevRule);
+        r1.forEach((el, i) => { el.value = split.st[i] ? String(split.st[i]) : ''; });
+      }
+    });
+    prevRule = rule;
+    recalc();
+  });
+
+  table.addEventListener('input', (e) => {
+    if (e.target.classList.contains('f-ssn')) e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4);
+    recalc();
+  });
+  table.addEventListener('click', (e) => {
+    if (e.target.classList.contains('rm')) {
+      e.target.closest('tbody.emp').remove();
+      recalc();
+      saveState();
+    }
+  });
+
+  $('addWage').addEventListener('click', () => { addWageRow(); saveState(); });
+  $('wageCard').addEventListener('input', () => { refreshClsList(); recalc(); });
+  $('wageCard').addEventListener('click', (e) => {
+    if (e.target.classList.contains('w-rm')) {
+      e.target.closest('tr').remove();
+      if (!$('wageBody').children.length) addWageRow();
+      refreshClsList(); recalc(); saveState();
+    }
+  });
+
+  // Auto-save on any edit in the form (ignores the modals and the profile switcher)
+  function autoSave(e) {
+    if (e.target.closest('[role="dialog"]') || e.target.id === 'profileSwitcher') return;
+    renderChecklist();
+    saveState();
+  }
+  document.addEventListener('input', autoSave);
+  document.addEventListener('change', autoSave);
+
+  $('clearData').addEventListener('click', () => {
+    if (confirm('Clear the current form and its auto-saved copy from this browser? Saved Pro profiles are not deleted. This cannot be undone.')) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      if (isPro() && store.activeId && store.profiles[store.activeId]) {
+        store.profiles[store.activeId].data = blankData();
+        writeJSON(PROFILES_KEY, store);
+      }
+      location.reload();
+    }
+  });
+
+  // ---------- Init ----------
+  loadState();
+  refreshProUI();
+  revalidate();
+  startSync();
+})();
+</script>
 </body>
 </html>
