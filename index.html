@@ -5,16 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Free Certified Payroll WH-347 Generator for Subcontractors</title>
 <meta name="description" content="Prepare weekly certified payroll in WH-347 format with automatic overtime, fringe benefits, a prevailing wage check, and a statement of compliance. Free, no signup. Your data stays private.">
+<link rel="canonical" href="https://certified-payroll-tool.pages.dev/">
 <meta name="theme-color" content="#0f172a">
 <meta property="og:title" content="Free Certified Payroll WH-347 Generator for Subcontractors">
 <meta property="og:description" content="Weekly certified payroll in minutes. Automatic overtime, prevailing wage check, and a print-ready PDF. Free, no signup.">
-<meta property="og:type" content="website"> 
-<link rel="canonical" href="https://certified-payroll-tool.pages.dev/">
+<meta property="og:type" content="website">
 <meta property="og:url" content="https://certified-payroll-tool.pages.dev/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8B%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
+  html { scroll-behavior: smooth; }
   input[type=number]::-webkit-inner-spin-button,
   input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
   input[type=number] { -moz-appearance: textfield; }
@@ -40,7 +41,7 @@
     <div class="flex flex-wrap items-center gap-3">
       <span id="saveStatus" class="text-xs text-emerald-300 opacity-0" aria-live="polite">✓ Saved on this device</span>
       <span id="syncStatus" class="hidden text-xs text-sky-200" aria-live="polite"></span>
-      <div id="profileSwitcherWrap" class="hidden items-center gap-2">
+      <div id="profileSwitcherWrap" class="hidden flex items-center gap-2">
         <label for="profileSwitcher" class="text-xs text-slate-300">Profile</label>
         <select id="profileSwitcher" class="bg-slate-800 border border-slate-600 text-white text-sm rounded-lg px-3 py-2.5 max-w-[210px] focus:outline-none focus:ring-2 focus:ring-amber-400"></select>
       </div>
@@ -62,6 +63,7 @@
       <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ Your data stays private</span>
       <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ Automatic overtime</span>
       <span class="rounded-full bg-slate-800 border border-slate-700 px-3 py-1">✓ Prevailing wage check</span>
+      <a href="#pricing" class="rounded-full bg-amber-500 text-slate-900 font-semibold px-3 py-1 hover:bg-amber-400">See plans</a>
     </div>
   </div>
 </header>
@@ -69,6 +71,11 @@
 <main class="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
 
   <div id="errorBox" class="hidden bg-red-50 border border-red-300 text-red-800 rounded-lg px-4 py-3 text-sm"></div>
+
+  <div id="sampleBanner" class="hidden flex flex-wrap items-center justify-between gap-3 bg-sky-50 border border-sky-200 rounded-xl px-4 py-3 text-sm text-slate-700">
+    <span>New here? See how it works with an example payroll.</span>
+    <button id="sampleBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-lg transition">Load sample data</button>
+  </div>
 
   <!-- Summary cards -->
   <section class="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -113,6 +120,15 @@
           <input id="cSignerTitle" type="text" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></label>
         <label class="block sm:col-span-2"><span class="text-sm font-medium">Remarks <span class="text-slate-400 font-normal">(printed in item 5 of the statement of compliance)</span></span>
           <textarea id="cRemarks" rows="2" maxlength="400" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-amber-400 focus:outline-none"></textarea></label>
+        <div class="sm:col-span-2">
+          <span class="text-sm font-medium">Company logo <span id="logoTag" class="ml-1 text-[10px] font-bold tracking-wider bg-sky-500 text-white rounded px-1.5 py-0.5 align-middle">BUSINESS</span> <span class="text-slate-400 font-normal">(printed on your PDFs, saved on this device)</span></span>
+          <div class="mt-1 flex flex-wrap items-center gap-3">
+            <img id="logoPreview" class="hidden h-10 max-w-[140px] object-contain border border-slate-200 rounded bg-white p-1" alt="Logo preview">
+            <button id="logoBtn" type="button" class="border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-3 py-2 rounded-lg transition">Upload logo</button>
+            <button id="logoClear" type="button" class="hidden text-sm text-red-600 hover:text-red-800 underline">Remove</button>
+            <input id="logoFile" type="file" accept="image/png,image/jpeg" class="hidden">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -172,6 +188,10 @@
         <p class="text-sm text-slate-500 max-w-3xl">Enter total hours worked each day. With an automatic overtime rule, the OT row fills itself in. Gross = ST hours × (rate + cash fringe) + OT hours × (rate × multiplier + cash fringe). Fringes paid to plans are reported but are not part of the worker's gross pay.</p>
       </div>
       <div class="flex flex-wrap gap-2">
+        <button id="csvBtn" type="button" class="flex items-center gap-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">
+          <span>⬆ Import Hours (CSV)</span>
+          <span id="csvTag" class="text-[10px] font-bold tracking-wider bg-sky-500 text-white rounded px-1.5 py-0.5">BUSINESS</span>
+        </button>
         <button id="nextWeekBtn" type="button" class="flex items-center gap-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">
           <span>↻ Start Next Week</span>
           <span id="nextWeekTag" class="text-[10px] font-bold tracking-wider bg-amber-500 text-slate-900 rounded px-1.5 py-0.5">PRO</span>
@@ -256,12 +276,82 @@
       <button id="clearData" type="button" class="underline text-slate-600 hover:text-red-600 ml-1">Clear saved data</button></p>
   </div>
 
+  <!-- Pricing -->
+  <section id="pricing" class="max-w-6xl mx-auto w-full pt-4">
+    <div class="text-center">
+      <h2 class="text-2xl font-extrabold tracking-tight text-slate-900">Plans that grow with your business</h2>
+      <p class="mt-2 text-sm text-slate-600">Start free. Upgrade when you need more profiles, devices, or time-savers. No contract, cancel any time.</p>
+    </div>
+    <div class="mt-6 grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+
+      <div id="planFree" class="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col">
+        <h3 class="text-lg font-bold text-slate-900">Free</h3>
+        <p class="mt-1 text-sm text-slate-500">For occasional payrolls</p>
+        <p class="mt-4"><span class="text-3xl font-extrabold text-slate-900">$0</span></p>
+        <ul class="mt-5 space-y-2 text-sm text-slate-600 flex-1">
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> WH-347 style PDF, statement of compliance, and fringe detail</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Automatic overtime and fringe handling</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Prevailing wage check and pre-submission checklist</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Saved automatically in your browser</li>
+          <li class="flex gap-2"><span class="text-slate-400 font-bold">–</span> PDFs include a small “Created with” footer</li>
+        </ul>
+        <a id="planFreeBtn" class="mt-6 block text-center rounded-lg border border-slate-300 px-4 py-2.5 font-semibold text-slate-700 hover:bg-slate-50">Start using it free</a>
+      </div>
+
+      <div id="planPro" class="rounded-2xl border-2 border-amber-400 bg-white p-6 flex flex-col relative">
+        <span class="absolute -top-3 left-6 text-[10px] font-bold tracking-widest bg-amber-500 text-slate-900 rounded-full px-3 py-1">MOST POPULAR</span>
+        <h3 class="text-lg font-bold text-slate-900">Pro</h3>
+        <p class="mt-1 text-sm text-slate-500">For contractors with regular payrolls</p>
+        <p class="mt-4"><span class="text-3xl font-extrabold text-slate-900">$29</span><span class="text-sm text-slate-500">/month</span></p>
+        <ul class="mt-5 space-y-2 text-sm text-slate-600 flex-1">
+          <li class="flex gap-2 font-medium text-slate-800">Everything in Free, plus:</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Unlimited contractor and project profiles</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Start Next Week in one click</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Payroll history and backup</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Encrypted cloud sync on up to 3 devices</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> No “Created with” footer</li>
+        </ul>
+        <a id="planProBtn" class="mt-6 block text-center rounded-lg bg-amber-500 hover:bg-amber-400 px-4 py-2.5 font-extrabold text-slate-900">Upgrade to Pro</a>
+      </div>
+
+      <div id="planBiz" class="rounded-2xl border border-sky-300 bg-white p-6 flex flex-col">
+        <h3 class="text-lg font-bold text-slate-900">Business</h3>
+        <p class="mt-1 text-sm text-slate-500">For growing firms and bookkeepers</p>
+        <p class="mt-4"><span class="text-3xl font-extrabold text-slate-900">$79</span><span class="text-sm text-slate-500">/month</span></p>
+        <ul class="mt-5 space-y-2 text-sm text-slate-600 flex-1">
+          <li class="flex gap-2 font-medium text-slate-800">Everything in Pro, plus:</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Import weekly hours from a spreadsheet (CSV)</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Reopen the last 12 payrolls on each profile</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Your company logo on every PDF</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Up to 10 devices on one account</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Priority email support</li>
+        </ul>
+        <a id="planBizBtn" class="mt-6 block text-center rounded-lg bg-slate-900 hover:bg-slate-700 px-4 py-2.5 font-semibold text-white">Upgrade to Business</a>
+      </div>
+
+      <div id="planEnt" class="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col">
+        <h3 class="text-lg font-bold text-slate-900">Enterprise</h3>
+        <p class="mt-1 text-sm text-slate-500">For general contractors, payroll providers, and agencies</p>
+        <p class="mt-4"><span class="text-3xl font-extrabold text-slate-900">Custom</span></p>
+        <ul class="mt-5 space-y-2 text-sm text-slate-600 flex-1">
+          <li class="flex gap-2 font-medium text-slate-800">Everything in Business, plus what you need:</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Export formats for your portal or agency</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Onboarding and data migration help</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Access controls and other requirements, built with you</li>
+        </ul>
+        <p class="mt-3 text-xs text-slate-400">Tell us what your team needs and we'll tell you honestly what we can deliver and when.</p>
+        <a id="planEntBtn" class="mt-4 block text-center rounded-lg border border-slate-300 px-4 py-2.5 font-semibold text-slate-700 hover:bg-slate-50">Contact us</a>
+      </div>
+    </div>
+    <p class="mt-4 text-center text-xs text-slate-500 max-w-3xl mx-auto">Paid plans are billed monthly through Lemon Squeezy. To switch plans, subscribe to the new plan and cancel the old one from your receipt email. If you were charged for both, email us and we'll sort it out.</p>
+  </section>
+
   <!-- Trust section -->
   <section id="trust" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl mx-auto w-full">
     <h2 class="text-lg font-bold text-slate-900">Built for small contractors. Your data stays with you.</h2>
     <p class="mt-2 text-sm text-slate-600 leading-relaxed">Everything you type is saved in your own browser, and the free version never uploads it. If you turn on optional Pro cloud sync, your profiles are encrypted in your browser with a passphrase only you know before they are uploaded, so we can’t read your payroll, employee names, or SSN digits. You can clear your saved data any time with one click.</p>
     <p class="mt-3 text-sm text-slate-600 leading-relaxed"><strong class="text-slate-900">Independent tool.</strong> Certified Payroll Generator is not affiliated with or endorsed by the U.S. Department of Labor. It produces a payroll and statement of compliance in the WH-347 format. Always confirm that your contract, prime contractor, or agency accepts this format or requires its own portal.</p>
-    <p class="mt-3 text-sm text-slate-600 leading-relaxed"><strong class="text-slate-900">Fair pricing.</strong> Free to use. Pro is $29/month, with no contract, and you can cancel any time.</p>
+    <p class="mt-3 text-sm text-slate-600 leading-relaxed"><strong class="text-slate-900">Fair pricing.</strong> Free to use. Paid plans start at $29/month, with no contract, and you can cancel any time.</p>
     <p class="mt-3 text-sm text-slate-600 leading-relaxed"><strong class="text-slate-900">Questions or problems?</strong> Email <a href="mailto:noorfatima192010@gmail.com" class="site-link text-slate-800">noorfatima192010@gmail.com</a> and a real person will reply.</p>
   </section>
 
@@ -322,6 +412,7 @@
   <div class="max-w-[1400px] mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
     <p>© 2026 Certified Payroll Generator. Independent tool, not affiliated with the U.S. Department of Labor.</p>
     <nav class="flex flex-wrap gap-5" aria-label="Legal">
+      <a href="#pricing" class="site-link">Plans</a>
       <a href="privacy.html" class="site-link">Privacy Policy</a>
       <a href="terms.html" class="site-link">Terms of Service</a>
       <a href="disclaimer.html" class="site-link">Disclaimer</a>
@@ -335,7 +426,7 @@
 <!-- Toast -->
 <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
-<!-- Paywall modal (free users) -->
+<!-- Paywall modal (Pro) -->
 <div id="paywallModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
   <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
     <div class="h-2 bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500"></div>
@@ -349,12 +440,12 @@
       <ul class="mt-5 space-y-2 text-sm text-slate-700">
         <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Unlimited contractor profiles</li>
         <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Multiple federal project sites at once</li>
-        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Encrypted cloud syncing across all your devices</li>
+        <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Encrypted cloud syncing across up to 3 devices</li>
         <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Start Next Week in one click, plus payroll history</li>
         <li class="flex items-start gap-2"><span class="text-emerald-600 font-bold">✓</span> Clean PDFs without the “Created with” footer</li>
       </ul>
       <div class="mt-8 flex flex-col sm:flex-row gap-3">
-        <a id="upgradeNow" href="https://formifytools.lemonsqueezy.com/checkout/buy/aadbbe3a-f4c2-4095-9e43-8de80a56b195" target="_blank" rel="noopener noreferrer"
+        <a id="upgradeNow" href="#" target="_blank" rel="noopener noreferrer"
            class="flex-1 text-center bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-lg px-6 py-3.5 rounded-xl shadow-lg transition">
           Upgrade Now
         </a>
@@ -362,7 +453,8 @@
           Maybe Later
         </button>
       </div>
-      <p class="mt-4 text-xs text-slate-400 text-center">Secure checkout. Cancel anytime. By upgrading you agree to our <a href="terms.html" target="_blank" rel="noopener" class="underline">Terms of Service</a> and <a href="privacy.html" target="_blank" rel="noopener" class="underline">Privacy Policy</a>.</p>
+      <p class="mt-3 text-center text-xs text-slate-500">Need more devices, spreadsheet import, or your logo on PDFs? <a href="#pricing" data-close class="underline hover:text-amber-700">See the Business plan</a>.</p>
+      <p class="mt-3 text-xs text-slate-400 text-center">Secure checkout. Cancel anytime. By upgrading you agree to our <a href="terms.html" target="_blank" rel="noopener" class="underline">Terms of Service</a> and <a href="privacy.html" target="_blank" rel="noopener" class="underline">Privacy Policy</a>.</p>
 
       <div class="mt-5 pt-4 border-t border-slate-200 text-center">
         <button id="haveLicenseBtn" type="button" class="text-sm text-slate-500 hover:text-slate-800 underline">Already upgraded? Enter your license key</button>
@@ -379,14 +471,56 @@
   </div>
 </div>
 
-<!-- Profiles manager modal (Pro users) -->
+<!-- Business feature modal -->
+<div id="bizModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="bizTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="h-2 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <div class="px-8 pt-8 pb-7">
+      <div class="inline-block text-[11px] font-bold tracking-widest uppercase bg-sky-100 text-sky-800 rounded-full px-3 py-1 mb-4">Business Feature</div>
+      <h2 id="bizTitle" class="text-xl font-extrabold text-slate-900 tracking-tight"><span id="bizFeature">This feature</span> is part of the Business plan</h2>
+      <p class="mt-3 text-sm text-slate-600 leading-relaxed">Business is <strong class="text-slate-900">$79/month</strong> and includes everything in Pro, plus spreadsheet import of weekly hours, reopening your last 12 payrolls on each profile, your logo on every PDF, up to 10 devices on one account, and priority email support.</p>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3">
+        <a id="bizCta" href="#" class="flex-1 text-center bg-slate-900 hover:bg-slate-700 text-white font-bold px-5 py-3 rounded-xl transition">Upgrade to Business</a>
+        <a href="#pricing" data-close class="px-5 py-3 rounded-xl border border-slate-300 text-slate-600 font-semibold text-center hover:bg-slate-50 transition">Compare plans</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSV import modal -->
+<div id="csvModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="csvTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+    <div class="h-2 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <div class="px-8 pt-8 pb-7">
+      <h2 id="csvTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">⬆ Import weekly hours</h2>
+      <p class="mt-2 text-sm text-slate-600 leading-relaxed">Paste rows from a spreadsheet or upload a CSV file. The first row must be a header. Needed columns: <strong>Name</strong> and at least one day (<strong>Sun, Mon, Tue, Wed, Thu, Fri, Sat</strong>). Optional columns: <strong>SSN4</strong>, <strong>Classification</strong>, <strong>Rate</strong>. Workers are matched by SSN4 or name; new names are added.</p>
+      <pre class="mt-3 text-xs bg-slate-50 border border-slate-200 rounded-lg p-3 overflow-x-auto">Name,SSN4,Classification,Rate,Sun,Mon,Tue,Wed,Thu,Fri,Sat
+Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <input id="csvFile" type="file" accept=".csv,.tsv,.txt,text/csv" class="text-sm">
+        <button id="csvTemplate" type="button" class="text-sm underline text-slate-600 hover:text-amber-700">Download a template</button>
+      </div>
+      <textarea id="csvText" rows="7" class="mt-3 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs focus:ring-2 focus:ring-sky-400 focus:outline-none" placeholder="Paste your rows here"></textarea>
+      <p id="csvMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
+      <div class="mt-4 flex gap-3">
+        <button id="csvGo" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Import hours</button>
+        <button data-close type="button" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition">Cancel</button>
+      </div>
+      <p class="mt-3 text-xs text-slate-400">Hours land in the Hrs row (or the ST row if your overtime rule is Manual). Everything is processed in your browser. Nothing is uploaded.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Profiles manager modal (paid users) -->
 <div id="profilesModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="profilesTitle">
   <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
     <div class="h-2 shrink-0 bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500"></div>
     <div class="shrink-0 flex items-center justify-between gap-3 px-6 pt-5 pb-3">
       <div class="flex items-center gap-3">
         <h2 id="profilesTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">📂 Your Profiles</h2>
-        <span class="text-[10px] font-bold tracking-wider bg-emerald-100 text-emerald-800 rounded px-2 py-1">PRO ACTIVE</span>
+        <span id="proActiveBadge" class="text-[10px] font-bold tracking-wider bg-emerald-100 text-emerald-800 rounded px-2 py-1">PRO ACTIVE</span>
         <span id="profileCount" class="text-sm text-slate-500"></span>
       </div>
       <button data-close type="button" class="text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
@@ -441,6 +575,7 @@
                 <th class="px-3 py-2 text-right">Gross</th>
                 <th class="px-3 py-2 text-right">Net</th>
                 <th class="px-3 py-2 text-left">Generated</th>
+                <th class="px-3 py-2"></th>
               </tr>
             </thead>
             <tbody id="historyBody"></tbody>
@@ -450,28 +585,40 @@
     </div>
     <div class="shrink-0 flex flex-wrap items-center justify-between gap-2 px-6 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
       <span id="licenseInfo"></span>
-      <button id="deactivateBtn" type="button" class="underline hover:text-red-600">Deactivate Pro on this device</button>
+      <span class="flex flex-wrap items-center gap-4">
+        <a id="manageSubLink" href="#" target="_blank" rel="noopener noreferrer" class="underline hover:text-amber-700">Manage subscription</a>
+        <button id="deactivateBtn" type="button" class="underline hover:text-red-600">Deactivate on this device</button>
+      </span>
     </div>
   </div>
 </div>
 
 <script>
 (function () {
-  // ======================= CONFIG =======================
-  // Lemon Squeezy numeric Product ID. Only license keys from this product can unlock Pro.
-  // Test-mode and live-mode products have different IDs. Set to null to skip the check.
-  const LS_PRODUCT_ID = 1438918;
-  const LS_API = 'https://api.lemonsqueezy.com/v1/licenses';
-  // Your Supabase Edge Function URL for cloud sync (see setup steps). Replace YOUR-PROJECT-REF.
+  // ======================= CONFIG (edit links and IDs here) =======================
+  // Each paid plan is its own Lemon Squeezy product. IDs are the numbers in the dashboard URL.
+  const PRO_PRODUCT_ID = 1438918;
+  const BUSINESS_PRODUCT_ID = null;   // paste your Business product ID here after you create it
+  // Checkout links (the Share button on each product).
+  const PRO_CHECKOUT_URL = 'https://formifytools.lemonsqueezy.com/checkout/buy/aadbbe3a-f4c2-4095-9e43-8de80a56b195';
+  const BUSINESS_CHECKOUT_URL = '';   // paste your Business checkout link here
+  // Customer portal (manage or cancel a subscription) and support email.
+  const BILLING_URL = 'https://formifytools.lemonsqueezy.com/billing';
+  const SUPPORT_EMAIL = 'noorfatima192010@gmail.com';
+  // Supabase Edge Function used for encrypted cloud sync.
   const SYNC_URL = 'https://ivxaorkxzybnudxlridd.supabase.co/functions/v1/smooth-worker';
-  // ======================================================
+  const LS_API = 'https://api.lemonsqueezy.com/v1/licenses';
+  // Testing tip: set BOTH product IDs to null to accept any license key as Pro.
+  // =================================================================================
 
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const STORAGE_KEY = 'wh347_payroll_v1';
   const PROFILES_KEY = 'wh347_profiles_v1';
   const PRO_KEY = 'wh347_pro_v1';
   const SYNC_KEY = 'wh347_sync_v1';
+  const LOGO_KEY = 'wh347_logo_v1';
   const REVALIDATE_MS = 7 * 24 * 60 * 60 * 1000;
+  const MAX_SNAPSHOTS = 12;
   const TEXT_FIELDS = ['cName','cAddress','cPayrollNo','cWeekEnd','cSigner','cSignerTitle','cRemarks','pName','pNumber','pPrime','otMult','otRule'];
   const OT_RULES = ['weekly','daily','both','manual'];
   const OT_RULE_TEXT = {
@@ -501,8 +648,22 @@
   let pro = readJSON(PRO_KEY);
   let store = readJSON(PROFILES_KEY);
   if (!store || typeof store !== 'object' || !store.profiles || typeof store.profiles !== 'object') store = { activeId: null, profiles: {} };
-  const isPro = () => !!(pro && pro.key && pro.instanceId);
   let prevRule = 'weekly';
+  let logoData = '';
+  try { logoData = localStorage.getItem(LOGO_KEY) || ''; } catch (e) { logoData = ''; }
+
+  // ---------- Plans ----------
+  const anyPlanConfigured = () => !!(PRO_PRODUCT_ID || BUSINESS_PRODUCT_ID);
+  function planOf(pid) {
+    pid = Number(pid);
+    if (BUSINESS_PRODUCT_ID && pid === Number(BUSINESS_PRODUCT_ID)) return 'business';
+    if (PRO_PRODUCT_ID && pid === Number(PRO_PRODUCT_ID)) return 'pro';
+    return null;
+  }
+  const isPro = () => !!(pro && pro.key && pro.instanceId);            // any paid plan
+  const planName = () => !isPro() ? 'free' : (pro.plan === 'business' ? 'business' : 'pro');
+  const isBusiness = () => planName() === 'business';
+  const waitlistHref = () => 'mailto:' + SUPPORT_EMAIL + '?subject=' + encodeURIComponent('Business plan waitlist');
 
   // ---------- Toast ----------
   let toastTimer = null;
@@ -536,11 +697,29 @@
     if (e.key === 'Escape') document.querySelectorAll('[role="dialog"].flex').forEach(closeModal);
   });
 
+  function requireBusiness(feature) {
+    if (isBusiness()) return true;
+    $('bizFeature').textContent = feature;
+    const cta = $('bizCta');
+    if (BUSINESS_CHECKOUT_URL) {
+      cta.href = BUSINESS_CHECKOUT_URL; cta.target = '_blank'; cta.rel = 'noopener noreferrer'; cta.textContent = 'Upgrade to Business';
+    } else {
+      cta.href = waitlistHref(); cta.removeAttribute('target'); cta.textContent = 'Join the Business waitlist';
+    }
+    openModal($('bizModal'), cta);
+    return false;
+  }
+
   // ---------- Dates ----------
   function addDaysISO(iso, n) {
     const [y, m, d] = iso.split('-').map(Number);
     const dt = new Date(y, m - 1, d + n);
     return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+  function lastSaturdayISO() {
+    const d = new Date();
+    d.setDate(d.getDate() - ((d.getDay() + 1) % 7));
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   }
   function weekDates() {
     const v = $('cWeekEnd').value;
@@ -720,6 +899,11 @@
   const collect = () => [...document.querySelectorAll('tbody.emp')].map(empCalc);
 
   // ---------- Live totals ----------
+  function updateSampleBanner() {
+    const blank = !$('cName').value.trim() && ![...document.querySelectorAll('.f-name')].some((i) => i.value.trim());
+    $('sampleBanner').classList.toggle('hidden', !blank);
+  }
+
   function recalc() {
     applyRuleUI();
     const rule = $('otRule').value;
@@ -758,6 +942,7 @@
     $('sumGross').textContent = money(T.gross);
     $('sumDed').textContent = money(T.fica + T.wh + T.other);
     $('sumNet').textContent = money(T.net);
+    updateSampleBanner();
     renderChecklist();
   }
 
@@ -881,6 +1066,14 @@
     return { fields: f, final: !!d.final, wages, employees: emps };
   }
 
+  function cleanHistEntry(h) {
+    h = (h && typeof h === 'object') ? h : {};
+    const out = { at: num(h.at), weekEnd: String(h.weekEnd || '').slice(0, 10), payrollNo: String(h.payrollNo || '').slice(0, 40),
+      employees: num(h.employees), gross: num(h.gross), net: num(h.net) };
+    if (h.snap && typeof h.snap === 'object') out.snap = sanitizeData(h.snap);
+    return out;
+  }
+
   function applyFormState(state) {
     document.querySelectorAll('tbody.emp').forEach((t) => t.remove());
     $('wageBody').innerHTML = '';
@@ -929,7 +1122,25 @@
     applyFormState(sanitizeData(state));
   }
 
-  // ---------- Profiles (Pro) ----------
+  // ---------- Sample data ----------
+  function loadSample() {
+    const sample = {
+      fields: { cName: 'Sample Electric LLC', cAddress: '123 Main St, Austin, TX 78701', cPayrollNo: '1', cWeekEnd: lastSaturdayISO(),
+        cSigner: 'Alex Rivera', cSignerTitle: 'Owner', cRemarks: '', pName: 'City Library Renovation, Austin, TX', pNumber: 'DB-2026-114',
+        pPrime: 'Summit General Contractors', otMult: '1.5', otRule: 'weekly' },
+      final: false,
+      wages: [{ cls: 'Journeyman Electrician', basic: '38.00', fringe: '12.50' }, { cls: 'Laborer', basic: '24.00', fringe: '8.00' }],
+      employees: [
+        { name: 'Robert Chen', ssn: '4432', ex: '1', cls: 'Journeyman Electrician', st: ['', '8', '8', '8', '8', '10', ''], ot: [], rate: '38.00', fp: '12.50', fc: '', fica: '125.00', wh: '180.00', other: '' },
+        { name: 'Maria Lopez', ssn: '7781', ex: '2', cls: 'Laborer', st: ['', '8', '8', '8', '8', '8', '4'], ot: [], rate: '24.00', fp: '8.00', fc: '', fica: '84.46', wh: '95.00', other: '' }
+      ]
+    };
+    applyFormState(sanitizeData(sample));
+    saveState();
+    toast('Sample data loaded. Try changing hours or rates.');
+  }
+
+  // ---------- Profiles (paid plans) ----------
   const newId = () => 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   function blankData() { return sanitizeData({}); }
 
@@ -1020,18 +1231,21 @@
     }).join('');
 
     const act = store.profiles[store.activeId];
-    const h = ((act && act.history) || []).slice().reverse().slice(0, 15);
-    $('historyBody').innerHTML = h.length ? h.map((r) => `<tr class="border-t border-slate-100">
+    const hist = ((act && act.history) || []).map((r, i) => ({ r, i })).reverse().slice(0, 15);
+    const biz = isBusiness();
+    $('historyBody').innerHTML = hist.length ? hist.map(({ r, i }) => `<tr class="border-t border-slate-100">
         <td class="px-3 py-2">${esc(fmtLongDate(r.weekEnd) || '-')}</td>
         <td class="px-3 py-2">${esc(r.payrollNo || '-')}</td>
         <td class="px-3 py-2 text-right">${esc(r.employees)}</td>
         <td class="px-3 py-2 text-right">${esc(money(num(r.gross)))}</td>
         <td class="px-3 py-2 text-right">${esc(money(num(r.net)))}</td>
-        <td class="px-3 py-2 text-slate-500">${esc(new Date(r.at).toLocaleString())}</td></tr>`).join('')
-      : '<tr><td colspan="6" class="px-3 py-4 text-center text-slate-400">No payrolls generated for this profile yet.</td></tr>';
+        <td class="px-3 py-2 text-slate-500">${esc(new Date(r.at).toLocaleString())}</td>
+        <td class="px-3 py-2 text-right">${!biz ? '<button type="button" data-locked class="text-xs text-sky-700 underline">Reopen 🔒</button>'
+          : (r.snap ? `<button type="button" data-reopen="${i}" class="text-xs px-2 py-1 rounded border border-slate-300 hover:bg-slate-50 font-medium">Reopen as copy</button>` : '<span class="text-slate-300">-</span>')}</td></tr>`).join('')
+      : '<tr><td colspan="7" class="px-3 py-4 text-center text-slate-400">No payrolls generated for this profile yet.</td></tr>';
 
     const last4 = pro && pro.key ? String(pro.key).slice(-4) : '';
-    $('licenseInfo').textContent = 'Licensed' + (pro && pro.email ? ' to ' + pro.email : '') + (last4 ? ' · key ending ' + last4 : '');
+    $('licenseInfo').textContent = (biz ? 'Business plan' : 'Pro plan') + (pro && pro.email ? ' · ' + pro.email : '') + (last4 ? ' · key ending ' + last4 : '');
     renderSyncUI();
     renderSyncStatus();
   }
@@ -1044,6 +1258,25 @@
     else if (b.dataset.act === 'duplicate') duplicateProfile(id);
     else if (b.dataset.act === 'delete') deleteProfile(id);
   });
+
+  $('historyBody').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-locked')) { closeModal($('profilesModal')); requireBusiness('Reopening past payrolls'); return; }
+    if (b.dataset.reopen !== undefined) reopenSnapshot(Number(b.dataset.reopen));
+  });
+
+  function reopenSnapshot(idx) {
+    if (!requireBusiness('Reopening past payrolls')) return;
+    const act = store.profiles[store.activeId];
+    const h = act && act.history && act.history[idx];
+    if (!h || !h.snap) { toast('No saved copy for that payroll.'); return; }
+    const label = h.weekEnd ? fmtLongDate(h.weekEnd) : 'past payroll';
+    const id = createProfile(act.name + ' - week ending ' + label + ' (reopened)', sanitizeData(h.snap));
+    openProfile(id);
+    closeModal($('profilesModal'));
+    toast('Reopened as a copy. Click Generate to print it again.');
+    scheduleSync();
+  }
 
   $('newProfileBtn').addEventListener('click', () => {
     const name = prompt('Name for the new profile (e.g. contractor or project):', 'New profile');
@@ -1082,7 +1315,7 @@
         list.forEach((p) => {
           const id = newId();
           store.profiles[id] = { id, name: String(p.name || 'Imported profile').slice(0, 80), createdAt: Date.now(), updatedAt: Date.now(),
-            data: sanitizeData(p.data), history: Array.isArray(p.history) ? p.history.slice(-104) : [] };
+            data: sanitizeData(p.data), history: Array.isArray(p.history) ? p.history.slice(-104).map(cleanHistEntry) : [] };
         });
         writeJSON(PROFILES_KEY, store);
         refreshProUI(); renderProfiles(); toast('Backup imported'); scheduleSync();
@@ -1108,17 +1341,164 @@
     toast('Next week is ready');
   }
 
-  // ---------- Payroll history (Pro) ----------
+  // ---------- Payroll history (paid plans; Business also keeps snapshots) ----------
   function logHistory(T, count) {
     if (!isPro() || !store.activeId || !store.profiles[store.activeId]) return;
     const p = store.profiles[store.activeId];
     p.history = p.history || [];
-    p.history.push({ at: Date.now(), weekEnd: $('cWeekEnd').value, payrollNo: $('cPayrollNo').value.trim(), employees: count, gross: T.gross, net: T.net });
+    const entry = { at: Date.now(), weekEnd: $('cWeekEnd').value, payrollNo: $('cPayrollNo').value.trim(), employees: count, gross: T.gross, net: T.net };
+    if (isBusiness()) {
+      const snap = sanitizeData(snapshot());
+      if (JSON.stringify(snap).length <= 150000) entry.snap = snap;
+    }
+    p.history.push(entry);
     if (p.history.length > 104) p.history = p.history.slice(-104);
+    // Keep full copies only for the most recent payrolls to protect storage and sync size.
+    let kept = 0;
+    for (let i = p.history.length - 1; i >= 0; i--) {
+      if (p.history[i].snap) { kept++; if (kept > MAX_SNAPSHOTS) delete p.history[i].snap; }
+    }
     p.updatedAt = Date.now();
     writeJSON(PROFILES_KEY, store);
     scheduleSync();
   }
+
+  // ---------- CSV hours import (Business) ----------
+  function parseCSV(text) {
+    const first = text.split(/\r?\n/).find((l) => l.trim()) || '';
+    const delim = first.indexOf('\t') >= 0 ? '\t' : ',';
+    const rows = []; let row = [], cur = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+        else cur += c;
+      } else if (c === '"') q = true;
+      else if (c === delim) { row.push(cur); cur = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cur); cur = '';
+        if (row.some((x) => x.trim() !== '')) rows.push(row);
+        row = [];
+      } else cur += c;
+    }
+    row.push(cur);
+    if (row.some((x) => x.trim() !== '')) rows.push(row);
+    return rows;
+  }
+
+  function importHours(text) {
+    const rows = parseCSV(text);
+    if (rows.length < 2) return { error: 'Add a header row and at least one worker row.' };
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const col = { name: -1, ssn: -1, cls: -1, rate: -1, days: [-1, -1, -1, -1, -1, -1, -1] };
+    rows[0].map((h) => h.trim().toLowerCase()).forEach((h, i) => {
+      if (['name', 'employee', 'employee name', 'worker'].indexOf(h) >= 0) col.name = i;
+      else if (['ssn', 'ssn4', 'last4', 'last 4', 'ssn last 4'].indexOf(h) >= 0) col.ssn = i;
+      else if (['class', 'classification', 'work classification', 'trade'].indexOf(h) >= 0) col.cls = i;
+      else if (['rate', 'hourly rate', 'wage'].indexOf(h) >= 0) col.rate = i;
+      else { const d = dayKeys.indexOf(h.slice(0, 3)); if (d >= 0 && h.length <= 9) col.days[d] = i; }
+    });
+    if (col.name < 0) return { error: 'No "Name" column found in the header row.' };
+    if (col.days.every((x) => x < 0)) return { error: 'No day columns found. Use Sun, Mon, Tue, Wed, Thu, Fri, Sat in the header row.' };
+
+    const existing = [...document.querySelectorAll('tbody.emp')];
+    let updated = 0, added = 0, skipped = 0;
+    rows.slice(1).forEach((r) => {
+      const name = (r[col.name] || '').trim();
+      if (!name) { skipped++; return; }
+      const ssn = col.ssn >= 0 ? String(r[col.ssn] || '').replace(/\D/g, '').slice(-4) : '';
+      let tb = (ssn && existing.find((t) => t.querySelector('.f-ssn').value.trim() === ssn))
+        || existing.find((t) => t.querySelector('.f-name').value.trim().toLowerCase() === name.toLowerCase());
+      let isNew = false;
+      if (!tb) {
+        tb = existing.find((t) => !t.querySelector('.f-name').value.trim() && ![...t.querySelectorAll('input')].some((i) => i.value));
+        if (!tb) { tb = addEmployee(); existing.push(tb); }
+        isNew = true;
+      }
+      if (isNew) tb.querySelector('.f-name').value = name;
+      if (ssn && (isNew || !tb.querySelector('.f-ssn').value.trim())) tb.querySelector('.f-ssn').value = ssn;
+      if (col.cls >= 0 && (r[col.cls] || '').trim()) tb.querySelector('.f-class').value = r[col.cls].trim();
+      if (col.rate >= 0 && num(r[col.rate]) > 0) tb.querySelector('.f-rate').value = String(round2(num(r[col.rate])));
+      const hourInputs = tb.querySelectorAll('.st-h');
+      col.days.forEach((ci, d) => {
+        if (ci < 0) return;
+        const v = parseFloat(r[ci]);
+        hourInputs[d].value = (isNaN(v) || v <= 0) ? '' : String(round2(v));
+      });
+      if (isNew) added++; else updated++;
+    });
+    recalc(); saveState();
+    return { updated, added, skipped };
+  }
+
+  $('csvBtn').addEventListener('click', () => {
+    if (!requireBusiness('Importing hours from a spreadsheet')) return;
+    $('csvMsg').textContent = '';
+    openModal($('csvModal'), $('csvText'));
+  });
+  $('csvFile').addEventListener('change', (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { $('csvText').value = String(r.result || ''); };
+    r.readAsText(f);
+    e.target.value = '';
+  });
+  $('csvTemplate').addEventListener('click', () => {
+    const csv = 'Name,SSN4,Classification,Rate,Sun,Mon,Tue,Wed,Thu,Fri,Sat\nRobert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0\n';
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    const a = document.createElement('a'); a.href = url; a.download = 'hours-template.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+  $('csvGo').addEventListener('click', () => {
+    const msg = $('csvMsg');
+    const res = importHours($('csvText').value);
+    if (res.error) { msg.textContent = res.error; msg.className = 'mt-2 text-sm min-h-[1.25rem] text-red-600'; return; }
+    closeModal($('csvModal'));
+    $('csvText').value = '';
+    toast('Imported: ' + res.updated + ' updated, ' + res.added + ' added' + (res.skipped ? ', ' + res.skipped + ' skipped' : '') + '.');
+  });
+
+  // ---------- Company logo (Business, stored on this device) ----------
+  function renderLogo() {
+    const img = $('logoPreview');
+    if (logoData) { img.src = logoData; img.classList.remove('hidden'); $('logoClear').classList.remove('hidden'); $('logoBtn').textContent = 'Replace logo'; }
+    else { img.removeAttribute('src'); img.classList.add('hidden'); $('logoClear').classList.add('hidden'); $('logoBtn').textContent = 'Upload logo'; }
+  }
+  function storeLogo(v) {
+    logoData = v;
+    try { if (v) localStorage.setItem(LOGO_KEY, v); else localStorage.removeItem(LOGO_KEY); } catch (e) { toast('Could not save the logo on this device.'); }
+    renderLogo();
+  }
+  $('logoBtn').addEventListener('click', () => { if (requireBusiness('Your logo on PDFs')) $('logoFile').click(); });
+  $('logoClear').addEventListener('click', () => storeLogo(''));
+  $('logoFile').addEventListener('change', (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(1, 300 / Math.max(img.width, img.height));
+        const cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(img.width * s)); cv.height = Math.max(1, Math.round(img.height * s));
+        const ctx = cv.getContext('2d');
+        ctx.drawImage(img, 0, 0, cv.width, cv.height);
+        let out = cv.toDataURL('image/png');
+        if (out.length > 130000) {
+          ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, cv.width, cv.height);
+          out = cv.toDataURL('image/jpeg', 0.82);
+        }
+        if (out.length > 130000) { toast('That logo is too large. Try a simpler image.'); return; }
+        storeLogo(out);
+        toast('Logo saved on this device.');
+      };
+      img.onerror = () => toast('Could not read that image.');
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(f);
+    e.target.value = '';
+  });
 
   // ---------- Licensing (Lemon Squeezy License API) ----------
   async function lsPost(path, params) {
@@ -1147,12 +1527,13 @@
         instance_name: 'WH347-' + Math.random().toString(36).slice(2, 8)
       });
       if (!data.activated) { licenseMsg(data.error || 'That license key could not be activated.', true); return; }
-      if (LS_PRODUCT_ID && data.meta && Number(data.meta.product_id) !== Number(LS_PRODUCT_ID)) {
+      const plan = anyPlanConfigured() ? planOf(data.meta && data.meta.product_id) : 'pro';
+      if (!plan) {
         lsPost('deactivate', { license_key: key, instance_id: data.instance.id }).catch(() => {});
         licenseMsg('This license key belongs to a different product.', true);
         return;
       }
-      pro = { key, instanceId: data.instance.id, email: (data.meta && data.meta.customer_email) || '', checkedAt: Date.now() };
+      pro = { key, instanceId: data.instance.id, email: (data.meta && data.meta.customer_email) || '', plan, checkedAt: Date.now() };
       writeJSON(PRO_KEY, pro);
       onProUnlocked();
     } catch (e) {
@@ -1170,13 +1551,14 @@
     $('licenseInput').value = '';
     licenseMsg('', false);
     closeModal($('paywallModal'));
+    closeModal($('bizModal'));
     openModal($('profilesModal'));
-    toast('✨ Pro unlocked. Welcome aboard!');
+    toast('✨ ' + (isBusiness() ? 'Business' : 'Pro') + ' unlocked. Welcome aboard!');
   }
 
   async function deactivateLicense() {
     if (!isPro()) return;
-    if (!confirm('Deactivate Pro on this device?\n\nYour saved profiles stay on this device but are locked until you activate your license again. Cloud sync will be turned off on this device (your cloud data is not deleted).')) return;
+    if (!confirm('Deactivate your plan on this device?\n\nYour saved profiles stay on this device but are locked until you activate your license again. Cloud sync will be turned off on this device (your cloud data is not deleted).')) return;
     try {
       await lsPost('deactivate', { license_key: pro.key, instance_id: pro.instanceId });
     } catch (e) {
@@ -1189,22 +1571,27 @@
     closeModal($('profilesModal'));
     refreshProUI();
     renderSyncStatus();
-    toast('Pro deactivated on this device');
+    toast('Deactivated on this device');
   }
 
   async function revalidate() {
     if (!isPro() || Date.now() - (pro.checkedAt || 0) < REVALIDATE_MS) return;
     try {
       const data = await lsPost('validate', { license_key: pro.key, instance_id: pro.instanceId });
-      if (data.valid === true) { pro.checkedAt = Date.now(); writeJSON(PRO_KEY, pro); }
-      else if (data.valid === false) {
+      if (data.valid === true) {
+        pro.checkedAt = Date.now();
+        const np = anyPlanConfigured() ? planOf(data.meta && data.meta.product_id) : null;
+        if (np) pro.plan = np;
+        writeJSON(PRO_KEY, pro);
+        refreshProUI();
+      } else if (data.valid === false) {
         pro = null;
         try { localStorage.removeItem(PRO_KEY); } catch (e) {}
         refreshProUI();
         renderSyncStatus();
-        toast('Your Pro license is no longer active.');
+        toast('Your license is no longer active.');
       }
-    } catch (e) { /* offline: keep Pro until we can check again */ }
+    } catch (e) { /* offline: keep access until we can check again */ }
   }
 
   $('haveLicenseBtn').addEventListener('click', () => {
@@ -1215,18 +1602,50 @@
   $('licenseInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') activateLicense(); });
   $('deactivateBtn').addEventListener('click', deactivateLicense);
 
-  // ---------- Pro-aware UI ----------
+  // ---------- Plan-aware UI ----------
+  function setCta(id, text, href, external) {
+    const a = $(id);
+    a.textContent = text;
+    if (href) {
+      a.href = href;
+      if (external) { a.target = '_blank'; a.rel = 'noopener noreferrer'; } else { a.removeAttribute('target'); }
+      a.classList.remove('pointer-events-none', 'opacity-60');
+    } else {
+      a.removeAttribute('href'); a.removeAttribute('target');
+      a.classList.add('pointer-events-none', 'opacity-60');
+    }
+  }
+
+  function renderPlans() {
+    const cur = planName();
+    setCta('planFreeBtn', cur === 'free' ? 'Start using it free' : 'Included in your plan', cur === 'free' ? '#top' : '', false);
+    if (cur === 'free') setCta('planProBtn', 'Upgrade to Pro', PRO_CHECKOUT_URL, true);
+    else setCta('planProBtn', cur === 'pro' ? 'Your current plan' : 'Included in Business', '', false);
+    if (cur === 'business') setCta('planBizBtn', 'Your current plan', '', false);
+    else if (BUSINESS_CHECKOUT_URL) setCta('planBizBtn', 'Upgrade to Business', BUSINESS_CHECKOUT_URL, true);
+    else setCta('planBizBtn', 'Join the waitlist', waitlistHref(), false);
+    setCta('planEntBtn', 'Contact us', 'mailto:' + SUPPORT_EMAIL + '?subject=' + encodeURIComponent('Enterprise plan inquiry'), false);
+    $('planPro').classList.toggle('ring-4', cur === 'pro');
+    $('planPro').classList.toggle('ring-emerald-200', cur === 'pro');
+    $('planBiz').classList.toggle('ring-4', cur === 'business');
+    $('planBiz').classList.toggle('ring-emerald-200', cur === 'business');
+  }
+
   function refreshProUI() {
-    const on = isPro();
+    const on = isPro(), biz = isBusiness();
     const badge = $('proBadge');
-    badge.textContent = on ? '✓ PRO' : 'PRO';
+    badge.textContent = on ? (biz ? '✓ BUSINESS' : '✓ PRO') : 'PRO';
     badge.className = 'text-[10px] font-bold tracking-wider rounded px-1.5 py-0.5 ' + (on ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-slate-900');
     $('nextWeekTag').classList.toggle('hidden', on);
+    $('csvTag').classList.toggle('hidden', biz);
+    $('logoTag').classList.toggle('hidden', biz);
+    $('proActiveBadge').textContent = biz ? 'BUSINESS ACTIVE' : 'PRO ACTIVE';
     $('profileSwitcherWrap').classList.toggle('hidden', !on);
     if (on) {
       const ids = Object.keys(store.profiles).sort((a, b) => store.profiles[a].name.localeCompare(store.profiles[b].name));
       $('profileSwitcher').innerHTML = ids.map((id) => `<option value="${id}"${id === store.activeId ? ' selected' : ''}>${esc(store.profiles[id].name)}</option>`).join('');
     }
+    renderPlans();
   }
 
   $('manageProfilesBtn').addEventListener('click', () => {
@@ -1242,6 +1661,7 @@
   $('nextWeekBtn').addEventListener('click', () => {
     if (isPro()) nextWeek(); else openModal($('paywallModal'), $('upgradeNow'));
   });
+  $('sampleBtn').addEventListener('click', loadSample);
 
   // ---------- PDF ----------
   function generatePDF() {
@@ -1295,6 +1715,14 @@
       doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
       doc.text('Form WH-347 format - for contractor\'s optional use', M + 76, 38);
       if ($('pFinal').checked) { doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FINAL PAYROLL', M + CW, 38, { align: 'right' }); }
+      if (isBusiness() && logoData) {
+        try {
+          const props = doc.getImageProperties(logoData);
+          const sc = Math.min(100 / props.width, 34 / props.height);
+          const w = props.width * sc, h = props.height * sc;
+          doc.addImage(logoData, props.fileType, M + CW - 70 - w, 8 + (34 - h) / 2, w, h);
+        } catch (e) { /* ignore a bad logo and keep going */ }
+      }
       const y0 = 46;
       cell('NAME OF CONTRACTOR OR SUBCONTRACTOR', val('cName'), M, y0, 250, 26);
       cell('ADDRESS', val('cAddress'), M + 250, y0, 250, 26);
@@ -1551,12 +1979,12 @@
   }
 
   // =====================================================================
-  // ---------- Cloud sync (Pro): end-to-end encrypted ----------
+  // ---------- Cloud sync (paid plans): end-to-end encrypted ----------
   // Profiles are encrypted in the browser (AES-GCM, key derived from the user's
   // passphrase with PBKDF2). The server only ever stores ciphertext.
   // =====================================================================
   const enc = new TextEncoder(), dec = new TextDecoder();
-  const syncConfigured = () => SYNC_URL.indexOf('YOUR-PROJECT-REF') < 0 && /^https:\/\//.test(SYNC_URL);
+  const syncConfigured = () => /^https:\/\//.test(SYNC_URL) && SYNC_URL.indexOf('YOUR-PROJECT-REF') < 0;
   function defaultSyncCfg() { return { on: false, pass: '', deleted: {}, lastSync: 0 }; }
   let syncCfg = Object.assign(defaultSyncCfg(), readJSON(SYNC_KEY) || {});
   if (!syncCfg.deleted || typeof syncCfg.deleted !== 'object') syncCfg.deleted = {};
@@ -1611,14 +2039,12 @@
 
   function cleanRemote(r) {
     const out = { profiles: {}, deleted: {} };
-    const cleanHist = (h) => ({ at: num(h && h.at), weekEnd: String((h && h.weekEnd) || '').slice(0, 10), payrollNo: String((h && h.payrollNo) || '').slice(0, 40),
-      employees: num(h && h.employees), gross: num(h && h.gross), net: num(h && h.net) });
     if (r && r.profiles && typeof r.profiles === 'object') {
       Object.keys(r.profiles).slice(0, 500).forEach((id) => {
         const p = r.profiles[id];
         if (!p || typeof p !== 'object' || !/^[a-z0-9]{6,40}$/i.test(id)) return;
         out.profiles[id] = { id, name: String(p.name || 'Profile').slice(0, 80), createdAt: num(p.createdAt) || Date.now(), updatedAt: num(p.updatedAt),
-          data: sanitizeData(p.data), history: Array.isArray(p.history) ? p.history.slice(-104).map(cleanHist) : [] };
+          data: sanitizeData(p.data), history: Array.isArray(p.history) ? p.history.slice(-104).map(cleanHistEntry) : [] };
       });
     }
     if (r && r.deleted && typeof r.deleted === 'object') {
@@ -1710,6 +2136,7 @@
           return;
         }
         const blob = await encryptJSON(key, { v: 1, profiles: merged.profiles, deleted: merged.deleted });
+        if (blob.length > 1800000) throw new Error('Your synced data is too large. Delete old profiles to make room.');
         const push = await syncApi('push', { base_version: version, salt, blob });
         if (push.status === 200) {
           syncCfg.lastSync = Date.now(); saveSyncCfg(); syncState = 'ok';
@@ -1866,9 +2293,9 @@
     }
   });
 
-  // Auto-save on any edit in the form (ignores the modals and the profile switcher)
+  // Auto-save on any edit in the form (ignores the modals, the profile switcher, and the logo picker)
   function autoSave(e) {
-    if (e.target.closest('[role="dialog"]') || e.target.id === 'profileSwitcher') return;
+    if (e.target.closest('[role="dialog"]') || e.target.id === 'profileSwitcher' || e.target.id === 'logoFile') return;
     renderChecklist();
     saveState();
   }
@@ -1887,6 +2314,9 @@
   });
 
   // ---------- Init ----------
+  $('upgradeNow').href = PRO_CHECKOUT_URL;
+  $('manageSubLink').href = BILLING_URL;
+  renderLogo();
   loadState();
   refreshProUI();
   revalidate();
