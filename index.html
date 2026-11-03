@@ -14,6 +14,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8B%3C/text%3E%3C/svg%3E">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   html { scroll-behavior: smooth; }
   input[type=number]::-webkit-inner-spin-button,
@@ -188,6 +189,10 @@
         <p class="text-sm text-slate-500 max-w-3xl">Enter total hours worked each day. With an automatic overtime rule, the OT row fills itself in. Gross = ST hours × (rate + cash fringe) + OT hours × (rate × multiplier + cash fringe). Fringes paid to plans are reported but are not part of the worker's gross pay.</p>
       </div>
       <div class="flex flex-wrap gap-2">
+        <button id="rosterBtn" type="button" class="flex items-center gap-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">
+          <span>👥 Roster</span>
+          <span id="rosterTag" class="text-[10px] font-bold tracking-wider bg-sky-500 text-white rounded px-1.5 py-0.5">BUSINESS</span>
+        </button>
         <button id="csvBtn" type="button" class="flex items-center gap-2 border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold px-4 py-2 rounded-lg transition">
           <span>⬆ Import Hours (CSV)</span>
           <span id="csvTag" class="text-[10px] font-bold tracking-wider bg-sky-500 text-white rounded px-1.5 py-0.5">BUSINESS</span>
@@ -316,10 +321,13 @@
 
       <div id="planBiz" class="rounded-2xl border border-sky-300 bg-white p-6 flex flex-col">
         <h3 class="text-lg font-bold text-slate-900">Business</h3>
-        <p class="mt-1 text-sm text-slate-500">For growing firms and bookkeepers</p>
+        <p class="mt-1 text-sm text-slate-500">For bookkeepers and firms handling several contractors or projects</p>
         <p class="mt-4"><span class="text-3xl font-extrabold text-slate-900">$79</span><span class="text-sm text-slate-500">/month</span></p>
         <ul class="mt-5 space-y-2 text-sm text-slate-600 flex-1">
           <li class="flex gap-2 font-medium text-slate-800">Everything in Pro, plus:</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Generate every profile's payroll in one click (a ZIP of PDFs)</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Start next week on all profiles at once</li>
+          <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Shared worker roster across all profiles</li>
           <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Import weekly hours from a spreadsheet (CSV)</li>
           <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Reopen the last 12 payrolls on each profile</li>
           <li class="flex gap-2"><span class="text-emerald-600 font-bold">✓</span> Your company logo on every PDF</li>
@@ -453,7 +461,7 @@
           Maybe Later
         </button>
       </div>
-      <p class="mt-3 text-center text-xs text-slate-500">Need more devices, spreadsheet import, or your logo on PDFs? <a href="#pricing" data-close class="underline hover:text-amber-700">See the Business plan</a>.</p>
+      <p class="mt-3 text-center text-xs text-slate-500">Managing several contractors or projects? <a href="#pricing" data-close class="underline hover:text-amber-700">See the Business plan</a>.</p>
       <p class="mt-3 text-xs text-slate-400 text-center">Secure checkout. Cancel anytime. By upgrading you agree to our <a href="terms.html" target="_blank" rel="noopener" class="underline">Terms of Service</a> and <a href="privacy.html" target="_blank" rel="noopener" class="underline">Privacy Policy</a>.</p>
 
       <div class="mt-5 pt-4 border-t border-slate-200 text-center">
@@ -467,48 +475,6 @@
           <p id="licenseMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Business feature modal -->
-<div id="bizModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="bizTitle">
-  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-    <div class="h-2 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
-    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
-    <div class="px-8 pt-8 pb-7">
-      <div class="inline-block text-[11px] font-bold tracking-widest uppercase bg-sky-100 text-sky-800 rounded-full px-3 py-1 mb-4">Business Feature</div>
-      <h2 id="bizTitle" class="text-xl font-extrabold text-slate-900 tracking-tight"><span id="bizFeature">This feature</span> is part of the Business plan</h2>
-      <p class="mt-3 text-sm text-slate-600 leading-relaxed">Business is <strong class="text-slate-900">$79/month</strong> and includes everything in Pro, plus spreadsheet import of weekly hours, reopening your last 12 payrolls on each profile, your logo on every PDF, up to 10 devices on one account, and priority email support.</p>
-      <div class="mt-6 flex flex-col sm:flex-row gap-3">
-        <a id="bizCta" href="#" class="flex-1 text-center bg-slate-900 hover:bg-slate-700 text-white font-bold px-5 py-3 rounded-xl transition">Upgrade to Business</a>
-        <a href="#pricing" data-close class="px-5 py-3 rounded-xl border border-slate-300 text-slate-600 font-semibold text-center hover:bg-slate-50 transition">Compare plans</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- CSV import modal -->
-<div id="csvModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="csvTitle">
-  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
-    <div class="h-2 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
-    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
-    <div class="px-8 pt-8 pb-7">
-      <h2 id="csvTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">⬆ Import weekly hours</h2>
-      <p class="mt-2 text-sm text-slate-600 leading-relaxed">Paste rows from a spreadsheet or upload a CSV file. The first row must be a header. Needed columns: <strong>Name</strong> and at least one day (<strong>Sun, Mon, Tue, Wed, Thu, Fri, Sat</strong>). Optional columns: <strong>SSN4</strong>, <strong>Classification</strong>, <strong>Rate</strong>. Workers are matched by SSN4 or name; new names are added.</p>
-      <pre class="mt-3 text-xs bg-slate-50 border border-slate-200 rounded-lg p-3 overflow-x-auto">Name,SSN4,Classification,Rate,Sun,Mon,Tue,Wed,Thu,Fri,Sat
-Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
-      <div class="mt-3 flex flex-wrap items-center gap-3">
-        <input id="csvFile" type="file" accept=".csv,.tsv,.txt,text/csv" class="text-sm">
-        <button id="csvTemplate" type="button" class="text-sm underline text-slate-600 hover:text-amber-700">Download a template</button>
-      </div>
-      <textarea id="csvText" rows="7" class="mt-3 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs focus:ring-2 focus:ring-sky-400 focus:outline-none" placeholder="Paste your rows here"></textarea>
-      <p id="csvMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
-      <div class="mt-4 flex gap-3">
-        <button id="csvGo" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Import hours</button>
-        <button data-close type="button" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition">Cancel</button>
-      </div>
-      <p class="mt-3 text-xs text-slate-400">Hours land in the Hrs row (or the ST row if your overtime rule is Manual). Everything is processed in your browser. Nothing is uploaded.</p>
     </div>
   </div>
 </div>
@@ -532,6 +498,16 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
       <input id="importFile" type="file" accept="application/json,.json" class="hidden">
     </div>
     <div class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+
+      <!-- All-profile tools (Business) -->
+      <div id="teamPanel" class="rounded-xl border border-indigo-200 bg-indigo-50 p-4">
+        <h3 class="font-semibold text-slate-900">🗂 All-profile tools <span id="teamTag" class="ml-1 text-[10px] font-bold tracking-wider bg-sky-500 text-white rounded px-1.5 py-0.5 align-middle">BUSINESS</span></h3>
+        <p class="mt-2 text-sm text-slate-600 leading-relaxed">Work across every profile at once. Download one PDF per profile in a single ZIP, or roll every profile forward to the next week.</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button id="genAllBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">⬇ Generate all payrolls (ZIP)</button>
+          <button id="nextAllBtn" type="button" class="border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">↻ Start next week on all profiles</button>
+        </div>
+      </div>
 
       <!-- Cloud sync panel -->
       <div id="syncPanel" class="rounded-xl border border-sky-200 bg-sky-50 p-4">
@@ -593,6 +569,108 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
   </div>
 </div>
 
+<!-- Business feature modal -->
+<div id="bizModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="bizTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="h-2 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <div class="px-8 pt-8 pb-7">
+      <div class="inline-block text-[11px] font-bold tracking-widest uppercase bg-sky-100 text-sky-800 rounded-full px-3 py-1 mb-4">Business Feature</div>
+      <h2 id="bizTitle" class="text-xl font-extrabold text-slate-900 tracking-tight"><span id="bizFeature">This feature</span> is part of the Business plan</h2>
+      <p class="mt-3 text-sm text-slate-600 leading-relaxed">Business is <strong class="text-slate-900">$79/month</strong> and includes everything in Pro, plus one-click payrolls for every profile, next-week rollover for all profiles, a shared worker roster, spreadsheet import of weekly hours, reopening your last 12 payrolls on each profile, your logo on every PDF, up to 10 devices on one account, and priority email support.</p>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3">
+        <a id="bizCta" href="#" class="flex-1 text-center bg-slate-900 hover:bg-slate-700 text-white font-bold px-5 py-3 rounded-xl transition">Upgrade to Business</a>
+        <a href="#pricing" data-close class="px-5 py-3 rounded-xl border border-slate-300 text-slate-600 font-semibold text-center hover:bg-slate-50 transition">Compare plans</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSV import modal -->
+<div id="csvModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="csvTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+    <div class="h-2 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <div class="px-8 pt-8 pb-7">
+      <h2 id="csvTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">⬆ Import weekly hours</h2>
+      <p class="mt-2 text-sm text-slate-600 leading-relaxed">Paste rows from a spreadsheet or upload a CSV file. The first row must be a header. Needed columns: <strong>Name</strong> and at least one day (<strong>Sun, Mon, Tue, Wed, Thu, Fri, Sat</strong>). Optional columns: <strong>SSN4</strong>, <strong>Classification</strong>, <strong>Rate</strong>. Workers are matched by SSN4 or name; new names are added.</p>
+      <pre class="mt-3 text-xs bg-slate-50 border border-slate-200 rounded-lg p-3 overflow-x-auto">Name,SSN4,Classification,Rate,Sun,Mon,Tue,Wed,Thu,Fri,Sat
+Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <input id="csvFile" type="file" accept=".csv,.tsv,.txt,text/csv" class="text-sm">
+        <button id="csvTemplate" type="button" class="text-sm underline text-slate-600 hover:text-amber-700">Download a template</button>
+      </div>
+      <textarea id="csvText" rows="7" class="mt-3 w-full rounded-md border border-slate-300 px-3 py-2 font-mono text-xs focus:ring-2 focus:ring-sky-400 focus:outline-none" placeholder="Paste your rows here"></textarea>
+      <p id="csvMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
+      <div class="mt-4 flex gap-3">
+        <button id="csvGo" type="button" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Import hours</button>
+        <button data-close type="button" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-600 font-semibold hover:bg-slate-50 transition">Cancel</button>
+      </div>
+      <p class="mt-3 text-xs text-slate-400">Hours land in the Hrs row (or the ST row if your overtime rule is Manual). Everything is processed in your browser. Nothing is uploaded.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Shared roster modal (Business) -->
+<div id="rosterModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="rosterTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden">
+    <div class="h-2 shrink-0 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+    <div class="shrink-0 flex items-center justify-between gap-3 px-6 pt-5 pb-2">
+      <h2 id="rosterTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">👥 Shared roster</h2>
+      <button data-close type="button" class="text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    </div>
+    <p class="shrink-0 px-6 pb-3 text-sm text-slate-600 leading-relaxed">Workers saved here are available in every profile. Rates and fringes are only defaults, and you can change them on any payroll. If cloud sync is on, the roster syncs too.</p>
+    <div class="flex-1 overflow-y-auto px-6 pb-4">
+      <div class="overflow-x-auto border border-slate-200 rounded-lg">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+            <tr>
+              <th class="px-2 py-2 w-8"><input id="rosterAll" type="checkbox" class="h-4 w-4" aria-label="Select all"></th>
+              <th class="px-2 py-2 text-left">Name</th>
+              <th class="px-2 py-2 text-left">SSN last 4</th>
+              <th class="px-2 py-2 text-left">Classification</th>
+              <th class="px-2 py-2 text-right">Rate</th>
+              <th class="px-2 py-2 text-right">Fringe: plans</th>
+              <th class="px-2 py-2 text-right">Fringe: cash</th>
+              <th class="px-2 py-2"></th>
+            </tr>
+          </thead>
+          <tbody id="rosterBody"></tbody>
+        </table>
+      </div>
+      <h3 class="mt-5 font-semibold text-slate-800 text-sm">Add a worker</h3>
+      <div class="mt-2 grid grid-cols-2 sm:grid-cols-7 gap-2 items-end">
+        <input id="rName" type="text" placeholder="Name" class="sm:col-span-2 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+        <input id="rSsn" type="text" inputmode="numeric" maxlength="4" placeholder="SSN last 4" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+        <input id="rCls" type="text" list="clsList" placeholder="Classification" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+        <input id="rRate" type="number" min="0" step="0.01" placeholder="Rate" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+        <input id="rFp" type="number" min="0" step="0.01" placeholder="Fringe: plans" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+        <input id="rFc" type="number" min="0" step="0.01" placeholder="Fringe: cash" class="rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:ring-2 focus:ring-sky-400 focus:outline-none">
+      </div>
+      <button id="rosterAdd" type="button" class="mt-2 border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">+ Add to roster</button>
+      <p id="rosterMsg" class="mt-2 text-sm min-h-[1.25rem]"></p>
+    </div>
+    <div class="shrink-0 flex flex-wrap gap-2 px-6 py-4 bg-slate-50 border-t border-slate-200">
+      <button id="rosterAddBtn" type="button" class="bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">Add selected to this payroll</button>
+      <button id="rosterSaveBtn" type="button" class="border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold px-4 py-2 rounded-lg transition">Save this payroll's workers to the roster</button>
+    </div>
+  </div>
+</div>
+
+<!-- Batch results modal -->
+<div id="batchModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="batchTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+    <div class="h-2 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <div class="px-8 pt-8 pb-7">
+      <h2 id="batchTitle" class="text-xl font-extrabold text-slate-900 tracking-tight"></h2>
+      <p id="batchIntro" class="mt-2 text-sm text-slate-600 leading-relaxed"></p>
+      <div id="batchResults" class="mt-4 border border-slate-200 rounded-lg overflow-x-auto"></div>
+      <button data-close type="button" class="mt-5 bg-slate-900 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   // ======================= CONFIG (edit links and IDs here) =======================
@@ -617,6 +695,7 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
   const PRO_KEY = 'wh347_pro_v1';
   const SYNC_KEY = 'wh347_sync_v1';
   const LOGO_KEY = 'wh347_logo_v1';
+  const ROSTER_KEY = 'wh347_roster_v1';
   const REVALIDATE_MS = 7 * 24 * 60 * 60 * 1000;
   const MAX_SNAPSHOTS = 12;
   const TEXT_FIELDS = ['cName','cAddress','cPayrollNo','cWeekEnd','cSigner','cSignerTitle','cRemarks','pName','pNumber','pPrime','otMult','otRule'];
@@ -636,6 +715,7 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
   const hrs = (n) => (Math.round(n * 100) / 100).toString();
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
   const normCls = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const safeName = (s) => String(s || '').replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') || 'profile';
   const inputCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 focus:ring-2 focus:ring-amber-400 focus:outline-none';
   const hourCls = 'w-full rounded-md border border-slate-300 px-1 py-1 text-center focus:ring-2 focus:ring-amber-400 focus:outline-none';
   const moneyCls = 'w-full rounded-md border border-slate-300 px-2 py-1.5 text-right focus:ring-2 focus:ring-amber-400 focus:outline-none';
@@ -1261,7 +1341,7 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
 
   $('historyBody').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-locked')) { closeModal($('profilesModal')); requireBusiness('Reopening past payrolls'); return; }
+    if (b.hasAttribute('data-locked')) { requireBusiness('Reopening past payrolls'); return; }
     if (b.dataset.reopen !== undefined) reopenSnapshot(Number(b.dataset.reopen));
   });
 
@@ -1325,9 +1405,8 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
     e.target.value = '';
   });
 
-  // ---------- Start next week (Pro) ----------
-  function nextWeek() {
-    if (!confirm('Start next week\'s payroll?\n\nHours and deductions will be cleared, the week-ending date moves forward 7 days, and the payroll number goes up by one. Names, SSN digits, classifications, rates, fringes, and prevailing wage rates stay.\n\nGenerate this week\'s PDF first if you haven\'t yet.')) return;
+  // ---------- Start next week ----------
+  function advanceWeek() {
     document.querySelectorAll('tbody.emp').forEach((tb) => {
       tb.querySelectorAll('.st-h, .ot-h, .f-fica, .f-wh, .f-other').forEach((i) => i.value = '');
     });
@@ -1337,8 +1416,35 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
     const mm = pn.match(/^(.*?)(\d+)$/);
     if (mm) $('cPayrollNo').value = mm[1] + String(parseInt(mm[2], 10) + 1).padStart(mm[2].length, '0');
     $('pFinal').checked = false;
-    updateDayHeaders(); recalc(); saveState();
+    updateDayHeaders(); recalc();
+  }
+
+  function nextWeek() {
+    if (!confirm('Start next week\'s payroll?\n\nHours and deductions will be cleared, the week-ending date moves forward 7 days, and the payroll number goes up by one. Names, SSN digits, classifications, rates, fringes, and prevailing wage rates stay.\n\nGenerate this week\'s PDF first if you haven\'t yet.')) return;
+    advanceWeek();
+    saveState();
     toast('Next week is ready');
+  }
+
+  function nextWeekAll() {
+    if (!requireBusiness('Starting next week on every profile')) return;
+    const ids = Object.keys(store.profiles);
+    if (!ids.length) return;
+    if (!confirm('Start next week on all ' + ids.length + ' profile' + (ids.length === 1 ? '' : 's') + '?\n\nIn every profile, hours and deductions are cleared, the week-ending date moves forward 7 days, and the payroll number goes up by one. Names, rates, and fringes stay.\n\nGenerate this week\'s PDFs first if you haven\'t yet.')) return;
+    saveState();
+    const original = store.activeId;
+    ids.forEach((id) => {
+      applyFormState(sanitizeData(store.profiles[id].data));
+      advanceWeek();
+      store.profiles[id].data = snapshot();
+      store.profiles[id].updatedAt = Date.now();
+    });
+    store.activeId = original;
+    writeJSON(PROFILES_KEY, store);
+    applyFormState(sanitizeData(store.profiles[original].data));
+    saveState();
+    renderProfiles();
+    toast('Next week is ready on ' + ids.length + ' profile' + (ids.length === 1 ? '' : 's') + '.');
   }
 
   // ---------- Payroll history (paid plans; Business also keeps snapshots) ----------
@@ -1362,6 +1468,116 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
     writeJSON(PROFILES_KEY, store);
     scheduleSync();
   }
+
+  // ---------- Shared worker roster (Business) ----------
+  function cleanRoster(r) {
+    const s = (v, l) => v == null ? '' : String(v).slice(0, l || 120);
+    const items = (r && Array.isArray(r.items) ? r.items : []).slice(0, 500).map((w) => {
+      w = (w && typeof w === 'object') ? w : {};
+      return { id: /^[a-z0-9]{4,40}$/i.test(String(w.id || '')) ? String(w.id) : newId(), name: s(w.name, 80).trim(),
+        ssn: s(w.ssn, 10).replace(/\D/g, '').slice(0, 4), ex: s(w.ex, 3), cls: s(w.cls, 120), rate: s(w.rate, 12), fp: s(w.fp, 12), fc: s(w.fc, 12) };
+    }).filter((w) => w.name);
+    return { items, at: num(r && r.at) };
+  }
+  let roster = cleanRoster(readJSON(ROSTER_KEY));
+
+  function sameWorker(a, b) {
+    if (a.ssn && b.ssn) return a.ssn === b.ssn;
+    return String(a.name).trim().toLowerCase() === String(b.name).trim().toLowerCase();
+  }
+  function saveRoster() {
+    roster.at = Date.now();
+    writeJSON(ROSTER_KEY, roster);
+    renderRoster();
+    scheduleSync();
+  }
+  function rosterMsg(text, isError) {
+    const m = $('rosterMsg');
+    m.textContent = text;
+    m.className = 'mt-2 text-sm min-h-[1.25rem] ' + (isError ? 'text-red-600' : 'text-emerald-700');
+  }
+  function renderRoster() {
+    $('rosterBody').innerHTML = roster.items.length ? roster.items.map((w) => `<tr class="border-t border-slate-100">
+        <td class="px-2 py-1.5"><input type="checkbox" class="r-sel h-4 w-4" data-id="${esc(w.id)}"></td>
+        <td class="px-2 py-1.5 font-medium">${esc(w.name)}</td>
+        <td class="px-2 py-1.5">${esc(w.ssn || '-')}</td>
+        <td class="px-2 py-1.5">${esc(w.cls || '-')}</td>
+        <td class="px-2 py-1.5 text-right">${esc(w.rate || '-')}</td>
+        <td class="px-2 py-1.5 text-right">${esc(w.fp || '-')}</td>
+        <td class="px-2 py-1.5 text-right">${esc(w.fc || '-')}</td>
+        <td class="px-2 py-1.5 text-right"><button type="button" data-del="${esc(w.id)}" class="text-xs text-red-600 hover:text-red-800 underline">Delete</button></td></tr>`).join('')
+      : '<tr><td colspan="8" class="px-3 py-4 text-center text-slate-400">No workers saved yet. Add one below, or save the workers from your current payroll.</td></tr>';
+    $('rosterAll').checked = false;
+  }
+
+  $('rosterBtn').addEventListener('click', () => {
+    if (!requireBusiness('The shared worker roster')) return;
+    renderRoster(); rosterMsg('', false);
+    openModal($('rosterModal'), $('rName'));
+  });
+  $('rosterAll').addEventListener('change', (e) => {
+    document.querySelectorAll('#rosterBody .r-sel').forEach((c) => { c.checked = e.target.checked; });
+  });
+  $('rosterBody').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-del]'); if (!b) return;
+    roster.items = roster.items.filter((w) => w.id !== b.dataset.del);
+    saveRoster();
+  });
+  $('rosterAdd').addEventListener('click', () => {
+    const w = { id: newId(), name: $('rName').value.trim(), ssn: $('rSsn').value.replace(/\D/g, '').slice(0, 4), ex: '',
+      cls: $('rCls').value.trim(), rate: $('rRate').value.trim(), fp: $('rFp').value.trim(), fc: $('rFc').value.trim() };
+    if (!w.name) { rosterMsg('Enter the worker\'s name.', true); return; }
+    if (roster.items.some((x) => sameWorker(x, w))) { rosterMsg('That worker is already on the roster.', true); return; }
+    if (roster.items.length >= 500) { rosterMsg('The roster is full (500 workers).', true); return; }
+    roster.items.push(w);
+    saveRoster();
+    ['rName', 'rSsn', 'rCls', 'rRate', 'rFp', 'rFc'].forEach((id) => { $(id).value = ''; });
+    rosterMsg('Added ' + w.name + '.', false);
+  });
+  $('rosterAddBtn').addEventListener('click', () => {
+    const ids = [...document.querySelectorAll('#rosterBody .r-sel:checked')].map((c) => c.dataset.id);
+    if (!ids.length) { rosterMsg('Tick the workers you want to add.', true); return; }
+    const present = collect().map((e) => ({ name: e.name, ssn: e.ssn }));
+    let added = 0, skipped = 0;
+    ids.forEach((id) => {
+      const w = roster.items.find((x) => x.id === id); if (!w) return;
+      if (present.some((p) => sameWorker(p, w))) { skipped++; return; }
+      const rows = [...document.querySelectorAll('tbody.emp')];
+      let tb = rows.find((t) => !t.querySelector('.f-name').value.trim() && ![...t.querySelectorAll('input')].some((i) => i.value));
+      if (!tb) tb = addEmployee();
+      tb.querySelector('.f-name').value = w.name;
+      tb.querySelector('.f-ssn').value = w.ssn;
+      tb.querySelector('.f-ex').value = w.ex;
+      tb.querySelector('.f-class').value = w.cls;
+      tb.querySelector('.f-rate').value = w.rate;
+      tb.querySelector('.f-fp').value = w.fp;
+      tb.querySelector('.f-fc').value = w.fc;
+      present.push({ name: w.name, ssn: w.ssn });
+      added++;
+    });
+    recalc(); saveState();
+    closeModal($('rosterModal'));
+    toast('Added ' + added + ' from the roster' + (skipped ? ' (' + skipped + ' already on this payroll)' : '') + '.');
+  });
+  $('rosterSaveBtn').addEventListener('click', () => {
+    const val = (n) => n ? String(n) : '';
+    let added = 0, updated = 0;
+    collect().forEach((e) => {
+      if (!e.name) return;
+      const w = { name: e.name, ssn: e.ssn, ex: e.ex, cls: e.cls, rate: val(e.rate), fp: val(e.fp), fc: val(e.fc) };
+      const cur = roster.items.find((x) => sameWorker(x, w));
+      if (cur) {
+        cur.ssn = w.ssn || cur.ssn; cur.ex = w.ex || cur.ex; cur.cls = w.cls || cur.cls;
+        cur.rate = w.rate || cur.rate; cur.fp = w.fp || cur.fp; cur.fc = w.fc || cur.fc;
+        updated++;
+      } else if (roster.items.length < 500) {
+        roster.items.push(Object.assign({ id: newId() }, w));
+        added++;
+      }
+    });
+    if (added || updated) saveRoster();
+    rosterMsg(added + ' added, ' + updated + ' updated.', false);
+  });
 
   // ---------- CSV hours import (Business) ----------
   function parseCSV(text) {
@@ -1639,6 +1855,8 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
     $('nextWeekTag').classList.toggle('hidden', on);
     $('csvTag').classList.toggle('hidden', biz);
     $('logoTag').classList.toggle('hidden', biz);
+    $('rosterTag').classList.toggle('hidden', biz);
+    $('teamTag').classList.toggle('hidden', biz);
     $('proActiveBadge').textContent = biz ? 'BUSINESS ACTIVE' : 'PRO ACTIVE';
     $('profileSwitcherWrap').classList.toggle('hidden', !on);
     if (on) {
@@ -1663,27 +1881,8 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
   });
   $('sampleBtn').addEventListener('click', loadSample);
 
-  // ---------- PDF ----------
-  function generatePDF() {
-    const err = $('errorBox');
-    if (!document.querySelectorAll('tbody.emp').length) {
-      err.innerHTML = '<strong>Add at least one employee before generating.</strong>';
-      err.classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    err.classList.add('hidden');
-
-    const chk = runChecks();
-    if (chk.errors.length) {
-      const first = chk.errors.slice(0, 6).map((t) => '• ' + t).join('\n');
-      const more = chk.errors.length > 6 ? '\n…and ' + (chk.errors.length - 6) + ' more' : '';
-      if (!confirm('The checklist found ' + chk.errors.length + ' problem' + (chk.errors.length === 1 ? '' : 's') + ':\n\n' + first + more + '\n\nGenerate the PDF anyway?')) {
-        $('checkPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-    }
-
+  // ---------- PDF: build the document from the form that is on screen ----------
+  function buildPDF() {
     const emps = collect();
     const wm = wageMap();
     const { jsPDF } = window.jspdf;
@@ -1973,15 +2172,112 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
       doc.setTextColor(0);
     }
 
-    logHistory(T, emps.length);
-    const safe = (s) => s.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
-    doc.save('WH-347_' + safe(val('cName')) + '_' + weekEnd + '.pdf');
+    return { doc, T, count: emps.length, weekEnd, filename: 'WH-347_' + safeName(val('cName')) + '_' + weekEnd + '.pdf' };
   }
+
+  // ---------- Generate one payroll (the form on screen) ----------
+  function generatePDF() {
+    const err = $('errorBox');
+    if (!document.querySelectorAll('tbody.emp').length) {
+      err.innerHTML = '<strong>Add at least one employee before generating.</strong>';
+      err.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    err.classList.add('hidden');
+
+    const chk = runChecks();
+    if (chk.errors.length) {
+      const first = chk.errors.slice(0, 6).map((t) => '• ' + t).join('\n');
+      const more = chk.errors.length > 6 ? '\n…and ' + (chk.errors.length - 6) + ' more' : '';
+      if (!confirm('The checklist found ' + chk.errors.length + ' problem' + (chk.errors.length === 1 ? '' : 's') + ':\n\n' + first + more + '\n\nGenerate the PDF anyway?')) {
+        $('checkPanel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+    const built = buildPDF();
+    logHistory(built.T, built.count);
+    built.doc.save(built.filename);
+  }
+
+  // ---------- Generate every profile's payroll (Business) ----------
+  function showBatchResults(title, intro, results) {
+    $('batchTitle').textContent = title;
+    $('batchIntro').textContent = intro;
+    $('batchResults').innerHTML = '<table class="w-full text-sm">' + results.map((r) =>
+      `<tr class="border-t border-slate-100 first:border-t-0"><td class="px-3 py-2 font-medium">${esc(r.name)}</td><td class="px-3 py-2 ${r.cls}">${esc(r.status)}</td></tr>`).join('') + '</table>';
+    openModal($('batchModal'));
+  }
+
+  function generateAll() {
+    if (!requireBusiness('Generating every payroll at once')) return;
+    if (typeof JSZip === 'undefined') { toast('The ZIP tool could not load. Check your connection and reload the page.'); return; }
+    const ids = Object.keys(store.profiles);
+    if (!ids.length) return;
+    if (!confirm('Generate payrolls for all ' + ids.length + ' profile' + (ids.length === 1 ? '' : 's') + '?\n\nA ZIP file with one PDF per profile will download, and each payroll is added to that profile\'s history.')) return;
+
+    saveState();
+    const original = store.activeId;
+    const zip = new JSZip();
+    const used = {};
+    const results = [];
+    const lines = [];
+
+    ids.forEach((id) => {
+      const p = store.profiles[id];
+      applyFormState(sanitizeData(p.data));
+      store.activeId = id;
+      if (![...document.querySelectorAll('.f-name')].some((i) => i.value.trim())) {
+        results.push({ name: p.name, status: 'Skipped: no workers on this profile', cls: 'text-slate-500' });
+        lines.push(p.name + ': skipped (no workers)');
+        return;
+      }
+      const chk = runChecks();
+      const built = buildPDF();
+      logHistory(built.T, built.count);
+      let base = 'WH-347_' + safeName(p.name) + '_' + (built.weekEnd || 'no-date');
+      used[base] = (used[base] || 0) + 1;
+      if (used[base] > 1) base += '_' + used[base];
+      zip.file(base + '.pdf', built.doc.output('arraybuffer'));
+      if (chk.errors.length) {
+        results.push({ name: p.name, status: chk.errors.length + ' problem' + (chk.errors.length === 1 ? '' : 's') + ' to review', cls: 'text-red-700' });
+        lines.push(p.name + ': ' + chk.errors.length + ' problem(s)');
+        chk.errors.slice(0, 5).forEach((t) => lines.push('   - ' + t));
+      } else if (chk.warns.length) {
+        results.push({ name: p.name, status: 'Ready, ' + chk.warns.length + ' warning' + (chk.warns.length === 1 ? '' : 's'), cls: 'text-amber-700' });
+        lines.push(p.name + ': ready, ' + chk.warns.length + ' warning(s)');
+      } else {
+        results.push({ name: p.name, status: 'Ready', cls: 'text-emerald-700' });
+        lines.push(p.name + ': ready');
+      }
+    });
+
+    store.activeId = original;
+    writeJSON(PROFILES_KEY, store);
+    applyFormState(sanitizeData(store.profiles[original].data));
+    refreshProUI();
+    renderProfiles();
+
+    if (!Object.keys(used).length) { showBatchResults('Nothing to generate', 'None of your profiles have workers yet.', results); return; }
+    zip.file('summary.txt', 'Payroll batch generated ' + new Date().toLocaleString() + '\n\n' + lines.join('\n') + '\n');
+    zip.generateAsync({ type: 'blob' }).then((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'WH-347_all-payrolls_' + new Date().toISOString().slice(0, 10) + '.zip';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+      const made = Object.keys(used).length;
+      showBatchResults('Payrolls generated', made + ' PDF' + (made === 1 ? '' : 's') + ' were added to your ZIP download. Review any profile marked with problems before you submit it.', results);
+    }).catch(() => toast('Could not create the ZIP file. Please try again.'));
+  }
+
+  $('genAllBtn').addEventListener('click', generateAll);
+  $('nextAllBtn').addEventListener('click', nextWeekAll);
 
   // =====================================================================
   // ---------- Cloud sync (paid plans): end-to-end encrypted ----------
-  // Profiles are encrypted in the browser (AES-GCM, key derived from the user's
-  // passphrase with PBKDF2). The server only ever stores ciphertext.
+  // Profiles and the roster are encrypted in the browser (AES-GCM, key derived from the
+  // user's passphrase with PBKDF2). The server only ever stores ciphertext.
   // =====================================================================
   const enc = new TextEncoder(), dec = new TextDecoder();
   const syncConfigured = () => /^https:\/\//.test(SYNC_URL) && SYNC_URL.indexOf('YOUR-PROJECT-REF') < 0;
@@ -2038,7 +2334,7 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
   }
 
   function cleanRemote(r) {
-    const out = { profiles: {}, deleted: {} };
+    const out = { profiles: {}, deleted: {}, roster: cleanRoster(r && r.roster) };
     if (r && r.profiles && typeof r.profiles === 'object') {
       Object.keys(r.profiles).slice(0, 500).forEach((id) => {
         const p = r.profiles[id];
@@ -2054,7 +2350,7 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
   }
 
   function mergeStores(local, remote) {
-    const out = { profiles: {}, deleted: {} };
+    const out = { profiles: {}, deleted: {}, roster: { items: [], at: 0 } };
     const tomb = {}, cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
     [local.deleted || {}, remote.deleted || {}].forEach((d) => Object.keys(d).forEach((id) => { tomb[id] = Math.max(tomb[id] || 0, num(d[id])); }));
     const ids = new Set(Object.keys(local.profiles || {}).concat(Object.keys(remote.profiles || {})));
@@ -2066,10 +2362,14 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
       out.profiles[id] = pick;
     });
     Object.keys(tomb).forEach((id) => { if (!out.profiles[id] && tomb[id] > cutoff) out.deleted[id] = tomb[id]; });
+    // The roster is one list: whichever side changed it most recently wins.
+    const lr = local.roster || { items: [], at: 0 }, rr = remote.roster || { items: [], at: 0 };
+    out.roster = (rr.at || 0) > (lr.at || 0) ? rr : lr;
     return out;
   }
 
   function sameStores(a, b) {
+    if (((a.roster && a.roster.at) || 0) !== ((b.roster && b.roster.at) || 0)) return false;
     const ka = Object.keys(a.profiles), kb = Object.keys(b.profiles || {});
     if (ka.length !== kb.length) return false;
     for (const id of ka) { if (!b.profiles[id] || (b.profiles[id].updatedAt || 0) !== (a.profiles[id].updatedAt || 0)) return false; }
@@ -2083,6 +2383,11 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
     const prevUpdated = (store.activeId && store.profiles[store.activeId]) ? store.profiles[store.activeId].updatedAt : 0;
     store.profiles = merged.profiles;
     syncCfg.deleted = merged.deleted;
+    if (merged.roster && (merged.roster.at || 0) > (roster.at || 0)) {
+      roster = merged.roster;
+      writeJSON(ROSTER_KEY, roster);
+      if ($('rosterModal').classList.contains('flex')) renderRoster();
+    }
     let reload = false;
     if (!store.profiles[store.activeId]) {
       const ids = Object.keys(store.profiles);
@@ -2122,12 +2427,12 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
         const fresh = !pull.data.blob;
         const salt = fresh ? randomSalt() : pull.data.salt;
         const key = await getKey(syncCfg.pass, salt);
-        let remote = { profiles: {}, deleted: {} };
+        let remote = { profiles: {}, deleted: {}, roster: { items: [], at: 0 } };
         if (!fresh) {
           try { remote = cleanRemote(await decryptJSON(key, pull.data.blob)); }
           catch (e) { syncState = 'badpass'; return; }
         }
-        const merged = mergeStores({ profiles: store.profiles, deleted: syncCfg.deleted }, remote);
+        const merged = mergeStores({ profiles: store.profiles, deleted: syncCfg.deleted, roster }, remote);
         const reloaded = applyMerged(merged);
         if (!fresh && sameStores(merged, remote)) {
           syncCfg.lastSync = Date.now(); saveSyncCfg(); syncState = 'ok';
@@ -2135,7 +2440,7 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
           if (manual) syncMsg('Everything is up to date.', false);
           return;
         }
-        const blob = await encryptJSON(key, { v: 1, profiles: merged.profiles, deleted: merged.deleted });
+        const blob = await encryptJSON(key, { v: 1, profiles: merged.profiles, deleted: merged.deleted, roster: merged.roster });
         if (blob.length > 1800000) throw new Error('Your synced data is too large. Delete old profiles to make room.');
         const push = await syncApi('push', { base_version: version, salt, blob });
         if (push.status === 200) {
