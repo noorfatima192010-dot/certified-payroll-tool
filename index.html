@@ -280,7 +280,38 @@
     <p class="text-xs text-slate-500 max-w-2xl text-center">Your entries are saved automatically in this browser. They are not uploaded unless you turn on Pro cloud sync, and then only in encrypted form.
       <button id="clearData" type="button" class="underline text-slate-600 hover:text-red-600 ml-1">Clear saved data</button></p>
   </div>
-
+  <!-- Free checklist sign-up -->
+  <section id="joinCard" class="hidden max-w-4xl mx-auto w-full rounded-2xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-6 md:p-8 shadow-sm">
+    <div class="grid md:grid-cols-5 gap-6 items-center">
+      <div class="md:col-span-2">
+        <p class="text-[11px] font-bold tracking-widest uppercase text-sky-700">Free download</p>
+        <h2 class="mt-1 text-xl font-extrabold tracking-tight text-slate-900">Weekly Certified Payroll Checklist</h2>
+        <p class="mt-2 text-sm text-slate-600 leading-relaxed">A one-page checklist to run before you submit each payroll: classifications, overtime, fringes, deductions, signatures, and deadlines. Plus occasional tips and product updates by email.</p>
+      </div>
+      <form id="joinForm" class="md:col-span-3 space-y-3" novalidate>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <label class="block"><span class="text-sm font-medium">Email</span>
+            <input id="joinEmail" type="email" autocomplete="email" required placeholder="you@company.com" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-sky-400 focus:outline-none"></label>
+          <label class="block"><span class="text-sm font-medium">I am a <span class="text-slate-400 font-normal">(optional)</span></span>
+            <select id="joinRole" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 bg-white focus:ring-2 focus:ring-sky-400 focus:outline-none">
+              <option value="">Choose one</option>
+              <option value="contractor">Contractor or subcontractor</option>
+              <option value="bookkeeper">Bookkeeper or payroll preparer</option>
+              <option value="prime">General contractor or agency</option>
+              <option value="other">Something else</option>
+            </select></label>
+        </div>
+        <input id="joinHp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
+        <label class="flex items-start gap-2 text-xs text-slate-600 leading-relaxed">
+          <input id="joinConsent" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300">
+          <span>I agree to receive occasional emails about certified payroll tips and product updates, and I can unsubscribe at any time. See our <a href="privacy.html" class="underline hover:text-amber-700">Privacy Policy</a>.</span>
+        </label>
+        <button id="joinBtn" type="submit" class="bg-slate-900 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Send me the free checklist</button>
+        <p id="joinMsg" class="text-sm min-h-[1.25rem]" aria-live="polite"></p>
+        <button id="joinAgain" type="button" class="hidden text-sm underline text-slate-600 hover:text-amber-700">Download the checklist again</button>
+      </form>
+    </div>
+  </section>
   <!-- Pricing -->
   <section id="pricing" class="max-w-6xl mx-auto w-full pt-4">
     <div class="text-center">
@@ -2626,6 +2657,208 @@ Robert Chen,4432,Journeyman Electrician,48.50,0,8,8,8,8,10,0</pre>
   refreshProUI();
   revalidate();
   startSync();
+})();
+</script>
+  <!-- Waitlist sign-up modal -->
+<div id="wlModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="wlTitle">
+  <div class="modal-card relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+    <div class="h-2 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
+    <button data-close type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-2xl leading-none" aria-label="Close">&times;</button>
+    <form id="wlForm" class="px-8 pt-8 pb-7 space-y-3" novalidate>
+      <h2 id="wlTitle" class="text-xl font-extrabold text-slate-900 tracking-tight">Join the Business waitlist</h2>
+      <p class="text-sm text-slate-600 leading-relaxed">Business is almost ready. Leave your email and we'll let you know when it opens.</p>
+      <label class="block"><span class="text-sm font-medium">Email</span>
+        <input id="wlEmail" type="email" autocomplete="email" required placeholder="you@company.com" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-sky-400 focus:outline-none"></label>
+      <label class="block"><span class="text-sm font-medium">I am a <span class="text-slate-400 font-normal">(optional)</span></span>
+        <select id="wlRole" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 bg-white focus:ring-2 focus:ring-sky-400 focus:outline-none">
+          <option value="">Choose one</option>
+          <option value="contractor">Contractor or subcontractor</option>
+          <option value="bookkeeper">Bookkeeper or payroll preparer</option>
+          <option value="prime">General contractor or agency</option>
+          <option value="other">Something else</option>
+        </select></label>
+      <input id="wlHp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;height:0;width:0;opacity:0">
+      <label class="flex items-start gap-2 text-xs text-slate-600 leading-relaxed">
+        <input id="wlConsent" type="checkbox" class="mt-0.5 h-4 w-4 rounded border-slate-300">
+        <span>I agree to receive an email when Business opens, plus occasional certified payroll tips and product updates. I can unsubscribe at any time. See our <a href="privacy.html" class="underline hover:text-amber-700">Privacy Policy</a>.</span>
+      </label>
+      <button id="wlBtn" type="submit" class="w-full bg-slate-900 hover:bg-slate-700 text-white font-semibold px-5 py-2.5 rounded-lg transition">Join the waitlist</button>
+      <p id="wlMsg" class="text-sm min-h-[1.25rem]" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<!-- One-time prompt after a free PDF -->
+<div id="joinPrompt" class="hidden fixed bottom-4 right-4 z-40 max-w-sm bg-white border border-slate-200 shadow-xl rounded-xl p-4">
+  <p class="text-sm font-semibold text-slate-900">Want a quick check before you submit?</p>
+  <p class="mt-1 text-xs text-slate-600">Get the free Weekly Certified Payroll Checklist and occasional tips.</p>
+  <div class="mt-3 flex items-center gap-3">
+    <a id="joinPromptGo" href="#joinCard" class="bg-slate-900 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-2 rounded-lg">Get the checklist</a>
+    <button id="joinPromptNo" type="button" class="text-xs text-slate-500 hover:text-slate-800 underline">Not now</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Paste your sign-up function's name where it says smooth-worker.
+  const LIST_URL = 'https://ivxaorkxzybnudxlridd.supabase.co/functions/v1/smooth-worker';
+  const FLAG = 'wh347_joined_v1', DISMISS = 'wh347_prompt_v1';
+  const $ = (id) => document.getElementById(id);
+  const configured = /^https:\/\//.test(LIST_URL) && LIST_URL.indexOf('smooth-worker') < 0;
+  const read = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const joined = () => read(FLAG) === '1';
+  const isPaid = () => { try { const p = JSON.parse(read('wh347_pro_v1') || 'null'); return !!(p && p.key); } catch (e) { return false; } };
+
+  // Keep typing in these forms away from the payroll form's auto-save.
+  ['joinCard', 'wlModal'].forEach((id) => {
+    const el = $(id); if (!el) return;
+    ['input', 'change'].forEach((t) => el.addEventListener(t, (e) => e.stopPropagation()));
+  });
+
+  // ---------- Free checklist PDF (built in the browser) ----------
+  const SECTIONS = [
+    ["Before the week starts", [
+      "Have the current wage determination for the project, and confirm each worker's classification matches it.",
+      "Note the basic hourly rate and the required fringe benefit for every classification you use.",
+      "Collect each worker's full name, the last 4 digits of the SSN (or another identifying number), and withholding exemptions. Never put a full SSN on a submitted payroll.",
+      "Confirm any apprentices are registered in an approved program and that you meet the ratio your contract requires."
+    ]],
+    ["During the week", [
+      "Record the actual hours each worker works every day, by classification.",
+      "If a worker performs more than one classification, record those hours separately.",
+      "Keep time cards and pay records. Contracts commonly require keeping payroll records for at least three years after the work is completed."
+    ]],
+    ["Preparing the payroll", [
+      "Number each payroll consecutively and use the correct week-ending date for your project.",
+      "Pay overtime for hours over 40 in the workweek at no less than 1.5 times the basic rate. Check your state and contract for daily overtime rules.",
+      "Make sure every worker's basic rate is at least the prevailing rate for their classification.",
+      "Record fringe benefits: paid to plans, or paid in cash. Cash paid in lieu of fringes goes in the rate of pay.",
+      "List only permissible deductions (for example taxes and authorized deductions). See 29 CFR Part 3.",
+      "Recalculate: gross pay minus deductions equals net pay for each worker, and spot-check the totals."
+    ]],
+    ["Before you submit", [
+      "The statement of compliance is signed by the person who pays or supervises the payment of the workers.",
+      "Submit by the deadline in your contract. The federal clause is commonly within seven days after the regular payment date. Use any portal your prime contractor or agency requires.",
+      "For weeks with no work, check whether your agency requires a \"No Work\" payroll.",
+      "On your last payroll for the project, mark it as the final payroll.",
+      "Keep a copy of everything you submit."
+    ]]
+  ];
+
+  function downloadChecklist() {
+    if (!window.jspdf) return;
+    const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'letter' });
+    const M = 48, W = 612 - M * 2;
+    let y = 58;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(15, 23, 42);
+    doc.text('Weekly Certified Payroll Checklist', M, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(90);
+    const sub = doc.splitTextToSize('General guidance for weekly certified (Davis-Bacon style) payrolls. Requirements vary by contract, agency, and state, so confirm yours with your contracting officer or prime contractor.', W);
+    doc.text(sub, M, y + 16);
+    y += 16 + sub.length * 11 + 14;
+    doc.setTextColor(0);
+    SECTIONS.forEach((sec) => {
+      if (y > 700) { doc.addPage(); y = 58; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.text(sec[0], M, y);
+      y += 6; doc.setDrawColor(200); doc.line(M, y, M + W, y); y += 14;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5);
+      sec[1].forEach((item) => {
+        const lines = doc.splitTextToSize(item, W - 22);
+        if (y + lines.length * 12 > 735) { doc.addPage(); y = 58; }
+        doc.setDrawColor(90); doc.rect(M, y - 8, 9, 9);
+        doc.text(lines, M + 20, y);
+        y += lines.length * 12 + 6;
+      });
+      y += 6;
+    });
+    const pages = doc.getNumberOfPages();
+    for (let p = 1; p <= pages; p++) {
+      doc.setPage(p); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(110);
+      doc.text('This checklist is general information, not legal advice. Always verify requirements with your contracting officer. From ' + location.host, M, 770);
+    }
+    doc.save('Weekly-Certified-Payroll-Checklist.pdf');
+  }
+
+  // ---------- Sign-up forms ----------
+  function wire(prefix, source, onDone) {
+    const form = $(prefix + 'Form'); if (!form) return;
+    const started = Date.now();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = $(prefix + 'Email').value.trim();
+      const msg = $(prefix + 'Msg'), btn = $(prefix + 'Btn');
+      const say = (t, err) => { msg.textContent = t; msg.className = 'text-sm min-h-[1.25rem] ' + (err ? 'text-red-600' : 'text-emerald-700'); };
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { say('Please enter a valid email address.', true); return; }
+      if (!$(prefix + 'Consent').checked) { say('Please tick the box to agree to receive emails.', true); return; }
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…'; say('', false);
+      try {
+        const res = await fetch(LIST_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, role: ($(prefix + 'Role') || {}).value || '', source, consent: true,
+            website: ($(prefix + 'Hp') || {}).value || '', elapsed: Date.now() - started })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { say(data.error || 'Something went wrong. Please try again.', true); return; }
+        save(FLAG, '1');
+        onDone(say);
+      } catch (err) {
+        say('Could not reach the sign-up service. Please check your connection and try again.', true);
+      } finally {
+        btn.disabled = false; btn.textContent = label;
+      }
+    });
+  }
+
+  wire('join', 'checklist', (say) => {
+    say("You're on the list! Your checklist is downloading.", false);
+    $('joinAgain').classList.remove('hidden');
+    $('joinPrompt').classList.add('hidden');
+    downloadChecklist();
+  });
+  $('joinAgain').addEventListener('click', downloadChecklist);
+
+  // ---------- Business waitlist modal ----------
+  const wl = $('wlModal');
+  function openWl() {
+    const bizClose = document.querySelector('#bizModal [data-close]');
+    if (bizClose && document.getElementById('bizModal').classList.contains('flex')) bizClose.click();
+    wl.classList.remove('hidden'); wl.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    $('wlEmail').focus();
+  }
+  function closeWl() {
+    wl.classList.add('hidden'); wl.classList.remove('flex');
+    if (!document.querySelector('[role="dialog"].flex')) document.body.style.overflow = '';
+  }
+  wl.addEventListener('click', (e) => { if (e.target === wl || e.target.closest('[data-close]')) closeWl(); });
+  wire('wl', 'waitlist', (say) => {
+    say("You're on the Business waitlist. We'll email you when it opens.", false);
+    setTimeout(closeWl, 2200);
+  });
+  // The "Join the waitlist" buttons are mailto links until sign-ups are configured; open the form instead.
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('#planBizBtn, #bizCta');
+    if (!a || !configured) return;
+    if ((a.getAttribute('href') || '').indexOf('mailto:') === 0 && /waitlist/i.test(a.textContent)) {
+      e.preventDefault();
+      openWl();
+    }
+  });
+
+  // ---------- One-time prompt after a free user generates a PDF ----------
+  function maybePrompt() {
+    if (!configured || joined() || isPaid() || read(DISMISS) === '1') return;
+    setTimeout(() => { if (!joined()) $('joinPrompt').classList.remove('hidden'); }, 3500);
+  }
+  ['generateBtn', 'generateTop'].forEach((id) => { const b = $(id); if (b) b.addEventListener('click', maybePrompt); });
+  $('joinPromptNo').addEventListener('click', () => { $('joinPrompt').classList.add('hidden'); save(DISMISS, '1'); });
+  $('joinPromptGo').addEventListener('click', () => { $('joinPrompt').classList.add('hidden'); });
+
+  // ---------- Show the sign-up card only when it can work ----------
+  if (configured && !joined()) $('joinCard').classList.remove('hidden');
 })();
 </script>
 </body>
